@@ -9,7 +9,7 @@ import {
 const Work = () => {
   return (
     <Card>
-      <CardMedia component="img" image="/src/assets/Equinox.jpg"></CardMedia>
+      <CardMedia component="img" image="./img/Equinox.jpg"></CardMedia>
       <CardContent>
         <Typography gutterBottom variant="h6" align="left">
           イクイノックスの写真
