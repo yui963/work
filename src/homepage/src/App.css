@@ -43,6 +43,9 @@
 .context {
   color: #000000;
 }
+.list {
+  padding-left: 20px;
+}
 
 body {
   background-color: #ffffff;
