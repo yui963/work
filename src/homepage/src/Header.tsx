@@ -1,14 +1,22 @@
-import { AppBar, Container, Toolbar } from "@mui/material";
+import { AppBar, Toolbar, Typography } from "@mui/material";
 
 const Header = () => {
   return (
-    <>
-      <AppBar position="fixed">
-        <Container maxWidth="xl">
-          <Toolbar></Toolbar>
-        </Container>
+    <div>
+      <AppBar position="fixed" style={{ backgroundColor: "white" }}>
+        <Toolbar>
+          <Typography
+            component="a"
+            href="../"
+            variant="h5"
+            style={{ color: "#000000" }}
+            sx={{ fontFamily: "Noto Serif JP, serif" }}
+          >
+            Y.Y
+          </Typography>
+        </Toolbar>
       </AppBar>
-    </>
+    </div>
   );
 };
 
