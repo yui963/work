@@ -6,11 +6,6 @@ app = Flask(__name__)
 CORS(app)
 
 
-@app.route("/", methods=["GET"])
-def hello_world():
-    return "<p>Hello, World!</p>"
-
-
 @app.route("/api/search", methods=["POST"])
 def search():
     try:
