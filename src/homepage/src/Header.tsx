@@ -7,7 +7,7 @@ const Header = () => {
         <Toolbar>
           <Typography
             component="a"
-            href="../"
+            href="/work/"
             variant="h5"
             style={{ color: "#000000" }}
             sx={{ fontFamily: "Noto Serif JP, serif" }}
