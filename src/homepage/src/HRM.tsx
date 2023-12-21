@@ -97,7 +97,7 @@ const HRM = () => {
                 >
                   python用のwebブラウザ操作自動化フレームワーク。
                   webブラウザを操作しながら目的のhtml要素を取得する。
-                  他にも選択肢があるが、以前触ったことがあるためseleniumを選択した。
+                  他にも選択肢があるが、以前触ったことがあるためSeleniumを選択した。
                 </Typography>
               </ol>
             </Typography>
@@ -193,7 +193,7 @@ const HRM = () => {
             align="left"
             sx={{ fontFamily: "Noto Serif JP, serif" }}
           >
-            感想
+            改善点
           </Typography>
           <Box sx={{ marginTop: "10px" }}>
             <Typography
@@ -202,7 +202,25 @@ const HRM = () => {
               align="left"
               sx={{ fontFamily: "Noto Serif JP, serif" }}
             >
-              以下感想
+              <Typography
+                className="context"
+                variant="h6"
+                align="left"
+                sx={{ fontFamily: "Noto Serif JP, serif" }}
+              >
+                Seleniumの動作が遅い
+              </Typography>
+              <Typography
+                className="context"
+                variant="body2"
+                align="left"
+                sx={{ fontFamily: "Noto Serif JP, serif" }}
+              >
+                バックエンドにリクエストを出してから、レスポンスが返ってくるまで５秒ほど要している。
+                バックエンドで触っているときはあまり気にならなかったが、webページ上で時間が掛かるとかなり気になった。
+                クリックなどを必要とせずに目的のページへアクセスできているため、BeautifulSoupでも代用が可能。
+                ネットで調べてみるとBeautifulSoupの方が明らかに早いため、速度を上げたいならBeautifulSoupで実装するべき。
+              </Typography>
             </Typography>
           </Box>
         </Box>
