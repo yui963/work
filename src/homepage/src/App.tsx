@@ -9,7 +9,7 @@ function App() {
     <>
       <div>
         <Header />
-        <BrowserRouter>
+        <BrowserRouter basename={process.env.PUBLIC_URL}>
           <Routes>
             <Route path="/" element={<Context />} />
             <Route path="/HRM" element={<HRM />} />
