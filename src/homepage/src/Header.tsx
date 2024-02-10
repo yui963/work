@@ -16,7 +16,7 @@ const Header = () => {
           </Typography>
           <Typography
             component="a"
-            href="/work/About/"
+            href="/work/about"
             variant="h6"
             style={{ color: "#000000" }}
             sx={{ fontFamily: "Noto Serif JP, serif" }}
