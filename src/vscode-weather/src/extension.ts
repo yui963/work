@@ -47,25 +47,20 @@ export function activate(context: vscode.ExtensionContext) {
   const change = vscode.commands.registerCommand(
     "vscode-weather.change",
     async () => {
-      location =
-        (await vscode.window.showInputBox({
-          title: "場所を設定してください(中部・西部・東部・伊豆)",
-        })) || "";
+      await vscode.window.showQuickPick(AreaList).then((option) => {
+        if (option !== undefined) {
+          location = option;
+        } else {
+          vscode.window.showInformationMessage("未選択");
+        }
+      });
       console.log(location);
-      if (location === "" || !AreaList.includes(location)) {
-        vscode.window.showInformationMessage(
-          "設定された項目は対象外です。再設定をしてください。"
-        );
-        setChangeCommand(button);
-        context.workspaceState.update("weatherLocation", "");
-      } else {
-        context.workspaceState.update("weatherLocation", location);
-        searchWeather()
-          .then((result) => {
-            setJumpCommand(button, result);
-          })
-          .catch((error) => console.error(error));
-      }
+      context.workspaceState.update("weatherLocation", location);
+      searchWeather()
+        .then((result) => {
+          setJumpCommand(button, result);
+        })
+        .catch((error) => console.error(error));
     }
   );
   context.subscriptions.push(change);
