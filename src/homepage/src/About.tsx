@@ -39,7 +39,7 @@ const rows = [
   createData("C", 2, "高校＋大学"),
   createData("Java", 2, "高校＋大学"),
   createData("Python", 0.5, "独学"),
-  createData("JavaScript", 0.5, "独学"),
+  createData("JavaScript/TypeScript", 0.5, "独学"),
   createData("MySQL", 0.5, "大学"),
   createData("Unity", 0.5, "独学"),
 ];
@@ -70,6 +70,20 @@ const About = () => {
             <br />
             静岡大学情報学部情報科学科卒業見込み
           </Typography>
+          <div
+            style={{ display: "flex", flexDirection: "row", marginTop: "20px" }}
+          >
+            <img src="./img/github_icon.png" width="3%" height="3%" />
+            <Typography
+              className="context"
+              component="a"
+              variant="body1"
+              href="https://github.com/yui963/work"
+              sx={{ fontFamily: "Noto Serif JP, serif" }}
+            >
+              https://github.com/yui963/work
+            </Typography>
+          </div>
         </Box>
       </Box>
       <Box sx={{ marginTop: "100px" }}>

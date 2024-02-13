@@ -16,15 +16,17 @@ interface WorkProps {
 
 const Work: React.FC<WorkProps> = ({ name, image, tags }) => {
   return (
-    <Card sx={{ maxWidth: 250, maxHeight: 280 }}>
+    <Card sx={{ maxWidth: 250, maxHeight: 280, minWidth: 250, minHeight: 280 }}>
       <CardActionArea>
         <CardMedia
           component="img"
           image={image}
           sx={{
-            width: "100%",
-            height: "auto",
             display: "center",
+            maxWidth: 240,
+            maxHeight: 190,
+            minWidth: 240,
+            minHeight: 190,
           }}
         />
         <CardContent sx={{ textAlign: "left" }}>

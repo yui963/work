@@ -3,6 +3,7 @@ import Header from "./Header.tsx";
 import Context from "./Context.tsx";
 import HRM from "./HRM.tsx";
 import About from "./About.tsx";
+import Weather from "./Weather.tsx";
 import { Route, BrowserRouter, Routes } from "react-router-dom";
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
             <Route path="/" element={<Context />} />
             <Route path="/HRM" element={<HRM />} />
             <Route path="/About" element={<About />} />
+            <Route path="/Weather" element={<Weather />} />
             <Route path="*" element={<p>404 not found</p>} />
           </Routes>
         </BrowserRouter>
