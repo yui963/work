@@ -44,8 +44,8 @@ const Weather = () => {
               sx={{ fontFamily: "Noto Serif JP, serif" }}
             >
               <ul className="list">
-                <li>プログラミング中に雨に気が付かないことがある</li>
                 <li>研究でvscode拡張機能実装するかもしれないため触りたい</li>
+                <li>プログラミング中に雨に気が付かないことがある</li>
               </ul>
             </Typography>
           </Box>
@@ -56,58 +56,98 @@ const Weather = () => {
             variant="h6"
             align="left"
             sx={{ fontFamily: "Noto Serif JP, serif" }}
-          >
-            使用ライブラリ
-          </Typography>
+          ></Typography>
           <Box sx={{ marginTop: "10px" }}>
             <Typography
               className="context"
-              variant="body1"
+              variant="h6"
               align="left"
               sx={{ fontFamily: "Noto Serif JP, serif" }}
             >
-              <ol className="list">
-                <li>Yeoman</li>
+              事前準備
+              <Typography
+                className="context"
+                variant="body2"
+                align="left"
+                sx={{ fontFamily: "Noto Serif JP, serif" }}
+              >
+                Yeomanを用いてvscode拡張機能用テンプレートをインストールする。
+              </Typography>
+            </Typography>
+            <Box />
+            <Box sx={{ marginTop: "10px" }}>
+              <Typography
+                className="context"
+                variant="h6"
+                align="left"
+                sx={{ fontFamily: "Noto Serif JP, serif" }}
+              >
+                天気予報取得部分
                 <Typography
                   className="context"
                   variant="body2"
                   align="left"
                   sx={{ fontFamily: "Noto Serif JP, serif" }}
                 >
-                  Yeomanを用いてテンプレートをインストールする。
+                  気象庁の天気予報などのデータがjson形式で公開されている。
+                  https://www.jma.go.jp/bosai/forecast/data/forecast/XXXXXX.jsonというURLで、XXXXXXには地域コードが入力される。
+                  FetchAPIを用いて取得して解析することで、指定した地域の３日間の天気を確認することができる。
+                  全国対応できるが、県ごとに地域の配列を用意することが非常に大変なので２県のみ実装した。
                 </Typography>
-              </ol>
-            </Typography>
-          </Box>
-        </Box>
-        <Box sx={{ marginTop: "100px" }}>
-          <Typography
-            className="context"
-            variant="h6"
-            align="left"
-            sx={{ fontFamily: "Noto Serif JP, serif" }}
-          >
-            アーキテクチャ
-          </Typography>
-          <Box sx={{ marginTop: "10px" }}>
-            <Typography
-              className="context"
-              variant="body1"
-              align="left"
-              sx={{ fontFamily: "Noto Serif JP, serif" }}
-            >
-              <ol className="list">
-                <li>Yeoman</li>
+              </Typography>
+            </Box>
+            <Box sx={{ marginTop: "10px" }}>
+              <Typography
+                className="context"
+                variant="h6"
+                align="left"
+                sx={{ fontFamily: "Noto Serif JP, serif" }}
+              >
+                vscode拡張機能部分
                 <Typography
                   className="context"
                   variant="body2"
                   align="left"
                   sx={{ fontFamily: "Noto Serif JP, serif" }}
                 >
-                  Yeomanを用いてテンプレートをインストールする。
+                  地域を選択するコマンド・選択した地域の天気予報webサイトを開くコマンドの２つを開発する。
+                  vscodeのウィンドウ右下に天気情報を表示するボタンを配置した。
+                  初めの時点ではボタンに地域を選択するコマンドが紐づいている。
+                  ボタンを押すことでvscodeAPIのリストから地域を選択、ワークスペースに保存されるようにする。
+                  その後、ワークスペースの情報を参照して天気予報を取得する。
+                  取得した天気予報をボタンに表示後、ボタンには選択した地域の天気予報webサイトを開くコマンドが紐づく。
+                  ワークスペースに情報を保存しているため、次回起動時も設定を引き継ぐようになっている。
                 </Typography>
-              </ol>
-            </Typography>
+              </Typography>
+            </Box>
+            <Box sx={{ marginTop: "10px" }}>
+              <Typography
+                className="context"
+                variant="h6"
+                align="left"
+                sx={{ fontFamily: "Noto Serif JP, serif" }}
+              >
+                visxファイル
+                <Typography
+                  className="context"
+                  variant="body2"
+                  align="left"
+                  sx={{ fontFamily: "Noto Serif JP, serif" }}
+                >
+                  拡張機能として配布するためにvisxファイルを作成する必要がある。方法については以下の記事を参照。
+                </Typography>
+                <Typography
+                  className="context"
+                  component="a"
+                  variant="body2"
+                  align="left"
+                  href="https://qiita.com/HelloRusk/items/073b58c1605de224e67e"
+                  sx={{ fontFamily: "Noto Serif JP, serif" }}
+                >
+                  https://qiita.com/HelloRusk/items/073b58c1605de224e67e
+                </Typography>
+              </Typography>
+            </Box>
           </Box>
         </Box>
         <Box sx={{ marginTop: "100px" }}>
@@ -128,46 +168,8 @@ const Weather = () => {
           }}
         >
           <video width="95%" controls>
-            <source src="./img/HRM_PV.mp4" type="video/mp4" />
+            <source src="./img/weather_PV.mp4" type="video/mp4" />
           </video>
-        </Box>
-        <Box sx={{ marginTop: "100px" }}>
-          <Typography
-            className="context"
-            variant="h6"
-            align="left"
-            sx={{ fontFamily: "Noto Serif JP, serif" }}
-          >
-            改善点
-          </Typography>
-          <Box sx={{ marginTop: "10px" }}>
-            <Typography
-              className="context"
-              variant="body2"
-              align="left"
-              sx={{ fontFamily: "Noto Serif JP, serif" }}
-            >
-              <Typography
-                className="context"
-                variant="h6"
-                align="left"
-                sx={{ fontFamily: "Noto Serif JP, serif" }}
-              >
-                Seleniumの動作が遅い
-              </Typography>
-              <Typography
-                className="context"
-                variant="body2"
-                align="left"
-                sx={{ fontFamily: "Noto Serif JP, serif" }}
-              >
-                バックエンドにリクエストを出してから、レスポンスが返ってくるまで５秒ほど要している。
-                バックエンドで触っているときはあまり気にならなかったが、webページ上で時間が掛かるとかなり気になった。
-                クリックなどを必要とせずに目的のページへアクセスできているため、BeautifulSoupでも代用が可能。
-                ネットで調べてみるとBeautifulSoupの方が明らかに早いため、速度を上げたいならBeautifulSoupで実装するべき。
-              </Typography>
-            </Typography>
-          </Box>
         </Box>
         <Box sx={{ marginTop: "200px" }}></Box>
       </Box>
