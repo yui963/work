@@ -85,7 +85,7 @@ const About = () => {
             </Typography>
           </div>
         </Box>
-      </Box>
+      </Box >
       <Box sx={{ marginTop: "100px" }}>
         <Typography
           className="context"
