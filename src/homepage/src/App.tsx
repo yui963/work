@@ -3,7 +3,7 @@ import Header from "./Header.tsx";
 import Context from "./Context.tsx";
 import HRM from "./HRM.tsx";
 import About from "./About.tsx";
-import Weather from "./Weather.tsx";
+import Weather from "./weather.tsx";
 import { Route, BrowserRouter, Routes } from "react-router-dom";
 
 function App() {

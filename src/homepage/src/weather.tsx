@@ -26,6 +26,20 @@ const Weather = () => {
           >
             地域を選択することで直近３日間の天気を取得、雨の日を教えてくれます。
           </Typography>
+          <div
+            style={{ display: "flex", flexDirection: "row", marginTop: "20px" }}
+          >
+            <img src="./img/github_icon.png" width="3%" height="3%" />
+            <Typography
+              className="context"
+              component="a"
+              variant="body1"
+              href="https://github.com/yui963/work/tree/main/src/vscode-weather"
+              sx={{ fontFamily: "Noto Serif JP, serif" }}
+            >
+              https://github.com/yui963/work/tree/main/src/vscode-weather
+            </Typography>
+          </div>
         </Box>
         <Box sx={{ marginTop: "100px" }}>
           <Typography
@@ -75,7 +89,7 @@ const Weather = () => {
               </Typography>
             </Typography>
             <Box />
-            <Box sx={{ marginTop: "10px" }}>
+            <Box sx={{ marginTop: "30px" }}>
               <Typography
                 className="context"
                 variant="h6"
@@ -94,9 +108,12 @@ const Weather = () => {
                   FetchAPIを用いて取得して解析することで、指定した地域の３日間の天気を確認することができる。
                   全国対応できるが、県ごとに地域の配列を用意することが非常に大変なので２県のみ実装した。
                 </Typography>
+                <Box sx={{ marginTop: "40px", textAlign: "center" }}>
+                  <img width="60%" height="auto" src="./img/json_view.png" />
+                </Box>
               </Typography>
             </Box>
-            <Box sx={{ marginTop: "10px" }}>
+            <Box sx={{ marginTop: "50px" }}>
               <Typography
                 className="context"
                 variant="h6"
@@ -120,7 +137,7 @@ const Weather = () => {
                 </Typography>
               </Typography>
             </Box>
-            <Box sx={{ marginTop: "10px" }}>
+            <Box sx={{ marginTop: "30px" }}>
               <Typography
                 className="context"
                 variant="h6"
@@ -167,9 +184,31 @@ const Weather = () => {
             overflow: "hidden",
           }}
         >
-          <video width="95%" controls>
+          <video width="90%" controls>
             <source src="./img/weather_PV.mp4" type="video/mp4" />
           </video>
+        </Box>
+        <Box sx={{ marginTop: "100px" }}>
+          <Typography
+            className="context"
+            variant="h6"
+            align="left"
+            sx={{ fontFamily: "Noto Serif JP, serif" }}
+          >
+            改善点
+          </Typography>
+          <Box sx={{ marginTop: "10px" }}>
+            <Typography
+              className="context"
+              variant="body2"
+              align="left"
+              sx={{ fontFamily: "Noto Serif JP, serif" }}
+            >
+              時間さえあれば実現可能なので全国対応したい。<br />
+              vscodeAPIに不慣れなところがあり、UIが凝れていない。
+              もう少し使いやすいデザインにすることができそう。
+            </Typography>
+          </Box>
         </Box>
         <Box sx={{ marginTop: "200px" }}></Box>
       </Box>
