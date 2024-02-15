@@ -1,32 +1,38 @@
 import { Box, Typography } from "@mui/material";
+import { useEffect } from "react";
 
 const Weather = () => {
+  useEffect(() => {
+    document.title = 'vscode extension -weather-';
+  }, []);
   return (
     <>
-      <Box marginLeft={2} marginRight={2}>
+      <Box marginLeft={15} marginRight={15}>
         <Box sx={{ marginTop: "70px" }}>
           <Typography
-            className="context"
+            className="border"
             variant="h4"
             align="left"
+            fontWeight="bold"
             sx={{ fontFamily: "Noto Serif JP, serif" }}
           >
             vscode拡張機能（天気予報取得）
           </Typography>
         </Box>
-        <Box sx={{ marginTop: "40px" }}>
-          <img width="80%" height="auto" src="./img/extension_view.png" />
+        <Box sx={{ marginTop: "70px" }}>
+          <img width="70%" height="auto" src="./img/extension_view.png" />
         </Box>
-        <Box sx={{ marginTop: "40px" }}>
+        <Box sx={{ marginTop: "70px" }}>
           <Typography
             className="context"
-            variant="h6"
+            variant="h5"
             align="left"
+            fontWeight="bold"
             sx={{ fontFamily: "Noto Serif JP, serif" }}
           >
             地域を選択することで直近３日間の天気を取得、雨の日を教えてくれます。
           </Typography>
-          <div
+          <div className="context"
             style={{ display: "flex", flexDirection: "row", marginTop: "20px" }}
           >
             <img src="./img/github_icon.png" width="3%" height="3%" />
@@ -44,8 +50,9 @@ const Weather = () => {
         <Box sx={{ marginTop: "100px" }}>
           <Typography
             className="context"
-            variant="h6"
+            variant="h5"
             align="left"
+            fontWeight="bold"
             sx={{ fontFamily: "Noto Serif JP, serif" }}
           >
             目的
@@ -53,13 +60,13 @@ const Weather = () => {
           <Box sx={{ marginTop: "10px" }}>
             <Typography
               className="context"
-              variant="body2"
+              variant="body1"
               align="left"
               sx={{ fontFamily: "Noto Serif JP, serif" }}
             >
               <ul className="list">
                 <li>研究でvscode拡張機能を実装するかもしれないため触りたい</li>
-                <li>プログラミング中に雨に気が付かないことがある</li>
+                <li>天気を普段確認しないのでコーディング時に分かると便利</li>
               </ul>
             </Typography>
           </Box>
@@ -67,21 +74,23 @@ const Weather = () => {
         <Box sx={{ marginTop: "100px" }}>
           <Typography
             className="context"
-            variant="h6"
+            variant="h5"
             align="left"
             sx={{ fontFamily: "Noto Serif JP, serif" }}
           ></Typography>
           <Box sx={{ marginTop: "10px" }}>
             <Typography
               className="context"
-              variant="h6"
+              variant="h5"
               align="left"
+              fontWeight="bold"
               sx={{ fontFamily: "Noto Serif JP, serif" }}
             >
               事前準備
+              <Box sx={{ marginTop: "10px" }} />
               <Typography
                 className="context"
-                variant="body2"
+                variant="body1"
                 align="left"
                 sx={{ fontFamily: "Noto Serif JP, serif" }}
               >
@@ -92,14 +101,16 @@ const Weather = () => {
             <Box sx={{ marginTop: "30px" }}>
               <Typography
                 className="context"
-                variant="h6"
+                variant="h5"
                 align="left"
+                fontWeight="bold"
                 sx={{ fontFamily: "Noto Serif JP, serif" }}
               >
                 天気予報取得部分
+                <Box sx={{ marginTop: "10px" }} />
                 <Typography
                   className="context"
-                  variant="body2"
+                  variant="body1"
                   align="left"
                   sx={{ fontFamily: "Noto Serif JP, serif" }}
                 >
@@ -109,21 +120,23 @@ const Weather = () => {
                   全国対応できるが、県ごとに地域の配列を用意することが非常に大変なので２県のみ実装した。
                 </Typography>
                 <Box sx={{ marginTop: "40px", textAlign: "center" }}>
-                  <img width="60%" height="auto" src="./img/json_view.png" />
+                  <img width="50%" height="auto" src="./img/json_view.png" />
                 </Box>
               </Typography>
             </Box>
             <Box sx={{ marginTop: "50px" }}>
               <Typography
                 className="context"
-                variant="h6"
+                variant="h5"
                 align="left"
+                fontWeight="bold"
                 sx={{ fontFamily: "Noto Serif JP, serif" }}
               >
                 vscode拡張機能部分
+                <Box sx={{ marginTop: "10px" }} />
                 <Typography
                   className="context"
-                  variant="body2"
+                  variant="body1"
                   align="left"
                   sx={{ fontFamily: "Noto Serif JP, serif" }}
                 >
@@ -140,14 +153,16 @@ const Weather = () => {
             <Box sx={{ marginTop: "30px" }}>
               <Typography
                 className="context"
-                variant="h6"
+                variant="h5"
                 align="left"
+                fontWeight="bold"
                 sx={{ fontFamily: "Noto Serif JP, serif" }}
               >
                 visxファイル
+                <Box sx={{ marginTop: "10px" }} />
                 <Typography
                   className="context"
-                  variant="body2"
+                  variant="body1"
                   align="left"
                   sx={{ fontFamily: "Noto Serif JP, serif" }}
                 >
@@ -156,7 +171,7 @@ const Weather = () => {
                 <Typography
                   className="context"
                   component="a"
-                  variant="body2"
+                  variant="body1"
                   align="left"
                   href="https://qiita.com/HelloRusk/items/073b58c1605de224e67e"
                   sx={{ fontFamily: "Noto Serif JP, serif" }}
@@ -170,29 +185,33 @@ const Weather = () => {
         <Box sx={{ marginTop: "100px" }}>
           <Typography
             className="context"
-            variant="h6"
+            variant="h5"
             align="left"
+            fontWeight="bold"
             sx={{ fontFamily: "Noto Serif JP, serif" }}
           >
             動作映像
           </Typography>
         </Box>
         <Box
+          width="90%"
+          height="auto"
           sx={{
             marginTop: "20px",
             backgroundColor: "#000000",
             overflow: "hidden",
           }}
         >
-          <video width="90%" controls>
+          <video width="95%" height="auto" controls>
             <source src="./img/weather_PV.mp4" type="video/mp4" />
           </video>
         </Box>
         <Box sx={{ marginTop: "100px" }}>
           <Typography
             className="context"
-            variant="h6"
+            variant="h5"
             align="left"
+            fontWeight="bold"
             sx={{ fontFamily: "Noto Serif JP, serif" }}
           >
             改善点
@@ -200,17 +219,17 @@ const Weather = () => {
           <Box sx={{ marginTop: "10px" }}>
             <Typography
               className="context"
-              variant="body2"
+              variant="body1"
               align="left"
               sx={{ fontFamily: "Noto Serif JP, serif" }}
             >
               時間さえあれば実現可能なので全国対応したい。<br />
-              vscodeAPIに不慣れなところがあり、UIが凝れていない。
+              vscodeAPIに不慣れなところがありUIを凝れていない。
               もう少し使いやすいデザインにすることができそう。
             </Typography>
           </Box>
         </Box>
-        <Box sx={{ marginTop: "200px" }}></Box>
+        <Box sx={{ marginTop: "200px" }} />
       </Box>
     </>
   );

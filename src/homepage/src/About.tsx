@@ -11,6 +11,8 @@ import {
   styled,
   tableCellClasses,
 } from "@mui/material";
+import EmailIcon from '@mui/icons-material/Email';
+import { useEffect } from "react";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -39,23 +41,38 @@ const rows = [
   createData("C", 2, "高校＋大学"),
   createData("Java", 2, "高校＋大学"),
   createData("Python", 0.5, "独学"),
-  createData("JavaScript/TypeScript", 0.5, "独学"),
+  createData("JavaScript / TypeScript", 0.5, "独学"),
   createData("MySQL", 0.5, "大学"),
+  createData("React", 0.5, "独学"),
   createData("Unity", 0.5, "独学"),
 ];
 
 const About = () => {
+  useEffect(() => {
+    document.title = 'About';
+  }, []);
   return (
     <>
       <Box marginLeft={2} marginRight={2}>
         <Box sx={{ marginTop: "100px" }}>
           <Typography
-            className="context"
+            className="border"
             variant="h4"
+            fontWeight="bold"
             align="left"
             sx={{ fontFamily: "Noto Serif JP, serif" }}
           >
             Profile
+          </Typography>
+          <Box sx={{ marginTop: "20px" }} />
+          <Typography
+            className="context"
+            variant="h5"
+            align="left"
+            fontWeight="bold"
+            sx={{ fontFamily: "Noto Serif JP, serif" }}
+          >
+            山本 唯翔
           </Typography>
         </Box>
         <Box sx={{ marginTop: "10px" }}>
@@ -70,7 +87,7 @@ const About = () => {
             <br />
             静岡大学情報学部情報科学科卒業見込み
           </Typography>
-          <div
+          <div className="context"
             style={{ display: "flex", flexDirection: "row", marginTop: "20px" }}
           >
             <img src="./img/github_icon.png" width="3%" height="3%" />
@@ -84,43 +101,57 @@ const About = () => {
               https://github.com/yui963/work
             </Typography>
           </div>
+          <div className="context"
+            style={{ display: "flex", flexDirection: "row" }}
+          >
+            <EmailIcon />
+            <Typography
+              className="context"
+              variant="body1"
+              sx={{ fontFamily: "Noto Serif JP, serif" }}
+            >
+              yamamoto.yuito.21@shizuoka.ac.jp
+            </Typography>
+          </div>
         </Box>
+        <Box sx={{ marginTop: "100px" }}>
+          <Typography
+            className="border"
+            variant="h4"
+            fontWeight="bold"
+            align="left"
+            sx={{ fontFamily: "Noto Serif JP, serif" }}
+          >
+            Skills
+          </Typography>
+        </Box>
+        <Box className="context" sx={{ marginTop: "20px" }}>
+          <TableContainer component={Paper} sx={{ maxWidth: 500 }}>
+            <Table aria-label="customized table">
+              <TableHead>
+                {" "}
+                <TableRow>
+                  <StyledTableCell>Name</StyledTableCell>
+                  <StyledTableCell align="right">Year</StyledTableCell>
+                  <StyledTableCell align="right">Detail</StyledTableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {rows.map((row) => (
+                  <StyledTableRow key={row.name}>
+                    <StyledTableCell component="th" scope="row">
+                      {row.name}
+                    </StyledTableCell>
+                    <StyledTableCell align="right">{row.year}</StyledTableCell>
+                    <StyledTableCell align="right">{row.detail}</StyledTableCell>
+                  </StyledTableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box >
+        <Box sx={{ marginTop: "200px" }} />
       </Box >
-      <Box sx={{ marginTop: "100px" }}>
-        <Typography
-          className="context"
-          variant="h4"
-          align="left"
-          sx={{ fontFamily: "Noto Serif JP, serif" }}
-        >
-          Skill
-        </Typography>
-      </Box>
-      <Box sx={{ marginTop: "20px" }}>
-        <TableContainer component={Paper} style={{ maxWidth: "400px" }}>
-          <Table sx={{ minWidth: 50 }} aria-label="customized table">
-            <TableHead>
-              {" "}
-              <TableRow>
-                <StyledTableCell>Name</StyledTableCell>
-                <StyledTableCell align="right">Year</StyledTableCell>
-                <StyledTableCell align="right">Detail</StyledTableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {rows.map((row) => (
-                <StyledTableRow key={row.name}>
-                  <StyledTableCell component="th" scope="row">
-                    {row.name}
-                  </StyledTableCell>
-                  <StyledTableCell align="right">{row.year}</StyledTableCell>
-                  <StyledTableCell align="right">{row.detail}</StyledTableCell>
-                </StyledTableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Box>
     </>
   );
 };
