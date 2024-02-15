@@ -26,6 +26,34 @@ const HRM = () => {
           >
             Webページ内にあるセレクトボックスからレース名と開催年を選択することで、該当するレース映像を表示させます。
           </Typography>
+          <div
+            style={{ display: "flex", flexDirection: "row", marginTop: "20px" }}
+          >
+            <img src="./img/github_icon.png" width="3%" height="3%" />
+            <Typography
+              className="context"
+              component="a"
+              variant="body1"
+              href="https://github.com/yui963/work/tree/main/src/backend"
+              sx={{ fontFamily: "Noto Serif JP, serif" }}
+            >
+              https://github.com/yui963/work/tree/main/src/backend
+            </Typography>
+          </div>
+          <div
+            style={{ display: "flex", flexDirection: "row" }}
+          >
+            <img src="./img/github_icon.png" width="3%" height="3%" />
+            <Typography
+              className="context"
+              component="a"
+              variant="body1"
+              href="https://github.com/yui963/work/tree/main/src/frontend"
+              sx={{ fontFamily: "Noto Serif JP, serif" }}
+            >
+              https://github.com/yui963/work/tree/main/src/frontend
+            </Typography>
+          </div>
         </Box>
         <Box sx={{ marginTop: "100px" }}>
           <Typography
