@@ -58,7 +58,7 @@ const Weather = () => {
               sx={{ fontFamily: "Noto Serif JP, serif" }}
             >
               <ul className="list">
-                <li>研究でvscode拡張機能実装するかもしれないため触りたい</li>
+                <li>研究でvscode拡張機能を実装するかもしれないため触りたい</li>
                 <li>プログラミング中に雨に気が付かないことがある</li>
               </ul>
             </Typography>
