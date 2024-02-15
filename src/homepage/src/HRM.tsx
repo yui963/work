@@ -1,32 +1,38 @@
 import { Box, Typography } from "@mui/material";
+import { useEffect } from "react";
 
 const HRM = () => {
+  useEffect(() => {
+    document.title = 'Horse Racing Movie Get Tool';
+  }, []);
   return (
     <>
-      <Box marginLeft={2} marginRight={2}>
+      <Box marginLeft={15} marginRight={15}>
         <Box sx={{ marginTop: "70px" }}>
           <Typography
-            className="context"
+            className="border"
             variant="h4"
             align="left"
+            fontWeight="bold"
             sx={{ fontFamily: "Noto Serif JP, serif" }}
           >
             レース映像自動取得ツール
           </Typography>
         </Box>
         <Box sx={{ marginTop: "40px" }}>
-          <img width="100%" src="./img/HRMdetail.png" />
+          <img width="70%" height="auto" src="./img/HRMdetail.png" />
         </Box>
         <Box sx={{ marginTop: "40px" }}>
           <Typography
             className="context"
-            variant="h6"
+            variant="h5"
             align="left"
+            fontWeight="bold"
             sx={{ fontFamily: "Noto Serif JP, serif" }}
           >
             Webページ内にあるセレクトボックスからレース名と開催年を選択することで、該当するレース映像を表示させます。
           </Typography>
-          <div
+          <div className="context"
             style={{ display: "flex", flexDirection: "row", marginTop: "20px" }}
           >
             <img src="./img/github_icon.png" width="3%" height="3%" />
@@ -40,7 +46,7 @@ const HRM = () => {
               https://github.com/yui963/work/tree/main/src/backend
             </Typography>
           </div>
-          <div
+          <div className="context"
             style={{ display: "flex", flexDirection: "row" }}
           >
             <img src="./img/github_icon.png" width="3%" height="3%" />
@@ -58,8 +64,9 @@ const HRM = () => {
         <Box sx={{ marginTop: "100px" }}>
           <Typography
             className="context"
-            variant="h6"
+            variant="h5"
             align="left"
+            fontWeight="bold"
             sx={{ fontFamily: "Noto Serif JP, serif" }}
           >
             目的
@@ -67,7 +74,7 @@ const HRM = () => {
           <Box sx={{ marginTop: "10px" }}>
             <Typography
               className="context"
-              variant="body2"
+              variant="body1"
               align="left"
               sx={{ fontFamily: "Noto Serif JP, serif" }}
             >
@@ -82,8 +89,9 @@ const HRM = () => {
         <Box sx={{ marginTop: "100px" }}>
           <Typography
             className="context"
-            variant="h6"
+            variant="h5"
             align="left"
+            fontWeight="bold"
             sx={{ fontFamily: "Noto Serif JP, serif" }}
           >
             使用ライブラリ等
@@ -91,7 +99,7 @@ const HRM = () => {
           <Box sx={{ marginTop: "10px" }}>
             <Typography
               className="context"
-              variant="body1"
+              variant="h6"
               align="left"
               fontWeight="bold"
               sx={{ fontFamily: "Noto Serif JP, serif" }}
@@ -108,7 +116,7 @@ const HRM = () => {
                 <li>Flask</li>
                 <Typography
                   className="context"
-                  variant="body2"
+                  variant="body1"
                   align="left"
                   sx={{ fontFamily: "Noto Serif JP, serif" }}
                 >
@@ -119,7 +127,7 @@ const HRM = () => {
                 <li>Selenium</li>
                 <Typography
                   className="context"
-                  variant="body2"
+                  variant="body1"
                   align="left"
                   sx={{ fontFamily: "Noto Serif JP, serif" }}
                 >
@@ -131,7 +139,7 @@ const HRM = () => {
             </Typography>
             <Typography
               className="context"
-              variant="body1"
+              variant="h6"
               align="left"
               fontWeight="bold"
               sx={{ fontFamily: "Noto Serif JP, serif" }}
@@ -147,7 +155,7 @@ const HRM = () => {
                   <li>React</li>
                   <Typography
                     className="context"
-                    variant="body2"
+                    variant="body1"
                     align="left"
                     sx={{ fontFamily: "Noto Serif JP, serif" }}
                   >
@@ -157,7 +165,7 @@ const HRM = () => {
                   <li>Material-UI</li>
                   <Typography
                     className="context"
-                    variant="body2"
+                    variant="body1"
                     align="left"
                     sx={{ fontFamily: "Noto Serif JP, serif" }}
                   >
@@ -172,15 +180,16 @@ const HRM = () => {
         <Box sx={{ marginTop: "100px" }}>
           <Typography
             className="context"
-            variant="h6"
+            variant="h5"
             align="left"
+            fontWeight="bold"
             sx={{ fontFamily: "Noto Serif JP, serif" }}
           >
-            アーキテクチャ図
+            アーキテクチャ
           </Typography>
           <Typography
             className="context"
-            variant="body2"
+            variant="body1"
             align="left"
             sx={{ fontFamily: "Noto Serif JP, serif" }}
           >
@@ -190,35 +199,39 @@ const HRM = () => {
             解析結果をレスポンスとし、それを受けとったフロントエンドは画面に表示させる。
           </Typography>
           <Box sx={{ marginTop: "20px" }}>
-            <img width="60%" src="./img/front-back.png" />
+            <img width="40%" height="auto" src="./img/front-back.png" />
           </Box>
         </Box>
         <Box sx={{ marginTop: "100px" }}>
           <Typography
             className="context"
-            variant="h6"
+            variant="h5"
             align="left"
+            fontWeight="bold"
             sx={{ fontFamily: "Noto Serif JP, serif" }}
           >
             動作映像
           </Typography>
         </Box>
         <Box
+          width="90%"
+          height="auto"
           sx={{
             marginTop: "20px",
             backgroundColor: "#000000",
             overflow: "hidden",
           }}
         >
-          <video width="95%" controls>
+          <video width="95%" height="auto" controls>
             <source src="./img/HRM_PV.mp4" type="video/mp4" />
           </video>
         </Box>
         <Box sx={{ marginTop: "100px" }}>
           <Typography
             className="context"
-            variant="h6"
+            variant="h5"
             align="left"
+            fontWeight="bold"
             sx={{ fontFamily: "Noto Serif JP, serif" }}
           >
             改善点
@@ -226,33 +239,27 @@ const HRM = () => {
           <Box sx={{ marginTop: "10px" }}>
             <Typography
               className="context"
-              variant="body2"
+              variant="h6"
+              align="left"
+              fontWeight="bold"
+              sx={{ fontFamily: "Noto Serif JP, serif" }}
+            >
+              Seleniumの動作が遅い
+            </Typography>
+            <Typography
+              className="context"
+              variant="body1"
               align="left"
               sx={{ fontFamily: "Noto Serif JP, serif" }}
             >
-              <Typography
-                className="context"
-                variant="h6"
-                align="left"
-                sx={{ fontFamily: "Noto Serif JP, serif" }}
-              >
-                Seleniumの動作が遅い
-              </Typography>
-              <Typography
-                className="context"
-                variant="body2"
-                align="left"
-                sx={{ fontFamily: "Noto Serif JP, serif" }}
-              >
-                バックエンドにリクエストを出してから、レスポンスが返ってくるまで５秒ほど要している。
-                バックエンドで触っているときはあまり気にならなかったが、webページ上で時間が掛かるとかなり気になった。
-                クリックなどを必要とせずに目的のページへアクセスできているため、BeautifulSoupでも代用が可能。
-                ネットで調べてみるとBeautifulSoupの方が明らかに早いため、速度を上げたいならBeautifulSoupで実装するべき。
-              </Typography>
+              バックエンドにリクエストを出してから、レスポンスが返ってくるまで５秒ほど要している。
+              バックエンドで触っているときはあまり気にならなかったが、webページ上で時間が掛かるとかなり気になった。
+              クリックなどを必要とせずに目的のページへアクセスできているため、BeautifulSoupでも代用が可能。
+              ネットで調べてみるとBeautifulSoupの方が明らかに早いため、速度を上げたいならBeautifulSoupで実装するべき。
             </Typography>
           </Box>
         </Box>
-        <Box sx={{ marginTop: "200px" }}></Box>
+        <Box sx={{ marginTop: "200px" }} />
       </Box>
     </>
   );

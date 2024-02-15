@@ -8,7 +8,7 @@ const Header = () => {
           <Typography
             component="a"
             href="/work/"
-            variant="h5"
+            variant="h4"
             style={{ color: "#000000" }}
             sx={{ fontFamily: "Noto Serif JP, serif" }}
           >
@@ -17,7 +17,8 @@ const Header = () => {
           <Typography
             component="a"
             href="/work/about"
-            variant="h6"
+            variant="h5"
+            fontWeight="bold"
             style={{ color: "#000000" }}
             sx={{ fontFamily: "Noto Serif JP, serif" }}
           >
