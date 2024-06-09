@@ -453,8 +453,10 @@ async function calcInterval(
   let maxInterval: number = 0;
   let intervalList: { [name: string]: number } = { MAXInterval: maxInterval };
   let failedTestList: string[] = [];
+  let passedTestList: string[] = [];
   let isFirstFound: boolean = false;
-  let startDate: Date | null = null;
+  let startDate: Date = new Date();
+  let prevPassDate: number = 0;
 
   for (const state of stateList) {
     if (!isFirstFound) {
@@ -474,6 +476,7 @@ async function calcInterval(
         console.error("Error: Start date is null.");
       }
       isFirstFound = true;
+      prevPassDate = startDate.getTime(); //初期は開始時刻
     }
 
     if (state.type == "test") {
@@ -482,30 +485,26 @@ async function calcInterval(
         const failedTestName: string = name.toString();
         if (
           excludingTestNameList.includes(failedTestName) == false &&
-          failedTestName in failedTestList == false
+          failedTestList.includes(failedTestName) == false
         ) {
           failedTestList.push(name.toString());
         }
       }
-
       const passCase = event.testingCase.filter((v: String) => {
         return !event.failedCase.includes(v);
       });
-      let prevPassDate: Date | null = null;
       for (const name of failedTestList) {
-        if (passCase.includes(name)) {
+        if (passCase.includes(name) && !passedTestList.includes(name)) {
           intervalList[name];
-          const passDate = new Date(event.invokedDate);
-          const interval = prevPassDate
-            ? passDate.getTime() - prevPassDate.getTime()
-            : passDate.getTime() - startDate!.getTime();
+          passedTestList.push(name);
+          const invokedDate = new Date(event.invokedDate);
+          const passDate: number = invokedDate.getTime();
+          // console.log(passDate);
+          const interval = passDate - prevPassDate;
+          // console.log(name + "//" + passDate + "//" + prevPassDate);
           intervalList[name] = interval;
           prevPassDate = passDate;
-          const index = failedTestList.indexOf(name);
-          if (index != -1) {
-            failedTestList.splice(index, 1);
-          }
-          if (!maxInterval || maxInterval < interval) {
+          if (maxInterval < interval) {
             maxInterval = interval;
             intervalList["MAXInterval"] = maxInterval;
           }
@@ -513,6 +512,7 @@ async function calcInterval(
       }
     }
   }
+  // console.log(intervalList);
   return intervalList;
 }
 //各セッションごとに処理
