@@ -1,0 +1,45 @@
+
+# Analyzer: config data for data directory
+# dataInfo.ts
+
+# Analyzer: output directory
+output/
+
+# Analyzer: data directory
+data/
+
+# Analyzer: test .ts file
+test.ts
+
+# Logger: log directory
+kokokonolabs-log/
+
+# If using a dedicated output directory:
+dist/
+build/
+
+# If not using a dedicated output directory:
+*.js
+*.js.map
+
+# NODE MODULES
+# If you're using npm or Yarn to manage your project's dependencies, you'll have a node_modules/ directory. This should always be excluded as it can contain thousands of files, and you don’t want those in your repo.
+node_modules/
+
+# IDE AND EDITOR CONFIGURATIONS
+# Many IDEs and editors create configuration and cache files that are specific to a user's environment. Examples include .vscode/ for Visual Studio Code and .idea/ for JetBrains IDEs.
+.vscode/
+.idea/
+
+# ENVIRONMENT CONFIGURATION
+# Files that contain secrets, API keys, or database connection info (commonly .env files or other configuration files) should never be committed to a public repository.
+.env
+.env.local
+.env.*.local
+
+# TYPESCRIPT CACHE
+# TypeScript might generate cache files when using project references or when incremental compilation is enabled.
+*.tsbuildinfo
+
+# PACKAGE FILE
+*.zip

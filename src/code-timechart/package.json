@@ -1,0 +1,19 @@
+{
+  "name": "analyzer",
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@types/node": "^20.10.6",
+    "chartjs": "^0.3.24",
+    "csv-writer": "^1.6.0",
+    "fs": "^0.0.1-security",
+    "fs-extra": "^11.2.0",
+    "pandas": "^0.0.3",
+    "path": "^0.12.7",
+    "pd": "^0.8.1",
+    "simple-statistics": "^7.8.3",
+    "ts-node": "^10.9.2"
+  }
+}

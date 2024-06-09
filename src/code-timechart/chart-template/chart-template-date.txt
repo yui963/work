@@ -1,0 +1,36 @@
+<!--
+    Google Chart - Timeline
+    https://developers.google.com/chart/interactive/docs/gallery/timeline?hl=ja
+-->
+<html>
+  <head>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+    <script type="text/javascript">
+      google.charts.load("current", {packages:["timeline"]});
+      google.charts.setOnLoadCallback(drawChart);
+      function drawChart() {
+    
+        var container = document.getElementById('graph');
+        var chart = new google.visualization.Timeline(container);
+        var dataTable = new google.visualization.DataTable();
+        dataTable.addColumn({ type: 'string', id: 'File' });
+        dataTable.addColumn({ type: 'string', id: 'Action' });
+        dataTable.addColumn({ type: 'date', id: 'Start' });
+        dataTable.addColumn({ type: 'date', id: 'End' });
+        dataTable.addRows(
+          ##%%$$DATA$$%%##
+        );
+        
+        const options = {
+          // timeline: { groupByRowLabel: false }
+        };
+        chart.draw(dataTable, options);
+      }
+    </script>
+</head>
+  <body>
+    <h1>##%%$$HEADER$$%%##</h1>
+    <div id="graph" style="height: 1200px;overflow:auto"></div>
+  </body>
+</html>
