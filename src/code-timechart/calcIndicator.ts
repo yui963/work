@@ -455,26 +455,10 @@ async function calcInterval(
   let failedTestList: string[] = [];
   let passedTestList: string[] = [];
   let isFirstFound: boolean = false;
-  let startDate: Date = new Date();
   let prevPassDate: number = 0;
-
   for (const state of stateList) {
     if (!isFirstFound) {
-      if (state.type == "ws") {
-        const event: WSEvent = state.info as WSEvent;
-        startDate = new Date(event.date);
-      } else if (state.type == "edit") {
-        const event: EditEvent = state.info as EditEvent;
-        startDate = new Date(event.datetime);
-      } else if (state.type == "test") {
-        const event: TestEvent = state.info as TestEvent;
-        startDate = new Date(event.invokedDate);
-      } else if (state.type == "run") {
-        const event: RunEvent = state.info as RunEvent;
-        startDate = new Date(event.invokedDate);
-      } else {
-        console.error("Error: Start date is null.");
-      }
+      let startDate: Date = createStartDate(state);
       isFirstFound = true;
       prevPassDate = startDate.getTime(); //初期は開始時刻
     }
@@ -515,6 +499,26 @@ async function calcInterval(
   // console.log(intervalList);
   return intervalList;
 }
+function createStartDate(state: State): Date {
+  let startDate: Date = new Date();
+  if (state.type == "ws") {
+    const event: WSEvent = state.info as WSEvent;
+    startDate = new Date(event.date);
+  } else if (state.type == "edit") {
+    const event: EditEvent = state.info as EditEvent;
+    startDate = new Date(event.datetime);
+  } else if (state.type == "test") {
+    const event: TestEvent = state.info as TestEvent;
+    startDate = new Date(event.invokedDate);
+  } else if (state.type == "run") {
+    const event: RunEvent = state.info as RunEvent;
+    startDate = new Date(event.invokedDate);
+  } else {
+    console.error("Error: Start date is null.");
+  }
+  return startDate;
+}
+
 //各セッションごとに処理
 export async function calcAllIndicators() {
   const jsonOutputPath = path.join(process.cwd(), "output");
