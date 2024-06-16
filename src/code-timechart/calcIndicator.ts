@@ -6,6 +6,7 @@ import { EditEvent } from "./analyzeEditActivity";
 import { RunEvent } from "./analyzeRunResults";
 import { isProductCode, isTestCode } from "./common";
 import { WSEvent } from "./analyzeWS";
+import { join, dirname } from "path";
 import { StateInfo, stateInfoJsonPath } from "./analyzeStateInfo";
 import {
   outputAllIndicators,
@@ -14,6 +15,7 @@ import {
 } from "./outputIndicators";
 import path from "path";
 import { start } from "repl";
+import { existsSync } from "fs";
 
 /**
  * Calculate some indicators
@@ -21,9 +23,22 @@ import { start } from "repl";
  * @param stateList
  * @returns
  */
+export const testRunInfoJsonPath = join(
+  process.cwd(),
+  "output",
+  "test-run",
+  `testRunInfoList.json`
+);
+export const resumedDateInfoJsonPath = join(
+  process.cwd(),
+  "output",
+  "test-run",
+  `resumedDateList.json`
+);
 export async function calcIndicator(
   stateList: State[],
-  id: string
+  id: string,
+  session: string
 ): Promise<any> {
   let info = {};
   const editActivityInfo = calcEditActivity(stateList);
@@ -33,7 +48,10 @@ export async function calcIndicator(
   const failedTestLifeTimeInfo = calcFailedTestLifeTime(stateList);
   const untestedTimeBeforeEditInfo = calcUntestedTimeBeforeEdit(stateList, id);
   const untestedTimeAfterEditInfo = calcUntestedTimeAfterEdit(stateList, id);
-  const IntervalFirstSuccessTestInfo = calcInterval(stateList);
+  const startDateInfo = calcStartDate(stateList);
+  await createTestInvokedDateList(stateList, id, session);
+  await resumedDate(stateList, id, session);
+  // const IntervalFirstSuccessTestInfo = calcInterval(stateList);
   return Object.assign(
     info,
     await editActivityInfo,
@@ -43,7 +61,8 @@ export async function calcIndicator(
     await failedTestLifeTimeInfo,
     await untestedTimeBeforeEditInfo,
     await untestedTimeAfterEditInfo,
-    await IntervalFirstSuccessTestInfo
+    await startDateInfo
+    // await IntervalFirstSuccessTestInfo
   );
 }
 
@@ -444,79 +463,210 @@ async function calcFailedTestLifeTime(stateList: State[]): Promise<any> {
 
   return info;
 }
-
-//初めて成功したテストの最大発生間隔を求める
-//テストが初めて成功したときの要求時刻を配列にまとめてから、最大を求める
-async function calcInterval(
-  stateList: State[]
-): Promise<{ [name: string]: number }> {
-  let maxInterval: number = 0;
-  let intervalList: { [name: string]: number } = { MAXInterval: maxInterval };
-  let failedTestList: string[] = [];
-  let passedTestList: string[] = [];
-  let isFirstFound: boolean = false;
-  let prevPassDate: number = 0;
+export interface TestInvokedDateInfo {
+  id: String;
+  session: String;
+  invokedDates: Date[];
+}
+export interface resumedDateInfo {
+  id: String;
+  session: String;
+  endDate: Date;
+  restartDate: Date;
+}
+async function resumedDate(stateList: State[], id: string, session: string) {
+  let prevDate: Date | undefined = undefined;
   for (const state of stateList) {
-    if (!isFirstFound) {
-      let startDate: Date = createStartDate(state);
-      isFirstFound = true;
-      prevPassDate = startDate.getTime(); //初期は開始時刻
+    let invokedDate: Date = new Date();
+    if (state.type == "ws") {
+      const event: WSEvent = state.info as WSEvent;
+      invokedDate = new Date(event.date);
+    } else if (state.type == "edit") {
+      const event: EditEvent = state.info as EditEvent;
+      invokedDate = new Date(event.datetime);
+    } else if (state.type == "test") {
+      const event: TestEvent = state.info as TestEvent;
+      invokedDate = new Date(event.invokedDate);
+    } else if (state.type == "run") {
+      const event: RunEvent = state.info as RunEvent;
+      invokedDate = new Date(event.invokedDate);
+    } else {
+      console.error("Error: Start date is null.");
     }
-
+    if (!prevDate) {
+      prevDate = invokedDate;
+    } else {
+      let diff = (invokedDate.getTime() - prevDate.getTime()) / (1000 * 60);
+      if (diff >= 30) {
+        const resumedDateSet: resumedDateInfo = {
+          id: id,
+          session: session,
+          endDate: prevDate,
+          restartDate: invokedDate,
+        };
+        await createResumedDateInfoJson(resumedDateSet);
+      }
+      prevDate = invokedDate;
+    }
+  }
+  return;
+}
+async function createResumedDateInfoJson(resumedDateList: resumedDateInfo) {
+  await fs.ensureDir(dirname(resumedDateInfoJsonPath));
+  if (!existsSync(resumedDateInfoJsonPath)) {
+    await fs.writeFile(
+      resumedDateInfoJsonPath,
+      JSON.stringify([resumedDateList])
+    );
+    return;
+  }
+  try {
+    const existingDataBuffer = await fs.readFile(resumedDateInfoJsonPath);
+    const existingData: resumedDateInfo[] = JSON.parse(
+      existingDataBuffer.toString()
+    );
+    existingData.push(resumedDateList);
+    await fs.writeFile(resumedDateInfoJsonPath, JSON.stringify(existingData));
+  } catch (error) {
+    console.error(
+      `Error appending data to ${resumedDateInfoJsonPath}: ${error}`
+    );
+  }
+}
+async function createTestInvokedDateList(
+  stateList: State[],
+  id: string,
+  session: string
+) {
+  let testInvokedDateList: TestInvokedDateInfo[] = [];
+  let invokedDates: Date[] = [];
+  for (const state of stateList) {
     if (state.type == "test") {
       const event: TestEvent = state.info as TestEvent;
-      for (const name of event.failedCase) {
-        const failedTestName: string = name.toString();
-        if (
-          excludingTestNameList.includes(failedTestName) == false &&
-          failedTestList.includes(failedTestName) == false
-        ) {
-          failedTestList.push(name.toString());
-        }
-      }
-      const passCase = event.testingCase.filter((v: String) => {
-        return !event.failedCase.includes(v);
-      });
-      for (const name of failedTestList) {
-        if (passCase.includes(name) && !passedTestList.includes(name)) {
-          intervalList[name];
-          passedTestList.push(name);
-          const invokedDate = new Date(event.invokedDate);
-          const passDate: number = invokedDate.getTime();
-          // console.log(passDate);
-          const interval = passDate - prevPassDate;
-          // console.log(name + "//" + passDate + "//" + prevPassDate);
-          intervalList[name] = interval;
-          prevPassDate = passDate;
-          if (maxInterval < interval) {
-            maxInterval = interval;
-            intervalList["MAXInterval"] = maxInterval;
-          }
-        }
-      }
+      const invokedDate = new Date(event.invokedDate);
+      invokedDates.push(invokedDate);
     }
   }
-  // console.log(intervalList);
-  return intervalList;
+  const data: TestInvokedDateInfo = {
+    id: id,
+    session: session,
+    invokedDates: invokedDates,
+  };
+  await createTestRunInfoJson(data);
+  return;
 }
-function createStartDate(state: State): Date {
-  let startDate: Date = new Date();
-  if (state.type == "ws") {
-    const event: WSEvent = state.info as WSEvent;
-    startDate = new Date(event.date);
-  } else if (state.type == "edit") {
-    const event: EditEvent = state.info as EditEvent;
-    startDate = new Date(event.datetime);
-  } else if (state.type == "test") {
-    const event: TestEvent = state.info as TestEvent;
-    startDate = new Date(event.invokedDate);
-  } else if (state.type == "run") {
-    const event: RunEvent = state.info as RunEvent;
-    startDate = new Date(event.invokedDate);
-  } else {
-    console.error("Error: Start date is null.");
+async function createTestRunInfoJson(testInvokedDateList: TestInvokedDateInfo) {
+  await fs.ensureDir(dirname(testRunInfoJsonPath));
+  if (!existsSync(testRunInfoJsonPath)) {
+    await fs.writeFile(
+      testRunInfoJsonPath,
+      JSON.stringify([testInvokedDateList])
+    );
+    return;
   }
-  return startDate;
+  try {
+    const existingDataBuffer = await fs.readFile(testRunInfoJsonPath);
+    const existingData: TestInvokedDateInfo[] = JSON.parse(
+      existingDataBuffer.toString()
+    );
+    existingData.push(testInvokedDateList);
+    await fs.writeFile(testRunInfoJsonPath, JSON.stringify(existingData));
+  } catch (error) {
+    console.error(`Error appending data to ${testRunInfoJsonPath}: ${error}`);
+  }
+}
+export async function deleteFile(filePath: string) {
+  try {
+    await fs.unlink(filePath);
+    console.log(`File ${filePath} has been successfully deleted.`);
+  } catch (error) {
+    console.error(`Error deleting file ${filePath}: ${error}`);
+  }
+}
+
+// //初めて成功したテストの最大発生間隔を求める
+// //テストが初めて成功したときの要求時刻を配列にまとめてから、最大を求める
+// async function calcInterval(
+//   stateList: State[]
+// ): Promise<{ [name: string]: number }> {
+//   let maxInterval: number = 0;
+//   let intervalList: { [name: string]: number } = { MAXInterval: maxInterval };
+//   let failedTestList: string[] = [];
+//   let passedTestList: string[] = [];
+//   let isFirstFound: boolean = false;
+//   let prevPassDate: number = 0;
+//   for (const state of stateList) {
+//     if (!isFirstFound) {
+//       let startDate: Date = createStartDate(state);
+//       isFirstFound = true;
+//       prevPassDate = startDate.getTime(); //初期は開始時刻
+//     }
+
+//     if (state.type == "test") {
+//       const event: TestEvent = state.info as TestEvent;
+//       for (const name of event.failedCase) {
+//         const failedTestName: string = name.toString();
+//         if (
+//           excludingTestNameList.includes(failedTestName) == false &&
+//           failedTestList.includes(failedTestName) == false
+//         ) {
+//           failedTestList.push(name.toString());
+//         }
+//       }
+//       const passCase = event.testingCase.filter((v: String) => {
+//         return !event.failedCase.includes(v);
+//       });
+//       for (const name of failedTestList) {
+//         if (passCase.includes(name) && !passedTestList.includes(name)) {
+//           intervalList[name];
+//           passedTestList.push(name);
+//           const invokedDate = new Date(event.invokedDate);
+//           const passDate: number = invokedDate.getTime();
+//           // console.log(passDate);
+//           const interval = passDate - prevPassDate;
+//           // console.log(name + "//" + passDate + "//" + prevPassDate);
+//           intervalList[name] = interval;
+//           prevPassDate = passDate;
+//           if (maxInterval < interval) {
+//             maxInterval = interval;
+//             intervalList["MAXInterval"] = maxInterval;
+//           }
+//         }
+//       }
+//     }
+//   }
+//   // console.log(intervalList);
+//   return intervalList;
+// }
+
+async function calcStartDate(
+  stateList: State[]
+): Promise<{ startDate: String }> {
+  let isFirstFound: boolean = false;
+  let startDate: Date = new Date();
+  for (const state of stateList) {
+    if (!isFirstFound) {
+      if (state.type == "ws") {
+        const event: WSEvent = state.info as WSEvent;
+        startDate = new Date(event.date);
+      } else if (state.type == "edit") {
+        const event: EditEvent = state.info as EditEvent;
+        startDate = new Date(event.datetime);
+      } else if (state.type == "test") {
+        const event: TestEvent = state.info as TestEvent;
+        startDate = new Date(event.invokedDate);
+      } else if (state.type == "run") {
+        const event: RunEvent = state.info as RunEvent;
+        startDate = new Date(event.invokedDate);
+      } else {
+        console.error("Error: Start date is null.");
+      }
+      isFirstFound = true;
+    } else {
+      break;
+    }
+  }
+  return { startDate: startDate.toISOString() };
 }
 
 //各セッションごとに処理
@@ -542,7 +692,7 @@ export async function calcAllIndicators() {
         "Calculate Indicators for ID: " + id + " Session: " + session
       );
 
-      const indicators = await calcIndicator(stateInfo.stateList, id);
+      const indicators = await calcIndicator(stateInfo.stateList, id, session);
       const indicatorsInfo: indicatorsInfo = {
         id: stateInfo.id,
         session: stateInfo.session,
@@ -562,5 +712,11 @@ export async function calcAllIndicators() {
 }
 
 if (typeof require !== "undefined" && require.main === module) {
+  if (existsSync(testRunInfoJsonPath)) {
+    deleteFile(testRunInfoJsonPath);
+  }
+  if (existsSync(resumedDateInfoJsonPath)) {
+    deleteFile(resumedDateInfoJsonPath);
+  }
   calcAllIndicators();
 }

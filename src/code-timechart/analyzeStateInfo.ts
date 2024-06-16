@@ -78,7 +78,6 @@ export const stateInfoJsonPath = join(
   "output",
   `stateInfoList${args[0]}.json`
 );
-
 export async function analyzeStateInfo() {
   const args: string[] = process.argv.slice(2);
   const targetData: targetData = await getDataInfo(args[0]);
