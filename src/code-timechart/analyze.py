@@ -100,7 +100,7 @@ def removeBlankPeriods(testRunDate, resumedDate, startDate):
     decResumedDateList = decStartDates(resumedDate, startDate)
     print(decResumedDateList)
     for runDate in decTestRunDateList:
-        if index < len(decResumedDateList) and int(runDate) > int(
+        while index < len(decResumedDateList) and int(runDate) > int(
             decResumedDateList[index][1]
         ):
             blankPeriods += int(decResumedDateList[index][1]) - int(
@@ -115,9 +115,7 @@ def removeBlankPeriods(testRunDate, resumedDate, startDate):
             # 1019530
             # 2回以上空白期間があるときの処理が出来ていない
             index += 1
-            removedList.append(runDate - blankPeriods)
-        else:
-            removedList.append(runDate - blankPeriods)
+        removedList.append(runDate - blankPeriods)
         print(runDate)
     removedList = plusStartDate(removedList, startDate)
     return removedList
