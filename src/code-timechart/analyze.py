@@ -92,51 +92,50 @@ def readStartDate(id, session):
 # dec += (restart date - end date)
 # date -= dec
 # [rd1,ed1],[rd2,ed2] index++
-def removeBlankPeriods(testRunDate, resumedDate, startDate):
+def removeBlankPeriods(testRunDate, resumedDate, idx):
     removedList = []
-    index = 0
+    index = idx
     blankPeriods = 0
-    decTestRunDateList = decStartDate(testRunDate, startDate)
-    decResumedDateList = decStartDates(resumedDate, startDate)
-    print(decResumedDateList)
-    for runDate in decTestRunDateList:
-        while index < len(decResumedDateList) and int(runDate) > int(
-            decResumedDateList[index][1]
-        ):
-            blankPeriods += int(decResumedDateList[index][1]) - int(
-                decResumedDateList[index][0]
-            )
-            # 113382
-            # 123620
-            # 132375
-            # 294580
-            # 418076
-            # 423696
-            # 1019530
-            # 2回以上空白期間があるときの処理が出来ていない
+    for runDate in testRunDate:
+        while index < len(resumedDate) and int(runDate) > int(resumedDate[index][1]):
+            blankPeriods += int(resumedDate[index][1]) - int(resumedDate[index][0])
             index += 1
         removedList.append(runDate - blankPeriods)
-        print(runDate)
-    removedList = plusStartDate(removedList, startDate)
     return removedList
 
 
-def decStartDate(dataList, startDate):
-    decList = [int(item) - startDate for item in dataList]
-    return decList
+def removeBlankStartAndRun(startDate, testRunDates, resumedDate):
+    index = 0
+    blank = 0
+    while testRunDates[0] > resumedDate[index][1]:
+        blank += int(resumedDate[index][1]) - int(resumedDate[index][0])
+        index += 1
+    plusStartDate = startDate + blank
+    return index, plusStartDate
 
 
-def plusStartDate(dataList, startDate):
-    plusList = [int(item) + startDate for item in dataList]
-    return plusList
+# def decStartDate(dataList, startDate):
+#     decList = [int(item) - startDate for item in dataList]
+#     return decList
 
 
-def decStartDates(dataLists, startDate):
-    decList = [[int(item) - startDate for item in sublist] for sublist in dataLists]
+# def plusStartDate(dataList, startDate):
+#     plusList = [int(item) + startDate for item in dataList]
+#     return plusList
 
-    return decList
+
+# def decStartDates(dataLists, startDate):
+#     decList = [[int(item) - startDate for item in sublist] for sublist in dataLists]
+
+#     return decList
 
 
+# 開始時刻からテスト実行までに隙間時間がある場合も考慮しないといけない
+# 開始時刻をテスト実行側に寄せる
+# startTime += restartDate - endDate
+# runDateから空白を消すよりも前に処理をしてindexを更新する必要がある
+# cv04の場合、全体の時間は11時間らしい
+# これからコードリーディングの時間を取り除く必要がある
 def main():
     sid = "cv04"
     id = "70110094"
@@ -145,21 +144,25 @@ def main():
     resumedDates = readResumedDateJson(
         "./output/test-run/resumedDateList.json", id, sid
     )
-    removedList = removeBlankPeriods(invokedDates, resumedDates, startDate)
-    width = (removedList[-1] - removedList[0]) / 10
+    index, plusStartDate = removeBlankStartAndRun(startDate, invokedDates, resumedDates)
+    removedList = removeBlankPeriods(invokedDates, resumedDates, index)
+    width = int((removedList[-1] - plusStartDate) / 10)
+    print(startDate)
+    print(plusStartDate)
+    print(removedList[-1])
     # ヒストグラムを作成する
     plt.figure(figsize=(10, 6))
     plt.hist(
         removedList,
-        bins=np.arange(removedList[0], removedList[-1] + width, width),
+        bins=np.arange(plusStartDate, removedList[-1], width),
         edgecolor="black",
         alpha=0.7,
     )
     plt.xlabel("Unix Epoch Time")
     plt.ylabel("counts")
-    plt.title("Test execution cyclicity(70110094)")
+    plt.title("Test execution cyclicity (70110094)")
     plt.grid(True)
-    plt.xticks(np.arange(removedList[0], removedList[-1] + width, width))
+    plt.xticks(np.arange(plusStartDate, removedList[-1], width))
     plt.tight_layout()
     plt.show()
 
