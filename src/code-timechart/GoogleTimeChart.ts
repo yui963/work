@@ -5,6 +5,7 @@ import { EditEvent } from "./analyzeEditActivity";
 import { RunEvent } from "./analyzeRunResults";
 import { WSEvent } from "./analyzeWS";
 import { getFileNameFromDotPath, isProductCode, isTestCode } from "./common";
+import { setMadeTestCases, getMadeTestCases } from "./createGoogleTimeChart";
 
 interface GTimeChartData {
   state: State;
@@ -144,9 +145,7 @@ async function appendGoogleTimeChartDataForTest(
     timeChartDataList.push(await getSummaryData(timeChartData));
   }
 
-  const madeTestCases: String[] = []; //stateだから初期化されてしまう。stateListの階層で変数を宣言しないといけない
   for (const treeNode of event.testTree) {
-    //各テストケースごとのパスを確認しているため、ここでテストケースが増加したか見る
     const testClassName = await getFileNameFromDotPath(treeNode.testClassName);
     const failedTestNum = treeNode.testMethodNameList.filter((item) =>
       event.failedCase.includes(item)
@@ -204,9 +203,11 @@ async function appendGoogleTimeChartDataForTest(
         timeChartDataList.push(await getSummaryData(timeChartData));
       }
       //以下、追加
+      //使わないテストケースや名前を変えたときも残ってしまう
+      let madeTestCases: String[] = await getMadeTestCases();
       if (!madeTestCases.includes(testCase)) {
         madeTestCases.push(testCase);
-        console.log(madeTestCases.length.toString());
+        setMadeTestCases(madeTestCases);
         const num: number = madeTestCases.length;
         const rowLabel = "TestCasesNum";
         const timeChartData: GTimeChartData = {
@@ -268,6 +269,7 @@ async function convertGoogleTimeChartData(
   options: any
 ): Promise<String> {
   const timeChartDataList: GTimeChartData[] = [];
+
   for (const state of stateList) {
     let rowLabel = "";
     let barLabel = "";
@@ -285,6 +287,8 @@ async function convertGoogleTimeChartData(
     } else if (state.type == "test") {
       const event: TestEvent = state.info as TestEvent;
       await appendGoogleTimeChartDataForTest(state, event, timeChartDataList);
+      //cvが切り替わるときに配列を保持したまま移行すればいい
+      //1createGoogleTimeChartで変数を管理してエクスポート
     } else if (state.type == "run") {
       const event: RunEvent = state.info as RunEvent;
       const timeChartData = await createGoogleTimeChartDataForRun(state, event);
@@ -301,6 +305,8 @@ async function convertGoogleTimeChartData(
       }
     }
   }
+
+  // console.log(await getMadeTestCases());
   return await convertGoogleTimeChartString(timeChartDataList, options);
 }
 
