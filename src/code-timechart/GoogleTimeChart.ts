@@ -108,7 +108,8 @@ async function createGoogleTimeChartDataForEdit(
 async function appendGoogleTimeChartDataForTest(
   state: State,
   event: TestEvent,
-  timeChartDataList: GTimeChartData[]
+  timeChartDataList: GTimeChartData[],
+  madeTestCases: String[]
 ) {
   {
     let barLabel = Math.round(event.passRatio) + "%";
@@ -180,7 +181,6 @@ async function appendGoogleTimeChartDataForTest(
       timeChartDataList.push(timeChartData);
       timeChartDataList.push(await getSummaryData(timeChartData));
     }
-
     for (const testCase of treeNode.testMethodNameList) {
       const rowLabel =
         testClassName +
@@ -206,42 +206,31 @@ async function appendGoogleTimeChartDataForTest(
         timeChartDataList.push(timeChartData);
         timeChartDataList.push(await getSummaryData(timeChartData));
       }
-    }
-  }
-}
-function createGoogleTimeChartForTestNum(
-  state: State,
-  event: TestEvent,
-  timeChartDataList: GTimeChartData[]
-): GTimeChartData[] {
-  try {
-    const madeTestCases: String[] = getMadeTestCases();
-    for (const testNode of event.testTree) {
-      for (const testCase of testNode.testMethodNameList) {
-        if (!madeTestCases.includes(testCase.replace(/\(.*\)/, ""))) {
-          madeTestCases.push(testCase.replace(/\(.*\)/, ""));
+      //以下追加
+      // const madeTestCases: String[] = getMadeTestCases();
 
-          const num: number = madeTestCases.length;
-          const rowLabel = "TestCasesNum";
-          const timeChartData: GTimeChartData = {
-            state: state,
-            rowLabel: rowLabel,
-            barLabel: num.toString(),
-            tooltip: "",
-            begin: state.estimateTimeStart,
-            end: state.estimateTimeEnd,
-            beginDate: state.datetimeStart,
-            endDate: state.datetimeEnd,
-          };
-          timeChartDataList.push(timeChartData);
-        }
+      if (
+        !madeTestCases.includes(testCase.replace(/\(.*\)/, "")) &&
+        !testCase.includes("@ignore")
+      ) {
+        madeTestCases.push(testCase.replace(/\(.*\)/, ""));
+
+        const num: number = madeTestCases.length;
+        const rowLabel = "TestCasesNum";
+        const timeChartData: GTimeChartData = {
+          state: state,
+          rowLabel: rowLabel,
+          barLabel: num.toString(),
+          tooltip: "",
+          begin: state.estimateTimeStart,
+          end: state.estimateTimeEnd,
+          beginDate: state.datetimeStart,
+          endDate: state.datetimeEnd,
+        };
+        timeChartDataList.push(timeChartData);
       }
+      // setMadeTestCases(madeTestCases);
     }
-    setMadeTestCases(madeTestCases);
-    return timeChartDataList;
-  } catch (error: any) {
-    console.error(`Error: createGoogleTimeChartForTestNum(): ${error.message}`);
-    return [];
   }
 }
 async function createGoogleTimeChartDataForRun(
@@ -279,42 +268,12 @@ async function createGoogleTimeChartDataForWS(
   };
   return timeChartData;
 }
-
-let cnt: number = 0;
-function convertGoogleTimeChartTestNum(
-  stateList: State[],
-  options: any
-): String {
-  try {
-    cnt += 1;
-    const timeChartDataList: GTimeChartData[] = [];
-    for (const state of stateList) {
-      if (state.type == "test") {
-        const event: TestEvent = state.info as TestEvent;
-        //非同期じゃない関数を作ってそこで処理させることにする
-        createGoogleTimeChartForTestNum(state, event, timeChartDataList);
-        if (cnt == 7) {
-          //1,6, 3の途中からしかできていない
-          console.log(
-            event.testingCase.length + " " + getMadeTestCases().length
-          );
-        }
-      }
-    }
-    return convertGoogleTimeChartStringNotAsync(timeChartDataList, options);
-  } catch (error: any) {
-    console.error(`Error: convertGoogleTimeChartTestNum(): ${error.message}`);
-    return "";
-  }
-}
-let flg = 0;
 async function convertGoogleTimeChartData(
   stateList: State[],
   options: any
 ): Promise<String> {
-  flg += 1;
   const timeChartDataList: GTimeChartData[] = [];
-
+  const madeTestCases: String[] = [];
   for (const state of stateList) {
     let rowLabel = "";
     let barLabel = "";
@@ -331,12 +290,12 @@ async function convertGoogleTimeChartData(
       }
     } else if (state.type == "test") {
       const event: TestEvent = state.info as TestEvent;
-      await appendGoogleTimeChartDataForTest(state, event, timeChartDataList);
-      if (flg == 7) {
-        console.log(
-          event.testingCase.length + " " + getMadeTestCases().length + "*"
-        );
-      }
+      await appendGoogleTimeChartDataForTest(
+        state,
+        event,
+        timeChartDataList,
+        madeTestCases
+      );
     } else if (state.type == "run") {
       const event: RunEvent = state.info as RunEvent;
       const timeChartData = await createGoogleTimeChartDataForRun(state, event);
@@ -353,6 +312,7 @@ async function convertGoogleTimeChartData(
       }
     }
   }
+  console.log(madeTestCases.length);
   return await convertGoogleTimeChartString(timeChartDataList, options);
 }
 
@@ -429,71 +389,6 @@ async function convertGoogleTimeChartString(
 
   return data;
 }
-function convertGoogleTimeChartStringNotAsync(
-  timeChartDataList: GTimeChartData[],
-  options: any
-): String {
-  timeChartDataList.sort((a: GTimeChartData, b: GTimeChartData) => {
-    const ax = a.rowLabel.toUpperCase();
-    const bx = b.rowLabel.toUpperCase();
-    if (ax > bx) {
-      return 1;
-    } else if (ax == bx) {
-      return 0;
-    } else {
-      return -1;
-    }
-  });
-
-  let begin: boolean = true;
-  let data: String = "[";
-  for (const t of timeChartDataList) {
-    if (begin != true) {
-      data += ",\n";
-    }
-    begin = false;
-    data += "[";
-    data += "'" + t.rowLabel + "', ";
-    data += "'" + t.barLabel + "', ";
-    if (options.timeFormat == "estimate") {
-      data += t.begin + ", ";
-      data += "" + t.end;
-    } else {
-      // e.g., new Date(1789, 3, 30, 12, 1, 0)
-      data +=
-        "new Date(" +
-        t.beginDate.getFullYear() +
-        "," +
-        t.beginDate.getMonth() +
-        "," +
-        t.beginDate.getDay() +
-        "," +
-        t.beginDate.getHours() +
-        "," +
-        t.beginDate.getMinutes() +
-        "," +
-        t.beginDate.getSeconds() +
-        "), ";
-      data +=
-        "new Date(" +
-        t.endDate.getFullYear() +
-        "," +
-        t.endDate.getMonth() +
-        "," +
-        t.endDate.getDay() +
-        "," +
-        t.endDate.getHours() +
-        "," +
-        t.endDate.getMinutes() +
-        "," +
-        t.endDate.getSeconds() +
-        "), ";
-    }
-    data += "]";
-  }
-  data += "\n]";
-  return data;
-}
 export async function createGoogleTimeChart(
   header: string,
   stateList: State[],
@@ -507,9 +402,6 @@ export async function createGoogleTimeChart(
     let chartData: String = await convertGoogleTimeChartData(
       stateList,
       options
-    );
-    chartData.concat(
-      convertGoogleTimeChartTestNum(stateList, options).toString()
     );
     const template = await fs.readFile(templatePath);
     let chartHTML = template
