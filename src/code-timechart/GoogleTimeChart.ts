@@ -5,7 +5,6 @@ import { EditEvent } from "./analyzeEditActivity";
 import { RunEvent } from "./analyzeRunResults";
 import { WSEvent } from "./analyzeWS";
 import { getFileNameFromDotPath, isProductCode, isTestCode } from "./common";
-import { setMadeTestCases, getMadeTestCases } from "./createGoogleTimeChart";
 import { join, dirname } from "path";
 import { existsSync } from "fs";
 import { time } from "console";
@@ -20,7 +19,10 @@ interface GTimeChartData {
   beginDate: Date;
   endDate: Date;
 }
-
+interface MadeTestList {
+  name: String;
+  pass: String;
+}
 async function getSummaryData(base: GTimeChartData): Promise<GTimeChartData> {
   let rowLabel = "#SUMMARY";
   const state = base.state;
@@ -109,7 +111,7 @@ async function appendGoogleTimeChartDataForTest(
   state: State,
   event: TestEvent,
   timeChartDataList: GTimeChartData[],
-  madeTestCases: String[]
+  madeTestCases: MadeTestList[]
 ) {
   {
     let barLabel = Math.round(event.passRatio) + "%";
@@ -208,12 +210,12 @@ async function appendGoogleTimeChartDataForTest(
       }
       //以下追加
       // const madeTestCases: String[] = getMadeTestCases();
-
+      const name: String[] = madeTestCases.map((item) => item.name);
       if (
-        !madeTestCases.includes(testCase.replace(/\(.*\)/, "")) &&
+        !name.includes(testCase.replace(/\(.*\)/, "")) &&
         !testCase.includes("@ignore")
       ) {
-        madeTestCases.push(testCase.replace(/\(.*\)/, ""));
+        madeTestCases.push({ name: testCase.replace(/\(.*\)/, ""), pass: "" });
 
         const num: number = madeTestCases.length;
         const rowLabel = "TestCasesNum";
@@ -230,6 +232,28 @@ async function appendGoogleTimeChartDataForTest(
         timeChartDataList.push(timeChartData);
       }
       // setMadeTestCases(madeTestCases);
+    }
+    const failedTestList = treeNode.testMethodNameList.filter((item) =>
+      event.failedCase.includes(item)
+    );
+    const passedTestList = treeNode.testMethodNameList.filter(
+      (item) => !event.failedCase.includes(item)
+    );
+    for (const name of failedTestList) {
+      madeTestCases.map((item) => {
+        if (name == item.name) {
+          item.pass = "fail";
+        }
+      });
+    }
+    for (const name of passedTestList) {
+      //ignoreでフィルター、括弧削除
+      madeTestCases.map((item) => {
+        console.log(name + " " + item.name);
+        if (name == item.name) {
+          item.pass = "pass";
+        }
+      });
     }
   }
 }
@@ -273,7 +297,8 @@ async function convertGoogleTimeChartData(
   options: any
 ): Promise<String> {
   const timeChartDataList: GTimeChartData[] = [];
-  const madeTestCases: String[] = [];
+
+  let madeTestList: MadeTestList[] = [];
   for (const state of stateList) {
     let rowLabel = "";
     let barLabel = "";
@@ -294,7 +319,7 @@ async function convertGoogleTimeChartData(
         state,
         event,
         timeChartDataList,
-        madeTestCases
+        madeTestList
       );
     } else if (state.type == "run") {
       const event: RunEvent = state.info as RunEvent;
@@ -312,7 +337,6 @@ async function convertGoogleTimeChartData(
       }
     }
   }
-  console.log(madeTestCases.length);
   return await convertGoogleTimeChartString(timeChartDataList, options);
 }
 

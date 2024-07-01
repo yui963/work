@@ -5,14 +5,14 @@ import { createGoogleTimeChart } from "./GoogleTimeChart";
 import { StateInfo, stateInfoJsonPath } from "./analyzeStateInfo";
 import { existsSync } from "fs";
 
-let madeTestCases: String[] = [];
-export function setMadeTestCases(newCases: String[]) {
-  madeTestCases = newCases;
-  return madeTestCases;
-}
-export function getMadeTestCases() {
-  return madeTestCases;
-}
+// let madeTestCases: String[] = [];
+// export function setMadeTestCases(newCases: String[]) {
+//   madeTestCases = newCases;
+//   return madeTestCases;
+// }
+// export function getMadeTestCases() {
+//   return madeTestCases;
+// }
 export function createChartByIDandSession() {
   // const outputChartDir = "./output/chart/";
   const outputChartDir = path.join(process.cwd(), "output", "chart");
