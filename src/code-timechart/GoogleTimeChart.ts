@@ -241,21 +241,26 @@ async function appendGoogleTimeChartDataForTest(
     );
     for (const name of failedTestList) {
       madeTestCases.map((item) => {
-        if (name == item.name) {
+        if (name.replace(/\(.*\)/, "") == item.name) {
           item.pass = "fail";
         }
       });
     }
     for (const name of passedTestList) {
-      //ignoreでフィルター、括弧削除
       madeTestCases.map((item) => {
-        console.log(name + " " + item.name);
-        if (name == item.name) {
+        if (name.replace(/\(.*\)/, "") == item.name) {
           item.pass = "pass";
         }
       });
     }
   }
+  let passNum: number = 0;
+  madeTestCases.map((item) => {
+    if (item.pass == "pass") {
+      passNum += 1;
+    }
+  });
+  console.log(Math.round((passNum / madeTestCases.length) * 100) + "%");
 }
 async function createGoogleTimeChartDataForRun(
   state: State,
