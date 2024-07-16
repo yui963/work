@@ -18,6 +18,7 @@ function searchTestNames(path: string, testNames: string[]): void {
   }
 }
 function countTestNum(directoryPath: string): void {
+  const results: string[] = [];
   const items = fs.readdirSync(directoryPath); //ws-history
   //item is YYYY-MM-DD
   for (const item of items) {
@@ -31,6 +32,7 @@ function countTestNum(directoryPath: string): void {
       "lang"
     );
     processDirectory(langPath, testNames);
+    results.push(item, testNames.length);
     writeCsv(item, testNames.length);
   }
 }
@@ -73,6 +75,6 @@ function writeCsv(date: string, num: number) {
       console.error("CSVファイルの出力中にエラーが発生しました", err)
     );
 }
-
+function createGoogleCharts(samplePath: string, outputPath: string) {}
 const filePath = "./ws-history";
 countTestNum(filePath);
