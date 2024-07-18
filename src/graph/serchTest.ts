@@ -18,7 +18,7 @@ function searchTestNames(path: string, testNames: string[]): void {
   }
 }
 function countTestNum(directoryPath: string): void {
-  const results: string[] = [];
+  const results: [string, number][] = [];
   const items = fs.readdirSync(directoryPath); //ws-history
   //item is YYYY-MM-DD
   for (const item of items) {
@@ -32,9 +32,10 @@ function countTestNum(directoryPath: string): void {
       "lang"
     );
     processDirectory(langPath, testNames);
-    results.push(item, testNames.length);
-    writeCsv(item, testNames.length);
+    results.push([item, testNames.length]);
+    // writeCsv(item, testNames.length);
   }
+  createGoogleCharts(results);
 }
 function processDirectory(langPath: string, testNames: string[]): void {
   processSubdirectory(langPath, testNames, "");
@@ -56,25 +57,33 @@ function processSubdirectory(
     }
   }
 }
-function writeCsv(date: string, num: number) {
-  const csvFilePath = "./output/methodNum.csv";
-  const data = [{ date: date, num: num }];
-  const csvWriter = createObjectCsvWriter({
-    path: csvFilePath,
-    header: [
-      { id: "date", title: "Date" },
-      { id: "num", title: "Num" },
-    ],
-    append: true,
-  });
+// function writeCsv(date: string, num: number) {
+//   const csvFilePath = "./output/methodNum.csv";
+//   const data = [{ date: date, num: num }];
+//   const csvWriter = createObjectCsvWriter({
+//     path: csvFilePath,
+//     header: [
+//       { id: "date", title: "Date" },
+//       { id: "num", title: "Num" },
+//     ],
+//     append: true,
+//   });
 
-  csvWriter
-    .writeRecords(data)
-    .then(() => console.log("CSVファイルが正常に出力されました"))
-    .catch((err: any) =>
-      console.error("CSVファイルの出力中にエラーが発生しました", err)
-    );
+//   csvWriter
+//     .writeRecords(data)
+//     .then()
+//     .catch((err: any) =>
+//       console.error("CSVファイルの出力中にエラーが発生しました", err)
+//     );
+// }
+function createGoogleCharts(results: [string, number][]) {
+  const dataReplacePattern = "##%%$$DATA$$%%##";
+  const samplePath = "./chart-template/chart-template.txt";
+  const outputPath = "./output/googleChart.html";
+  const template = fs.readFileSync(samplePath);
+  const jsonResults = JSON.stringify(results);
+  let chartHTML = template.toString().replace(dataReplacePattern, jsonResults);
+  fs.writeFileSync(outputPath, chartHTML, "utf-8");
 }
-function createGoogleCharts(samplePath: string, outputPath: string) {}
 const filePath = "./ws-history";
 countTestNum(filePath);
