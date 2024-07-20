@@ -18,10 +18,12 @@ function searchTestNames(path: string, testNames: string[]): void {
   }
 }
 function countTestNum(directoryPath: string): void {
-  const results: [string, number][] = [];
+  const results: [number, number][] = [];
   const items = fs.readdirSync(directoryPath); //ws-history
   //item is YYYY-MM-DD
+  let i = 0;
   for (const item of items) {
+    i++;
     const testNames: string[] = [];
     const langPath = path.join(
       directoryPath,
@@ -32,9 +34,10 @@ function countTestNum(directoryPath: string): void {
       "lang"
     );
     processDirectory(langPath, testNames);
-    results.push([item, testNames.length]);
+    results.push([i, testNames.length]);
     // writeCsv(item, testNames.length);
   }
+
   createGoogleCharts(results);
 }
 function processDirectory(langPath: string, testNames: string[]): void {
@@ -76,7 +79,7 @@ function processSubdirectory(
 //       console.error("CSVファイルの出力中にエラーが発生しました", err)
 //     );
 // }
-function createGoogleCharts(results: [string, number][]) {
+function createGoogleCharts(results: [number, number][]) {
   const dataReplacePattern = "##%%$$DATA$$%%##";
   const samplePath = "./chart-template/chart-template.txt";
   const outputPath = "./output/googleChart.html";
@@ -85,5 +88,7 @@ function createGoogleCharts(results: [string, number][]) {
   let chartHTML = template.toString().replace(dataReplacePattern, jsonResults);
   fs.writeFileSync(outputPath, chartHTML, "utf-8");
 }
-const filePath = "./ws-history";
-countTestNum(filePath);
+
+const filePath = "./student";
+// countTestNum(path.join(filePath, "70110023"));
+countTestNum(path.join(filePath, "70110094"));
