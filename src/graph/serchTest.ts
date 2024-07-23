@@ -1,15 +1,23 @@
 import * as fs from "fs";
 import * as path from "path";
 import { createObjectCsvWriter } from "csv-writer";
+import { start } from "repl";
 function searchTestNames(path: string, testNames: string[]): void {
   let flag: boolean = false;
+  let comment: boolean = false;
   const content = fs.readFileSync(path, "utf-8");
 
   const lines = content.split("\n");
   for (const line of lines) {
-    if (line.includes("@Test")) {
+    if (line.startsWith("/*")) {
+      comment = true;
+    }
+    if (line.includes("*/")) {
+      comment = false;
+    }
+    if (!comment && line.startsWith("@Test")) {
       flag = true;
-    } else if (flag && !(line == "\n")) {
+    } else if (flag && !(line == "\n") && !comment) {
       let methodName = line.replace(/public void /g, "");
       methodName = methodName.replace(/\(.*/, "");
       testNames.push(methodName);
@@ -19,12 +27,15 @@ function searchTestNames(path: string, testNames: string[]): void {
 }
 function countTestNum(directoryPath: string): void {
   const results: [number, number][] = [];
+  let isFirst: boolean = true;
   const items = fs.readdirSync(directoryPath); //ws-history
+  let firstDate: Date = new Date();
+  let targetDate: Date = new Date();
+  let prevDate: Date = new Date();
   //item is YYYY-MM-DD
-  let i = 0;
   for (const item of items) {
-    i++;
     const testNames: string[] = [];
+    let interval: number = 0;
     const langPath = path.join(
       directoryPath,
       item,
@@ -34,11 +45,30 @@ function countTestNum(directoryPath: string): void {
       "lang"
     );
     processDirectory(langPath, testNames);
-    results.push([i, testNames.length]);
+    if (isFirst) {
+      firstDate = convertDate(item);
+      targetDate = convertDate(item);
+      isFirst = false;
+    } else {
+      //1時間超えたら
+      if (targetDate.getTime() - prevDate.getTime() > 3600000) {
+        prevDate = targetDate;
+        break;
+      }
+      targetDate = convertDate(item);
+    }
+    interval += targetDate.getTime() - firstDate.getTime();
+    prevDate = targetDate;
+    //itemを経過時間に変換する
+    results.push([interval, testNames.length]);
     // writeCsv(item, testNames.length);
   }
 
   createGoogleCharts(results);
+}
+function convertDate(str: string): Date {
+  const result = new Date(str.replace("_", "T").replace(/\./g, ":"));
+  return result;
 }
 function processDirectory(langPath: string, testNames: string[]): void {
   processSubdirectory(langPath, testNames, "");
