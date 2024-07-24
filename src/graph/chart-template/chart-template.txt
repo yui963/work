@@ -8,17 +8,19 @@
     function drawChart() {
 
       var data = new google.visualization.DataTable();
-      data.addColumn('number', 'ws-count');
-      data.addColumn('number','70110094')
+      data.addColumn('number', 'time(mins)');
+      data.addColumn('number','number of test cases')
 
       data.addRows(##%%$$DATA$$%%##);
 
       var options = {
         chart: {
-          title: '70110023',
-          subtitle: 'cv05',
+          title: ##%%$$TITLE$$%%##,
+          subtitle: ##%%$$SESSION$$%%##,
         },
-        curveType: 'function',
+        hAxis: {
+            format: 'decimal' 
+        },
         width: 900,
         height: 500
       };

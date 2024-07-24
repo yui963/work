@@ -8,14 +8,15 @@ function searchTestNames(path: string, testNames: string[]): void {
   const content = fs.readFileSync(path, "utf-8");
 
   const lines = content.split("\n");
+  //\*だけで1行という前提
   for (const line of lines) {
-    if (line.startsWith("/*")) {
+    if (line.includes("/*")) {
       comment = true;
     }
     if (line.includes("*/")) {
       comment = false;
     }
-    if (!comment && line.startsWith("@Test")) {
+    if (!comment && !line.includes("//") && line.includes("@Test")) {
       flag = true;
     } else if (flag && !(line == "\n") && !comment) {
       let methodName = line.replace(/public void /g, "");
@@ -25,19 +26,24 @@ function searchTestNames(path: string, testNames: string[]): void {
     }
   }
 }
-function countTestNum(directoryPath: string): void {
+function countTestNum(
+  directoryPath: string,
+  studentNumber: string,
+  session: string
+): void {
   const results: [number, number][] = [];
   let isFirst: boolean = true;
-  const items = fs.readdirSync(directoryPath); //ws-history
+  const items = fs.readdirSync(path.join(directoryPath, studentNumber)); //ws-history
   let firstDate: Date = new Date();
   let targetDate: Date = new Date();
   let prevDate: Date = new Date();
+  let blank: number = 0;
   //item is YYYY-MM-DD
   for (const item of items) {
     const testNames: string[] = [];
-    let interval: number = 0;
     const langPath = path.join(
       directoryPath,
+      studentNumber,
       item,
       "src",
       "test",
@@ -45,26 +51,29 @@ function countTestNum(directoryPath: string): void {
       "lang"
     );
     processDirectory(langPath, testNames);
+
+    targetDate = convertDate(item);
     if (isFirst) {
       firstDate = convertDate(item);
-      targetDate = convertDate(item);
       isFirst = false;
     } else {
       //1時間超えたら
       if (targetDate.getTime() - prevDate.getTime() > 3600000) {
+        blank += targetDate.getTime() - prevDate.getTime();
         prevDate = targetDate;
-        break;
+        continue;
       }
-      targetDate = convertDate(item);
     }
-    interval += targetDate.getTime() - firstDate.getTime();
+    //ms -> hour
+    const passTime =
+      (targetDate.getTime() - firstDate.getTime() - blank) / (1000 * 60);
     prevDate = targetDate;
     //itemを経過時間に変換する
-    results.push([interval, testNames.length]);
+    results.push([passTime, testNames.length]);
     // writeCsv(item, testNames.length);
   }
 
-  createGoogleCharts(results);
+  createGoogleCharts(results, studentNumber, session);
 }
 function convertDate(str: string): Date {
   const result = new Date(str.replace("_", "T").replace(/\./g, ":"));
@@ -109,16 +118,26 @@ function processSubdirectory(
 //       console.error("CSVファイルの出力中にエラーが発生しました", err)
 //     );
 // }
-function createGoogleCharts(results: [number, number][]) {
+function createGoogleCharts(
+  results: [number, number][],
+  studentNumber: string,
+  session: string
+) {
   const dataReplacePattern = "##%%$$DATA$$%%##";
+  const titleRePlacePattern = "##%%$$TITLE$$%%##";
+  const sessionReplacePattern = "##%%$$SESSION$$%%##";
   const samplePath = "./chart-template/chart-template.txt";
   const outputPath = "./output/googleChart.html";
   const template = fs.readFileSync(samplePath);
   const jsonResults = JSON.stringify(results);
-  let chartHTML = template.toString().replace(dataReplacePattern, jsonResults);
+  const chartHTML = template
+    .toString()
+    .replace(dataReplacePattern, jsonResults)
+    .replace(titleRePlacePattern, '"' + studentNumber + '"')
+    .replace(sessionReplacePattern, '"' + session + '"');
   fs.writeFileSync(outputPath, chartHTML, "utf-8");
 }
 
 const filePath = "./student";
 // countTestNum(path.join(filePath, "70110023"));
-countTestNum(path.join(filePath, "70110094"));
+countTestNum(filePath, "70110094", "cv06");
