@@ -22,6 +22,7 @@ function searchTestNames(path: string, testNames: string[]): void {
       let methodName = line.replace(/public void /g, "");
       methodName = methodName.replace(/\(.*/, "");
       testNames.push(methodName);
+      console.log(methodName);
       flag = false;
     }
   }
@@ -31,7 +32,7 @@ function countTestNum(
   studentNumber: string,
   session: string
 ): void {
-  const results: [number, number][] = [];
+  const results: [number, null, number][] = [];
   let isFirst: boolean = true;
   const items = fs.readdirSync(path.join(directoryPath, studentNumber)); //ws-history
   let firstDate: Date = new Date();
@@ -69,7 +70,7 @@ function countTestNum(
       (targetDate.getTime() - firstDate.getTime() - blank) / (1000 * 60);
     prevDate = targetDate;
     //itemを経過時間に変換する
-    results.push([passTime, testNames.length]);
+    results.push([passTime, null, testNames.length]);
     // writeCsv(item, testNames.length);
   }
 
@@ -119,7 +120,7 @@ function processSubdirectory(
 //     );
 // }
 function createGoogleCharts(
-  results: [number, number][],
+  results: [number, null | number, number][],
   studentNumber: string,
   session: string
 ) {
@@ -129,15 +130,21 @@ function createGoogleCharts(
   const samplePath = "./chart-template/chart-template.txt";
   const outputPath = "./output/googleChart.html";
   const template = fs.readFileSync(samplePath);
+  const min = 175;
+  const max = 185;
+
+  results[0][1] = min;
+  results[results.length - 1][1] = max;
+
   const jsonResults = JSON.stringify(results);
   const chartHTML = template
     .toString()
     .replace(dataReplacePattern, jsonResults)
-    .replace(titleRePlacePattern, '"' + studentNumber + '"')
-    .replace(sessionReplacePattern, '"' + session + '"');
+    .replace(titleRePlacePattern, studentNumber)
+    .replace(sessionReplacePattern, session);
   fs.writeFileSync(outputPath, chartHTML, "utf-8");
 }
 
 const filePath = "./student";
-// countTestNum(path.join(filePath, "70110023"));
-countTestNum(filePath, "70110094", "cv06");
+countTestNum(filePath, "70110023", "cv05");
+// countTestNum(filePath, "70110094", "cv06");
