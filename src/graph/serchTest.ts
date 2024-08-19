@@ -1,12 +1,9 @@
 import * as fs from "fs";
 import * as path from "path";
-import { createObjectCsvWriter } from "csv-writer";
-import { start } from "repl";
 function searchTestNames(path: string, testNames: string[]): void {
   let flag: boolean = false;
   let comment: boolean = false;
   const content = fs.readFileSync(path, "utf-8");
-
   const lines = content.split("\n");
   //\*だけで1行という前提
   for (const line of lines) {
@@ -21,8 +18,8 @@ function searchTestNames(path: string, testNames: string[]): void {
     } else if (flag && !(line == "\n") && !comment) {
       let methodName = line.replace(/public void /g, "");
       methodName = methodName.replace(/\(.*/, "");
-      testNames.push(methodName);
-      console.log(methodName);
+      methodName = methodName.replace(/\r+$/, "");
+      testNames.push(methodName.trim());
       flag = false;
     }
   }
@@ -71,7 +68,6 @@ function countTestNum(
     prevDate = targetDate;
     //itemを経過時間に変換する
     results.push([passTime, null, testNames.length]);
-    // writeCsv(item, testNames.length);
   }
 
   createGoogleCharts(results, studentNumber, session);
@@ -100,25 +96,6 @@ function processSubdirectory(
     }
   }
 }
-// function writeCsv(date: string, num: number) {
-//   const csvFilePath = "./output/methodNum.csv";
-//   const data = [{ date: date, num: num }];
-//   const csvWriter = createObjectCsvWriter({
-//     path: csvFilePath,
-//     header: [
-//       { id: "date", title: "Date" },
-//       { id: "num", title: "Num" },
-//     ],
-//     append: true,
-//   });
-
-//   csvWriter
-//     .writeRecords(data)
-//     .then()
-//     .catch((err: any) =>
-//       console.error("CSVファイルの出力中にエラーが発生しました", err)
-//     );
-// }
 function createGoogleCharts(
   results: [number, null | number, number][],
   studentNumber: string,
@@ -145,6 +122,37 @@ function createGoogleCharts(
   fs.writeFileSync(outputPath, chartHTML, "utf-8");
 }
 
+function countTestCaseModel(directoryPath: string): void {
+  type TestCaseModel = {
+    sid: number;
+    num: number;
+    testNames: string[];
+  };
+  let testDistributed: TestCaseModel[] = [];
+  const outputPath = "./output/testDistributed.json";
+  if (fs.existsSync(outputPath)) {
+    fs.unlinkSync(outputPath);
+  }
+  for (let i = 1; i <= 7; i++) {
+    const testNames: string[] = [];
+    let str = "test0";
+    str += i;
+    const langPath = path.join(directoryPath, str, "java", "lang");
+    processDirectory(langPath, testNames);
+    const data = {
+      sid: i,
+      num: testNames.length,
+      testNames: testNames,
+    };
+    testDistributed.push(data);
+  }
+  fs.writeFileSync(outputPath, JSON.stringify(testDistributed, null, 2), {
+    flag: "a",
+    encoding: "utf-8",
+  });
+}
+
 const filePath = "./student";
-countTestNum(filePath, "70110023", "cv05");
-// countTestNum(filePath, "70110094", "cv06");
+const testCaseModelPath = "./testCaseModel";
+//countTestNum(filePath, "70110023", "cv05");
+countTestCaseModel(testCaseModelPath);
