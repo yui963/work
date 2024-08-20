@@ -49,7 +49,7 @@ function countTestNum(
   let finalTestNames: string[] = [];
   //item is YYYY-MM-DD
   for (const item of items) {
-    let testNames: string[] = testDistributed;
+    let testNames: string[] = [...testDistributed];
     const langPath = path.join(
       directoryPath,
       studentNumber,
@@ -125,11 +125,20 @@ function createGoogleCharts(
   const sessionReplacePattern = "##%%$$SESSION$$%%##";
   const samplePath = "./chart-template/chart-template.txt";
   const outputPath =
-    "./output/googleChart" + "_" + studentNumber + "_" + session + ".html";
+    "./output/" +
+    studentNumber +
+    "/googleChart" +
+    "_" +
+    studentNumber +
+    "_" +
+    session +
+    ".html";
+  if (!fs.existsSync(path.dirname(outputPath))) {
+    fs.mkdirSync(outputPath, { recursive: true });
+  }
   const template = fs.readFileSync(samplePath);
   const min = 0;
   const max = 20;
-  console.log(results);
   results[0][1] = min;
   results[results.length - 1][1] = max;
 
@@ -186,7 +195,7 @@ function main(): void {
     countTestNum(
       filePath,
       studentNumber,
-      "cv0" + sid,
+      "cv0" + i,
       madeTest,
       testDistributed[sid - 1].testNames
     );
