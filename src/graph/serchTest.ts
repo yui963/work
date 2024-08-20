@@ -9,6 +9,7 @@ function searchTestNames(
   let comment: boolean = false;
   const content = fs.readFileSync(path, "utf-8");
   const lines = content.split("\n");
+  let count = 0; //debug
   //\*だけで1行という前提
   for (const line of lines) {
     if (line.includes("/*")) {
@@ -25,7 +26,7 @@ function searchTestNames(
         .replace(/\(.*/, "")
         .replace(/\r+$/, "")
         .trim();
-      if (!madeTest.includes(methodName)) {
+      if (!madeTest.includes(methodName) && !testNames.includes(methodName)) {
         testNames.push(methodName);
       }
       flag = false;
@@ -48,6 +49,7 @@ function countTestNum(
   let blank: number = 0;
   let finalTestNames: string[] = [];
   //item is YYYY-MM-DD
+  madeTest = [...testDistributed];
   for (const item of items) {
     let testNames: string[] = [...testDistributed];
     const langPath = path.join(
@@ -79,10 +81,17 @@ function countTestNum(
     prevDate = targetDate;
     //itemを経過時間に変換する
     results.push([passTime, null, testNames.length]);
-    finalTestNames = testNames;
+    finalTestNames = [...testNames];
+    fs.writeFileSync(
+      "./debug.txt",
+      finalTestNames.join("\n").toString(),
+      "utf-8"
+    );
   }
   for (const item of finalTestNames) {
-    madeTest.push(item); //全部終わってからまとめて更新する
+    if (!madeTest.includes(item)) {
+      madeTest.push(item); //全部終わってからまとめて更新する
+    }
   }
   createGoogleCharts(results, studentNumber, session);
 }
