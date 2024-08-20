@@ -142,7 +142,7 @@ function createGoogleCharts(
     session +
     ".html";
   if (!fs.existsSync(path.dirname(outputPath))) {
-    fs.mkdirSync(outputPath, { recursive: true });
+    fs.mkdirSync(path.dirname(outputPath), { recursive: true });
   }
   const template = fs.readFileSync(samplePath);
   const min = 0;
@@ -183,6 +183,9 @@ function countTestCaseModel(directoryPath: string): void {
       testNames: testNames,
     };
     testDistributed.push(data);
+  }
+  if (!fs.existsSync(outputPath)) {
+    fs.mkdirSync(path.dirname(outputPath), { recursive: true });
   }
   fs.writeFileSync(outputPath, JSON.stringify(testDistributed, null, 2), {
     flag: "a",
