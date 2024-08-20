@@ -9,7 +9,6 @@ function searchTestNames(
   let comment: boolean = false;
   const content = fs.readFileSync(path, "utf-8");
   const lines = content.split("\n");
-  let count = 0; //debug
   //\*だけで1行という前提
   for (const line of lines) {
     if (line.includes("/*")) {
