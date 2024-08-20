@@ -124,7 +124,8 @@ function createGoogleCharts(
   const titleRePlacePattern = "##%%$$TITLE$$%%##";
   const sessionReplacePattern = "##%%$$SESSION$$%%##";
   const samplePath = "./chart-template/chart-template.txt";
-  const outputPath = "./output/googleChart.html";
+  const outputPath =
+    "./output/googleChart" + "_" + studentNumber + "_" + session + ".html";
   const template = fs.readFileSync(samplePath);
   const min = 0;
   const max = 20;
