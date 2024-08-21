@@ -41,19 +41,17 @@ function countTestNum(
 ): void {
   const results: [number, null, number][] = [];
   let isFirst: boolean = true;
-  const items = fs.readdirSync(path.join(directoryPath, studentNumber)); //ws-history
+  const items = fs.readdirSync(directoryPath); //ws-history
   let firstDate: Date = new Date();
   let targetDate: Date = new Date();
   let prevDate: Date = new Date();
   let blank: number = 0;
   let finalTestNames: string[] = [];
   //item is YYYY-MM-DD
-  madeTest = [...testDistributed];
   for (const item of items) {
     let testNames: string[] = [...testDistributed];
     const langPath = path.join(
       directoryPath,
-      studentNumber,
       item,
       "src",
       "test",
@@ -81,12 +79,22 @@ function countTestNum(
     //itemを経過時間に変換する
     results.push([passTime, null, testNames.length]);
     finalTestNames = [...testNames];
+    //for debug
+    if (!fs.existsSync("./debug")) {
+      fs.mkdirSync("./debug", { recursive: true });
+    }
     fs.writeFileSync(
-      "./debug.txt",
+      "./debug/debug_" + session + ".txt",
       finalTestNames.join("\n").toString(),
       "utf-8"
     );
+    fs.writeFileSync(
+      "./debug/madeTest_" + session + ".txt",
+      madeTest.join("\n").toString(),
+      "utf-8"
+    );
   }
+
   for (const item of finalTestNames) {
     if (!madeTest.includes(item)) {
       madeTest.push(item); //全部終わってからまとめて更新する
@@ -141,12 +149,13 @@ function createGoogleCharts(
     "_" +
     session +
     ".html";
-  if (!fs.existsSync(path.dirname(outputPath))) {
+
+  if (!fs.existsSync(outputPath)) {
     fs.mkdirSync(path.dirname(outputPath), { recursive: true });
   }
   const template = fs.readFileSync(samplePath);
   const min = 0;
-  const max = 20;
+  const max = results[results.length - 1][2];
   results[0][1] = min;
   results[results.length - 1][1] = max;
 
@@ -192,9 +201,26 @@ function countTestCaseModel(directoryPath: string): void {
     encoding: "utf-8",
   });
 }
+
+function createEachPath(studentNumber: string, sid: number): string {
+  const basePath = path.join("d:/unzips", studentNumber);
+  const dirs = fs.readdirSync(basePath, { withFileTypes: true });
+
+  for (const dir of dirs) {
+    if (dir.isDirectory() && dir.name.includes("CV0" + sid)) {
+      const sessionPath = path.join(basePath, dir.name);
+      const createdPath = path.join(
+        sessionPath,
+        "kokokonolabs-log-fv01",
+        "ws-history"
+      );
+      return createdPath;
+    }
+  }
+  throw new Error(`Error: Directory containing "0${sid}" not found.`);
+}
 function main(): void {
   const jsonPath = "./output/testDistributed.json";
-  const filePath = "./student";
   const testCaseModelPath = "./testCaseModel";
   let madeTest: string[] = [];
   countTestCaseModel(testCaseModelPath);
@@ -202,13 +228,14 @@ function main(): void {
   const studentNumber: string = process.argv.slice(2)[0];
   const sid: number = Number(process.argv.slice(2)[1]);
   for (let i = 1; i <= sid; i++) {
-    madeTest.push(testDistributed[sid - 1].testNames);
+    const filePath = createEachPath(studentNumber, i);
+    madeTest.push(...testDistributed[i - 1].testNames);
     countTestNum(
       filePath,
       studentNumber,
       "cv0" + i,
       madeTest,
-      testDistributed[sid - 1].testNames
+      testDistributed[i - 1].testNames
     );
   }
 }

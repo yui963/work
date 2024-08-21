@@ -24,7 +24,7 @@
         },
         interpolateNulls:true,
         series:{
-          0:{color:'#DCDCDC',lineWidth:50,pointsVisible:false},
+          0:{color:'#DCDCDC',lineWidth:30,pointsVisible:false},
           1:{}
         },
         width: 900,
