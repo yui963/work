@@ -54,7 +54,9 @@ export function createChartByIDandSession() {
       stateInfo.stateList,
       { timeFormat: "estimate" },
       templatePath,
-      chartFilePath
+      chartFilePath,
+      stateInfo.id,
+      stateInfo.session
     );
     // .then(() => {
     //   fs.ensureDir(dirname(madeTestCasesPath));

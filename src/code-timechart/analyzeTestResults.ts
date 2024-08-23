@@ -55,6 +55,7 @@ async function getTestResultLog(directory: string): Promise<TestEvent[]> {
     let testLog: TestEvent[] = [];
     const files = await fs.readdir(directory, { withFileTypes: true });
     console.log("File Num(Test Result): " + files.length);
+
     for (const file of files) {
       let invokedDate: Date | undefined = undefined;
       let filePath = directory + "/" + file.name;

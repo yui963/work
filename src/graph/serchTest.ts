@@ -1,5 +1,19 @@
+import { kMaxLength } from "buffer";
 import * as fs from "fs";
 import * as path from "path";
+type TestCaseModel = {
+  sid: number;
+  num: number;
+  testNames: string[];
+};
+type TestInfoByDate = {
+  date: string;
+  testNames: string[];
+};
+type TestInfoBySid = {
+  sid: string;
+  info: TestInfoByDate[];
+};
 function searchTestNames(
   path: string,
   testNames: string[],
@@ -9,8 +23,17 @@ function searchTestNames(
   let comment: boolean = false;
   const content = fs.readFileSync(path, "utf-8");
   const lines = content.split("\n");
+  let skipLine = 0;
   //\*だけで1行という前提
   for (const line of lines) {
+    if (skipLine > 0) {
+      skipLine--;
+      continue;
+    }
+    if (line.includes("@ignore")) {
+      skipLine = 1;
+      continue;
+    }
     if (line.includes("/*")) {
       comment = true;
     }
@@ -37,7 +60,8 @@ function countTestNum(
   studentNumber: string,
   session: string,
   madeTest: string[],
-  testDistributed: string[]
+  testDistributed: string[],
+  testInfoByDate: TestInfoByDate[]
 ): void {
   const results: [number, null, number][] = [];
   let isFirst: boolean = true;
@@ -48,6 +72,7 @@ function countTestNum(
   let blank: number = 0;
   let finalTestNames: string[] = [];
   //item is YYYY-MM-DD
+
   for (const item of items) {
     let testNames: string[] = [...testDistributed];
     const langPath = path.join(
@@ -59,7 +84,7 @@ function countTestNum(
       "lang"
     );
     processDirectory(langPath, testNames, madeTest);
-
+    testInfoByDate.push({ date: item, testNames: testNames });
     targetDate = convertDate(item);
     if (isFirst) {
       firstDate = convertDate(item);
@@ -169,11 +194,6 @@ function createGoogleCharts(
 }
 
 function countTestCaseModel(directoryPath: string): void {
-  type TestCaseModel = {
-    sid: number;
-    num: number;
-    testNames: string[];
-  };
   let testDistributed: TestCaseModel[] = [];
   const outputPath = "./output/testDistributed.json";
   if (fs.existsSync(outputPath)) {
@@ -182,8 +202,7 @@ function countTestCaseModel(directoryPath: string): void {
   for (let i = 1; i <= 7; i++) {
     let hoge: string[] = [];
     const testNames: string[] = [];
-    let str = "test0";
-    str += i;
+    let str = "test0${i}";
     const langPath = path.join(directoryPath, str, "java", "lang");
     processDirectory(langPath, testNames, hoge);
     const data = {
@@ -227,16 +246,26 @@ function main(): void {
   const testDistributed = JSON.parse(fs.readFileSync(jsonPath, "utf8"));
   const studentNumber: string = process.argv.slice(2)[0];
   const sid: number = Number(process.argv.slice(2)[1]);
+  const testInfoBySid: TestInfoBySid[] = [];
   for (let i = 1; i <= sid; i++) {
     const filePath = createEachPath(studentNumber, i);
     madeTest.push(...testDistributed[i - 1].testNames);
+    const testInfoByDate: TestInfoByDate[] = [];
     countTestNum(
       filePath,
       studentNumber,
-      "cv0" + i,
+      "cv0${i}",
       madeTest,
-      testDistributed[i - 1].testNames
+      testDistributed[i - 1].testNames,
+      testInfoByDate
     );
+    testInfoBySid.push({ sid: "CV0${i}", info: testInfoByDate });
   }
+  const outputPath =
+    "./output/${studentNumber}/${studentNumber}testInfoByDate.json";
+  if (!fs.existsSync(outputPath)) {
+    fs.mkdirSync(path.dirname(outputPath), { recursive: true });
+  }
+  fs.writeFileSync(outputPath, JSON.stringify(testInfoBySid, null, 2), "utf-8");
 }
 main();
