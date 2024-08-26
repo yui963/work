@@ -7,7 +7,7 @@ type TestCaseModel = {
   testNames: string[];
 };
 type TestInfoByDate = {
-  date: string;
+  date: number;
   testNames: string[];
 };
 type TestInfoBySid = {
@@ -84,7 +84,8 @@ function countTestNum(
       "lang"
     );
     processDirectory(langPath, testNames, madeTest);
-    testInfoByDate.push({ date: item, testNames: testNames });
+
+    //itemを0基準にしてさらに間を詰める
     targetDate = convertDate(item);
     if (isFirst) {
       firstDate = convertDate(item);
@@ -101,6 +102,7 @@ function countTestNum(
     const passTime =
       (targetDate.getTime() - firstDate.getTime() - blank) / (1000 * 60);
     prevDate = targetDate;
+    testInfoByDate.push({ date: passTime, testNames: testNames });
     //itemを経過時間に変換する
     results.push([passTime, null, testNames.length]);
     finalTestNames = [...testNames];

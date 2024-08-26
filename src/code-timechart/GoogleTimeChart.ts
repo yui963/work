@@ -23,6 +23,7 @@ interface MadeTestList {
   name: String;
   pass: String;
 }
+
 async function getSummaryData(base: GTimeChartData): Promise<GTimeChartData> {
   let rowLabel = "#SUMMARY";
   const state = base.state;
@@ -113,12 +114,12 @@ async function appendGoogleTimeChartDataForTest(
   timeChartDataList: GTimeChartData[],
   madeTestCases: MadeTestList[],
   jsonData: any,
-  dataBase: [string, string | null][],
+  database: [string, string | null, boolean, number][],
   jsonDate: Date,
   passRatioPath: string
 ) {
   //add
-  while (event.invokedDate > jsonDate) {
+  while (state.datetimeStart > jsonDate) {
     const index = jsonData.findIndex((entry) => entry.date == jsonDate);
     if (index != -1 && index + 1 < jsonData.length) {
       jsonDate = jsonData[index + 1].date;
@@ -129,17 +130,29 @@ async function appendGoogleTimeChartDataForTest(
   let JsonTest: string[] = jsonData.find(
     (item) => item.date == jsonDate
   )?.testName;
-  dataBase = dataBase.filter(([testName]) => JsonTest.includes(testName));
+  database = database.filter(([testName]) => JsonTest.includes(testName));
   for (const item of JsonTest) {
-    if (!dataBase.some(([testName, result]) => testName == item)) {
-      dataBase.push([item, null]);
+    if (!database.some(([testName, result]) => testName == item)) {
+      database.push([item, null, false, 0]);
     }
   }
   for (const item of event.failedCase) {
-    for (const data of dataBase) {
+    for (const data of database) {
       if (data[0] == item) {
         data[1] = "fail";
+        if ((data[2] = false)) {
+          data[2] = true;
+        }
+        data[3] = 0;
         break;
+      }
+    }
+  }
+  for (const data of database) {
+    if (!event.testingCase.includes(data[0])) {
+      data[3] += 1;
+      if (data[3] > 5) {
+        console.log("neglect test is " + data[0] + ", num: " + data[3]);
       }
     }
   }
@@ -147,15 +160,19 @@ async function appendGoogleTimeChartDataForTest(
     (item) => !event.failedCase.includes(item)
   );
   for (const item of passCase) {
-    for (const data of dataBase) {
+    for (const data of database) {
       if (data[0] == item) {
         data[1] = "success";
+        if (data[2] == true) {
+          data[2] = false;
+          data[3] = 0;
+        }
         break;
       }
     }
   }
-  const totalTests = dataBase.length;
-  const passedTests = dataBase.filter(([_, result]) => result == "pass").length;
+  const totalTests = database.length;
+  const passedTests = database.filter(([_, result]) => result == "pass").length;
   const passRatio = (passedTests / totalTests) * 100;
   const passRatioData: [Date, string] = [
     event.invokedDate,
@@ -310,7 +327,7 @@ async function convertGoogleTimeChartData(
   const data = fs.readFileSync(jsonPath, "utf8");
   const jsonData = JSON.parse(data);
   const sessionData = jsonData.find((item) => item.sid == session)?.info;
-  const dataBase: [string, string][] = [];
+  const database: [string, string | null, boolean, number][] = [];
   const timeChartDataList: GTimeChartData[] = [];
   const jsonDate: Date = new Date();
   let madeTestList: MadeTestList[] = [];
@@ -343,7 +360,7 @@ async function convertGoogleTimeChartData(
         timeChartDataList,
         madeTestList,
         sessionData,
-        dataBase,
+        database,
         jsonDate,
         passRatioPath
       );
