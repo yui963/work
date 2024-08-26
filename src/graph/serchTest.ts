@@ -262,7 +262,7 @@ function main(): void {
     testInfoBySid.push({ sid: "CV0${i}", info: testInfoByDate });
   }
   const outputPath =
-    "./output/${studentNumber}/${studentNumber}testInfoByDate.json";
+    "./output/testInfoByDate/${studentNumber}testInfoByDate.json";
   if (!fs.existsSync(outputPath)) {
     fs.mkdirSync(path.dirname(outputPath), { recursive: true });
   }

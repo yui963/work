@@ -314,7 +314,8 @@ async function convertGoogleTimeChartData(
   const timeChartDataList: GTimeChartData[] = [];
   const jsonDate: Date = new Date();
   let madeTestList: MadeTestList[] = [];
-  const passRatioPath = "./output/passRatio/${id}/${session}passRatio.txt";
+  const passRatioPath =
+    "../code-timechart/output/passRatio/${id}/${session}passRatio.txt";
   fs.mkdirSync(path.dirname(passRatioPath), { recursive: true });
   if (fs.existsSync(passRatioPath)) {
     fs.unlinkSync(passRatioPath);
