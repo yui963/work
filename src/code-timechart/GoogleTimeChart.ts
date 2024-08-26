@@ -112,10 +112,56 @@ async function appendGoogleTimeChartDataForTest(
   event: TestEvent,
   timeChartDataList: GTimeChartData[],
   madeTestCases: MadeTestList[],
-  jsonData: any
+  jsonData: any,
+  dataBase: [string, string | null][],
+  jsonDate: Date,
+  passRatioPath: string
 ) {
-  //ここに辞書配列を作成する
-
+  //add
+  while (event.invokedDate > jsonDate) {
+    const index = jsonData.findIndex((entry) => entry.date == jsonDate);
+    if (index != -1 && index + 1 < jsonData.length) {
+      jsonDate = jsonData[index + 1].date;
+    } else {
+      console.log("json index error");
+    }
+  }
+  let JsonTest: string[] = jsonData.find(
+    (item) => item.date == jsonDate
+  )?.testName;
+  dataBase = dataBase.filter(([testName]) => JsonTest.includes(testName));
+  for (const item of JsonTest) {
+    if (!dataBase.some(([testName, result]) => testName == item)) {
+      dataBase.push([item, null]);
+    }
+  }
+  for (const item of event.failedCase) {
+    for (const data of dataBase) {
+      if (data[0] == item) {
+        data[1] = "fail";
+        break;
+      }
+    }
+  }
+  const passCase = event.testingCase.filter(
+    (item) => !event.failedCase.includes(item)
+  );
+  for (const item of passCase) {
+    for (const data of dataBase) {
+      if (data[0] == item) {
+        data[1] = "success";
+        break;
+      }
+    }
+  }
+  const totalTests = dataBase.length;
+  const passedTests = dataBase.filter(([_, result]) => result == "pass").length;
+  const passRatio = (passedTests / totalTests) * 100;
+  const passRatioData: [Date, string] = [
+    event.invokedDate,
+    passRatio.toFixed(2),
+  ];
+  fs.appendFileSync(passRatioPath, passRatioData.toString(), "utf8");
   let barLabel = Math.round(event.passRatio) + "%";
   barLabel +=
     "( failed: " +
@@ -263,11 +309,17 @@ async function convertGoogleTimeChartData(
   const jsonPath = "./output/testInfoByDate/" + id + "testInfoByDate.json";
   const data = fs.readFileSync(jsonPath, "utf8");
   const jsonData = JSON.parse(data);
-  const sessionData = jsonData[session.toString()];
-
+  const sessionData = jsonData.find((item) => item.sid == session)?.info;
+  const dataBase: [string, string][] = [];
   const timeChartDataList: GTimeChartData[] = [];
-
+  const jsonDate: Date = new Date();
   let madeTestList: MadeTestList[] = [];
+  const passRatioPath = "./output/passRatio/${id}/${session}passRatio.txt";
+  fs.mkdirSync(path.dirname(passRatioPath), { recursive: true });
+  if (fs.existsSync(passRatioPath)) {
+    fs.unlinkSync(passRatioPath);
+  }
+
   for (const state of stateList) {
     let rowLabel = "";
     let barLabel = "";
@@ -289,7 +341,10 @@ async function convertGoogleTimeChartData(
         event,
         timeChartDataList,
         madeTestList,
-        sessionData
+        sessionData,
+        dataBase,
+        jsonDate,
+        passRatioPath
       );
     } else if (state.type == "run") {
       const event: RunEvent = state.info as RunEvent;
