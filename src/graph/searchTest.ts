@@ -1,19 +1,19 @@
 import { kMaxLength } from "buffer";
 import * as fs from "fs";
 import * as path from "path";
-type TestCaseModel = {
+interface TestCaseModel {
   sid: number;
   num: number;
   testNames: string[];
-};
-type TestInfoByDate = {
+}
+export interface TestInfoByDate {
   date: number;
   testNames: string[];
-};
-type TestInfoBySid = {
+}
+export interface TestInfoBySid {
   sid: string;
   info: TestInfoByDate[];
-};
+}
 function searchTestNames(
   path: string,
   testNames: string[],
@@ -102,7 +102,10 @@ function countTestNum(
     const passTime =
       (targetDate.getTime() - firstDate.getTime() - blank) / (1000 * 60);
     prevDate = targetDate;
-    testInfoByDate.push({ date: passTime, testNames: testNames });
+    testInfoByDate.push({
+      date: targetDate.getTime() - firstDate.getTime() - blank,
+      testNames: testNames,
+    });
     //itemを経過時間に変換する
     results.push([passTime, null, testNames.length]);
     finalTestNames = [...testNames];
@@ -204,7 +207,7 @@ function countTestCaseModel(directoryPath: string): void {
   for (let i = 1; i <= 7; i++) {
     let hoge: string[] = [];
     const testNames: string[] = [];
-    let str = "test0${i}";
+    let str = `test0${i}`;
     const langPath = path.join(directoryPath, str, "java", "lang");
     processDirectory(langPath, testNames, hoge);
     const data = {
@@ -238,7 +241,7 @@ function createEachPath(studentNumber: string, sid: number): string {
       return createdPath;
     }
   }
-  throw new Error(`Error: Directory containing "0${sid}" not found.`);
+  throw new Error(`Error: Directory containing 0${sid} not found.`);
 }
 function main(): void {
   const jsonPath = "./output/testDistributed.json";
@@ -256,15 +259,14 @@ function main(): void {
     countTestNum(
       filePath,
       studentNumber,
-      "cv0${i}",
+      `cv0${i}`,
       madeTest,
       testDistributed[i - 1].testNames,
       testInfoByDate
     );
-    testInfoBySid.push({ sid: "CV0${i}", info: testInfoByDate });
+    testInfoBySid.push({ sid: `cv0${i}`, info: testInfoByDate });
   }
-  const outputPath =
-    "./output/testInfoByDate/${studentNumber}testInfoByDate.json";
+  const outputPath = `../code-timechart/output/testInfoByDate/${studentNumber}testInfoByDate.json`;
   if (!fs.existsSync(outputPath)) {
     fs.mkdirSync(path.dirname(outputPath), { recursive: true });
   }

@@ -11,11 +11,9 @@ parseConditionComparisonOpTest
 notHaveComparisonOperater
 semanticConditionEQTypeError
 semanticConditionGTTypeError
-ManyConditions
-ILLLE
 conditionLT2
 conditionGT2
 conditionEQ2
-semanticConditionLTTypeError
 semanticConditionNETypeError
-semanticConditionEQAmpIdentTypeError
+semanticConditionLTTypeError
+semanticConditionEQQTypeError
