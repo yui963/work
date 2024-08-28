@@ -7,7 +7,7 @@ interface TestCaseModel {
   testNames: string[];
 }
 export interface TestInfoByDate {
-  date: number;
+  date: Date;
   testNames: string[];
 }
 export interface TestInfoBySid {
@@ -65,7 +65,13 @@ function countTestNum(
 ): void {
   const results: [number, null, number][] = [];
   let isFirst: boolean = true;
-  const items = fs.readdirSync(directoryPath); //ws-history
+  const items: Date[] = fs.readdirSync(directoryPath).map((item) => {
+    const date = new Date(item);
+    if (isNaN(date.getTime())) {
+      throw new Error(`Invalid date format in file name: ${item}`);
+    }
+    return date;
+  }); //ws-history
   let firstDate: Date = new Date();
   let targetDate: Date = new Date();
   let prevDate: Date = new Date();
@@ -77,7 +83,7 @@ function countTestNum(
     let testNames: string[] = [...testDistributed];
     const langPath = path.join(
       directoryPath,
-      item,
+      item.toString(),
       "src",
       "test",
       "java",
@@ -86,9 +92,9 @@ function countTestNum(
     processDirectory(langPath, testNames, madeTest);
 
     //itemを0基準にしてさらに間を詰める
-    targetDate = convertDate(item);
+    targetDate = convertDate(item.toString());
     if (isFirst) {
-      firstDate = convertDate(item);
+      firstDate = convertDate(item.toString());
       isFirst = false;
     } else {
       //1時間超えたら
@@ -103,7 +109,7 @@ function countTestNum(
       (targetDate.getTime() - firstDate.getTime() - blank) / (1000 * 60);
     prevDate = targetDate;
     testInfoByDate.push({
-      date: targetDate.getTime() - firstDate.getTime() - blank,
+      date: item,
       testNames: testNames,
     });
     //itemを経過時間に変換する

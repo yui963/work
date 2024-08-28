@@ -111,11 +111,11 @@ async function appendGoogleTimeChartDataForTest(
   timeChartDataList: GTimeChartData[],
   jsonData: TestInfoByDate[],
   database: [string, string | null, boolean, number][],
-  jsonDate: number,
+  jsonDate: Date,
   passRatioPath: string
 ) {
   //add
-  while (state.estimateTimeStart > jsonDate) {
+  while (event.invokedDate.getTime() > jsonDate.getTime()) {
     const index = jsonData.findIndex((entry) => entry.date == jsonDate);
     if (index != -1 && index + 1 < jsonData.length) {
       jsonDate = jsonData[index + 1].date;
@@ -132,7 +132,7 @@ async function appendGoogleTimeChartDataForTest(
   }
   let JsonTest: string[] = findItem.testNames;
 
-  database = database.filter(([testName]) => JsonTest.includes(testName));
+  database = database.filter(([testName]) => JsonTest.includes(testName)); //database upgrade
   for (const item of JsonTest) {
     if (!database.some(([testName, result]) => testName == item)) {
       database.push([item, null, false, 0]);
@@ -145,23 +145,32 @@ async function appendGoogleTimeChartDataForTest(
     for (const data of database) {
       if (data[0] == item) {
         data[1] = "fail";
-        if (data[2] == false) {
-          data[2] = true;
-        }
-        data[3] = 0;
+        data[2] = true;
         break;
       }
     }
   }
+  let flag: boolean = false;
   for (const data of database) {
-    if (!testingCase.includes(data[0]) && data[2] == true) {
-      data[3] += 1;
-      if (data[3] > 5) {
-        console.log("neglect test is " + data[0] + ", num: " + data[3]);
+    //失敗フラグが立っているテストの内、一つでも実行されていればカウントを初期化する。
+    if (testingCase.includes(data[0]) && data[2] == true) {
+      flag = true;
+      for (const data of database) {
+        if (data[2] == true) {
+          data[3] = 0;
+        }
       }
-    } else {
-      data[2] = false;
-      data[3] = 0;
+      break;
+    }
+  }
+  if (!flag) {
+    for (const data of database) {
+      if (data[2] == true) {
+        data[3] += 1;
+        if (data[3] >= 5) {
+          console.log("neglect test is " + data[0] + ", num: " + data[3]);
+        }
+      }
     }
   }
   const passCase = testingCase.filter((item) => !failedCase.includes(item));
@@ -170,6 +179,8 @@ async function appendGoogleTimeChartDataForTest(
     for (const data of database) {
       if (data[0] == item) {
         data[1] = "pass";
+        data[2] = false;
+        data[3] = 0;
         break;
       }
     }
@@ -329,7 +340,7 @@ async function convertGoogleTimeChartData(
 
   const database: [string, string | null, boolean, number][] = [];
   const timeChartDataList: GTimeChartData[] = [];
-  let jsonDate: number = 0;
+  let jsonDate: Date = new Date();
   const passRatioPath = `./output/passRatio/${id}/${session}passRatio.txt`;
   fs.mkdirSync(path.dirname(passRatioPath), { recursive: true });
   if (fs.existsSync(passRatioPath)) {
