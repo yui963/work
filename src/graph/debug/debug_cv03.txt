@@ -28,10 +28,7 @@ semanticTypeErrorIntMultPint
 semanticTypeErrorIntDivPint
 semanticTypeErrorPintMultPint
 semanticTypeErrorPintDivPint
-codeGenFactor2
-codeGenFactor3
-codeGenFactor4
-codeGenTerm2
-codeGenTerm3
-semanticCheckAddressAcceptint
-semanticCheckAddressAcceptpint
+codeGenMinus
+codeGenLparSubRpar
+codeGenMult
+codeGenDiv

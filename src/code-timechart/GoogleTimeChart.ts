@@ -115,11 +115,17 @@ async function appendGoogleTimeChartDataForTest(
   passRatioPath: string
 ) {
   //add
+  if (!(event.invokedDate instanceof Date)) {
+    event.invokedDate = new Date(event.invokedDate);
+  }
+  if (!(jsonDate instanceof Date)) {
+    jsonDate = new Date(jsonDate);
+  }
   while (event.invokedDate.getTime() > jsonDate.getTime()) {
     const index = jsonData.findIndex((entry) => entry.date == jsonDate);
+
     if (index != -1 && index + 1 < jsonData.length) {
       jsonDate = jsonData[index + 1].date;
-      console.log(jsonDate);
     } else {
       console.log("json index error");
       break;
@@ -127,12 +133,17 @@ async function appendGoogleTimeChartDataForTest(
   }
   let findItem = jsonData.find((item: TestInfoByDate) => item.date == jsonDate);
   if (!findItem) {
-    console.error(`No data found data ${jsonData}`);
+    console.error(`No data found data ${jsonDate}`);
     return;
   }
   let JsonTest: string[] = findItem.testNames;
-
-  database = database.filter(([testName]) => JsonTest.includes(testName)); //database upgrade
+  //database upgrade
+  for (let i = database.length - 1; i >= 0; i--) {
+    const [testName] = database[i];
+    if (!JsonTest.includes(testName)) {
+      database.splice(i, 1);
+    }
+  }
   for (const item of JsonTest) {
     if (!database.some(([testName, result]) => testName == item)) {
       database.push([item, null, false, 0]);
@@ -141,15 +152,6 @@ async function appendGoogleTimeChartDataForTest(
   const regex = /\(.*?\)$/;
   const failedCase = event.failedCase.map((str) => str.replace(regex, ""));
   const testingCase = event.testingCase.map((str) => str.replace(regex, ""));
-  for (const item of failedCase) {
-    for (const data of database) {
-      if (data[0] == item) {
-        data[1] = "fail";
-        data[2] = true;
-        break;
-      }
-    }
-  }
   let flag: boolean = false;
   for (const data of database) {
     //失敗フラグが立っているテストの内、一つでも実行されていればカウントを初期化する。
@@ -173,8 +175,17 @@ async function appendGoogleTimeChartDataForTest(
       }
     }
   }
-  const passCase = testingCase.filter((item) => !failedCase.includes(item));
+  for (const item of failedCase) {
+    for (const data of database) {
+      if (data[0] == item) {
+        data[1] = "fail";
+        data[2] = true;
+        break;
+      }
+    }
+  }
 
+  const passCase = testingCase.filter((item) => !failedCase.includes(item));
   for (const item of passCase) {
     for (const data of database) {
       if (data[0] == item) {
@@ -192,8 +203,10 @@ async function appendGoogleTimeChartDataForTest(
     state.estimateTimeStart,
     passRatio.toFixed(2),
   ];
-  const fileContent = passRatioData[0] + "," + passRatioData[1] + "\n";
+  const fileContent =
+    passRatioData[0] + "," + passRatioData[1] + database + "\n";
   fs.appendFileSync(passRatioPath, fileContent, "utf8");
+
   let barLabel = Math.round(event.passRatio) + "%";
   barLabel +=
     "( failed: " +
@@ -334,13 +347,17 @@ async function convertGoogleTimeChartData(
   const jsonPath = "./output/testInfoByDate/" + id + "testInfoByDate.json";
   const data = fs.readFileSync(jsonPath, "utf8");
   const jsonData = JSON.parse(data);
-  const sessionData: TestInfoByDate[] = jsonData.find(
-    (item: TestInfoBySid) => item.sid == session
-  )?.info;
+  const sessionData: TestInfoByDate[] = jsonData
+    .find((item: TestInfoBySid) => item.sid == session)
+    ?.info.map((entry: TestInfoByDate) => ({
+      ...entry,
+      date: new Date(entry.date),
+    }));
 
-  const database: [string, string | null, boolean, number][] = [];
+  let database: [string, string | null, boolean, number][] = [];
   const timeChartDataList: GTimeChartData[] = [];
-  let jsonDate: Date = new Date();
+  let jsonDate: Date =
+    sessionData && sessionData.length > 0 ? sessionData[0].date : new Date();
   const passRatioPath = `./output/passRatio/${id}/${session}passRatio.txt`;
   fs.mkdirSync(path.dirname(passRatioPath), { recursive: true });
   if (fs.existsSync(passRatioPath)) {
