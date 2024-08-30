@@ -1,63 +1,149 @@
-<!DOCTYPE html>
-<html lang="ja">
+<html>
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>レスポンシブな1x4グリッド</title>
+    <script
+      type="text/javascript"
+      src="https://www.gstatic.com/charts/loader.js"
+    ></script>
+    <script type="text/javascript">
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(drawChartForNum);
+        google.charts.setOnLoadCallback(drawChartForRatio);
+
+      function drawChartForNum() {
+
+        var data = new google.visualization.DataTable();
+        data.addColumn('number', 'time(mins)');
+        data.addColumn('number','guide')
+        data.addColumn("number", "yours");
+
+        data.addRows(##%%$$DATA$$%%##);
+
+        var options = {
+          hAxis: {
+            title: 'time(mins)',
+            format: 'decimal'
+          },
+          vAxis:{
+            title:'number of test cases'
+          },
+          interpolateNulls:true,
+          series:{
+            0:{color:'#DCDCDC',lineWidth:20,pointsVisible:false},
+            1:{}
+          },
+          width: 800,
+          height: 400
+        };
+
+        var chart = new google.visualization.LineChart(document.getElementById('linechart_material'));
+
+        chart.draw(data, options);
+      }
+
+      function drawChartForRatio() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('number', 'time(mins)');
+        data.addColumn("number", "yours");
+
+        data.addRows(##%%$$DATAFORRATIO$$%%##);
+
+        var options = {
+          hAxis: {
+            title: 'time(mins)',
+            format: 'decimal'
+          },
+          vAxis:{
+            title:'pass ratio'
+          },
+          interpolateNulls:true,
+          series:{
+            0:{}
+          },
+          width: 800,
+          height: 400
+        };
+        var chart = new google.visualization.LineChart(document.getElementById('linechart_ratio'));
+        chart.draw(data, options);
+      }
+    </script>
     <style>
       .container {
         display: flex;
-        flex-direction: column; /* 縦に並べる */
-        height: 200vh; /* 高さを80vhに設定 */
+        flex-direction: column;
+        height: 180vh;
         width: 100%;
         box-sizing: border-box;
         gap: 10px;
         padding: 10px;
-        overflow-y: auto; /* コンテンツがはみ出る場合にスクロール */
+        overflow-y: auto;
       }
       .box {
-        flex: 1 1 calc(25% - 10px); /* 高さを25%に設定して4つ縦に並ぶようにする */
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
         border: 1px solid black;
         box-sizing: border-box;
-        display: flex;
-        flex-direction: column; /* 縦に並べる */
-        align-items: center; /* 中央揃え */
-        justify-content: center; /* 中央揃え */
         padding: 10px;
-        text-align: center; /* テキストを中央揃え */
-        min-height: 100px; /* 高さを調整 */
+        min-height: 100px;
+        overflow: hidden;
       }
-      .box img {
+      .box .title {
+        font-weight: bold;
+        text-align: center;
+      }
+      .box-content {
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
+        align-items: center;
+        flex: 1;
+      }
+      #linechart_material,
+      #linechart_ratio {
         max-width: 100%;
-        max-height: 60%; /* 画像がボックスの60%の高さに収まるように設定 */
-        object-fit: cover;
+        flex: 1;
+        overflow: hidden;
       }
       .box p {
         margin: 0;
-        padding: 0;
+        padding: 20px;
+        flex-shrink: 0;
+        background-color: #f0f0f0;
       }
     </style>
   </head>
   <body>
     <div>
-      <h2>70110001</h2>
-      <h3>CV01</h3>
+      <h1>##%%$$TITLE$$%%##</h1>
+      <h2>##%%$$SESSION$$%%##</h2>
     </div>
     <div class="container">
       <div class="box">
-        <img src="test.png" alt="説明文" />
+        <div class="title">
+          <h3>title</h3>
+        </div>
+        <div class="box-content">
+          <div id="linechart_num"></div>
+          <p>ここに説明を書きます</p>
+        </div>
+      </div>
+      <div class="box">
+        <div class="title">
+          <h3>title</h3>
+        </div>
+        <div id="linechart_ratio"></div>
         <p>ここに説明を書きます</p>
       </div>
       <div class="box">
-        <img src="test.png" alt="説明文" />
+        <div class="title">
+          <h3>title</h3>
+        </div>
         <p>ここに説明を書きます</p>
       </div>
       <div class="box">
-        <img src="test.png" alt="説明文" />
-        <p>ここに説明を書きます</p>
-      </div>
-      <div class="box">
-        <img src="test.png" alt="説明文" />
+        <div class="title">
+          <h3>title</h3>
+        </div>
         <p>ここに説明を書きます</p>
       </div>
     </div>

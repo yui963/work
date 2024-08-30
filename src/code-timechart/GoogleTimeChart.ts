@@ -203,8 +203,7 @@ async function appendGoogleTimeChartDataForTest(
     state.estimateTimeStart,
     passRatio.toFixed(2),
   ];
-  const fileContent =
-    passRatioData[0] + "," + passRatioData[1] + database + "\n";
+  const fileContent = passRatioData[0] + "," + passRatioData[1] + "\n";
   fs.appendFileSync(passRatioPath, fileContent, "utf8");
 
   let barLabel = Math.round(event.passRatio) + "%";
@@ -405,6 +404,7 @@ async function convertGoogleTimeChartData(
       }
     }
   }
+
   return await convertGoogleTimeChartString(timeChartDataList, options);
 }
 
