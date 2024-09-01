@@ -45,13 +45,21 @@ export async function calcIndicator(
   const runActivityInfo = calcRunActivity(stateList);
   const testActivityInfo = calcTestActivity(stateList, id);
   const wsHistInfo = calcWSHistory(stateList);
-  const failedTestLifeTimeInfo = calcFailedTestLifeTime(stateList);
+  const [failedTestLifeTimeInfo, failedTestLifeTimeArray] =
+    await calcFailedTestLifeTime(stateList);
+
   const untestedTimeBeforeEditInfo = calcUntestedTimeBeforeEdit(stateList, id);
   const untestedTimeAfterEditInfo = calcUntestedTimeAfterEdit(stateList, id);
   const startDateInfo = calcStartDate(stateList);
   await createTestInvokedDateList(stateList, id, session);
   await resumedDate(stateList, id, session);
   // const IntervalFirstSuccessTestInfo = calcInterval(stateList);
+  const filePath = `./output/failedTestLifeTime/${id}/${session}failedTestLifeTime.txt`;
+  if (!fs.existsSync(filePath)) {
+    fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  }
+  fs.writeFileSync(filePath, failedTestLifeTimeArray, "utf8");
+
   return Object.assign(
     info,
     await editActivityInfo,
@@ -408,14 +416,17 @@ async function calcTestActivity(stateList: State[], id: string): Promise<any> {
  * @returns
  */
 const excludingTestNameList: string[] = ["testMustBeFailed"];
-async function calcFailedTestLifeTime(stateList: State[]): Promise<any> {
+async function calcFailedTestLifeTime(
+  stateList: State[]
+): Promise<[any, string]> {
   let failedTest: any = {};
   let failedTestLifeTime: number[] = [];
+  let failedTestLifeTimeArray: [string, number][] = [];
+  let resultString: string = "";
   for (const state of stateList) {
     if (state.type == "test") {
       const event: TestEvent = state.info as TestEvent;
       for (const name of event.failedCase) {
-        //failedTestに未登録であれば日時と名前を登録
         const failedTestName = name.toString();
         if (
           excludingTestNameList.includes(failedTestName) == false &&
@@ -428,18 +439,26 @@ async function calcFailedTestLifeTime(stateList: State[]): Promise<any> {
       const passCase = event.testingCase.filter((v: String) => {
         return !event.failedCase.includes(v);
       });
+      // passCase.map((item) => {
+      //   if (!failedTest[].includes(item)) {
+      //     console.log(item);
+      //   }
+      // });
       for (const item of Object.keys(failedTest)) {
         if (passCase.includes(item)) {
           const passDate = new Date(event.invokedDate);
           const failDate = new Date(failedTest[item]);
           const duration = passDate.getTime() - failDate.getTime();
           failedTestLifeTime.push(duration);
+          failedTestLifeTimeArray.push([item, duration]); //add
+
           delete failedTest[item];
         }
       }
     }
   }
 
+  resultString = failedTestLifeTimeArray.join("\n");
   let info = {
     "I|FAILED_TEST_LIFETIME|FIX_COUNT": 0,
     "I|FAILED_TEST_LIFETIME|TOTAL": 0,
@@ -461,7 +480,7 @@ async function calcFailedTestLifeTime(stateList: State[]): Promise<any> {
   }
   info["I|FAILED_TEST_LIFETIME|FAILED_END"] = Object.keys(failedTest).length;
 
-  return info;
+  return [info, resultString];
 }
 export interface TestInvokedDateInfo {
   id: String;
