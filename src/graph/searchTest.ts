@@ -1,6 +1,7 @@
 import { kMaxLength } from "buffer";
 import * as fs from "fs";
 import * as path from "path";
+import { testRunInfoJsonPath } from "./../code-timechart/calcIndicator";
 interface TestCaseModel {
   sid: number;
   num: number;
@@ -60,7 +61,6 @@ function countTestNum(
   studentNumber: string,
   session: string,
   madeTest: string[],
-  testDistributed: string[],
   testInfoByDate: TestInfoByDate[]
 ): void {
   const results: [number, null, number][] = [];
@@ -74,7 +74,7 @@ function countTestNum(
   //item is YYYY-MM-DD
 
   for (const item of items) {
-    let testNames: string[] = [...testDistributed];
+    let testNames: string[] = [];
     const langPath = path.join(
       directoryPath,
       item,
@@ -162,8 +162,30 @@ function processSubdirectory(
     }
   }
 }
+type ChartsData = [number, null | number, number][];
+function calculateGuideline(
+  results: ChartsData,
+  distributedTests: number
+): ChartsData {
+  const lastResult = results[results.length - 1];
+  const lastElapsedTime = lastResult[0];
+  const lastTestCases = lastResult[2];
+  const averageTimePerTest = lastElapsedTime / lastTestCases;
+  const parallelEndTime = distributedTests * averageTimePerTest;
+  return results.map(([elapsedTime, guidelineTestCases, testCases]) => {
+    if (elapsedTime <= parallelEndTime) {
+      guidelineTestCases = distributedTests;
+    } else {
+      const remainingTime = elapsedTime - parallelEndTime;
+      const remainingTests = lastTestCases - distributedTests;
+      const slope = remainingTests / (lastElapsedTime - parallelEndTime);
+      guidelineTestCases = distributedTests + remainingTime * slope;
+    }
+    return [elapsedTime, guidelineTestCases, testCases];
+  });
+}
 function createGoogleCharts(
-  results: [number, null | number, number][],
+  results: ChartsData,
   studentNumber: string,
   session: string
 ) {
@@ -185,12 +207,16 @@ function createGoogleCharts(
     fs.mkdirSync(path.dirname(outputPath), { recursive: true });
   }
   const template = fs.readFileSync(samplePath);
-  const min = 0;
-  const max = results[results.length - 1][2];
-  results[0][1] = min;
-  results[results.length - 1][1] = max;
 
-  const jsonResults = JSON.stringify(results);
+  const distributedTestsPath = "./output/testDistributed.json";
+  const distributedTestsData = JSON.parse(
+    fs.readFileSync(distributedTestsPath, "utf8")
+  );
+  const distributedTestNum: number =
+    distributedTestsData[Number(session.slice(-1)) - 1].testNames.length;
+  const jsonResults = JSON.stringify(
+    calculateGuideline(results, distributedTestNum)
+  );
   const chartHTML = template
     .toString()
     .replace(dataReplacePattern, jsonResults)
@@ -292,22 +318,13 @@ function main(): void {
   const testCaseModelPath = "./testCaseModel";
   let madeTest: string[] = [];
   countTestCaseModel(testCaseModelPath);
-  const testDistributed = JSON.parse(fs.readFileSync(jsonPath, "utf8"));
   const studentNumber: string = process.argv.slice(2)[0];
   const sid: number = Number(process.argv.slice(2)[1]);
   const testInfoBySid: TestInfoBySid[] = [];
   for (let i = 1; i <= sid; i++) {
     const filePath = createEachPath(studentNumber, i);
-    madeTest.push(...testDistributed[i - 1].testNames);
     const testInfoByDate: TestInfoByDate[] = [];
-    countTestNum(
-      filePath,
-      studentNumber,
-      `cv0${i}`,
-      madeTest,
-      testDistributed[i - 1].testNames,
-      testInfoByDate
-    );
+    countTestNum(filePath, studentNumber, `cv0${i}`, madeTest, testInfoByDate);
     testInfoBySid.push({ sid: `cv0${i}`, info: testInfoByDate });
   }
   const outputPath = `../code-timechart/output/testInfoByDate/${studentNumber}testInfoByDate.json`;
