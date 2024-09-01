@@ -13,10 +13,11 @@
 
         var data = new google.visualization.DataTable();
         data.addColumn('number', 'time(mins)');
-        data.addColumn('number','guide')
+        data.addColumn('number','good model');
         data.addColumn("number", "yours");
 
-        data.addRows(##%%$$DATA$$%%##);
+        var dataTestNum = [##%%$$DATA$$%%##]
+        data.addRows(dataTestNum);
 
         var options = {
           hAxis: {
@@ -43,9 +44,19 @@
       function drawChartForRatio() {
         var data = new google.visualization.DataTable();
         data.addColumn('number', 'time(mins)');
+        data.addColumn('number','good model');
         data.addColumn("number", "yours");
 
-        data.addRows(##%%$$DATAFORRATIO$$%%##);
+        var dataArrayA = [##%%$$DATAFORMODEL$$%%##];
+        var dataArrayB = [##%%$$DATAFORRATIO$$%%##];
+
+        for (var i = 0; i < dataArrayA.length; i++) {
+          data.addRow([dataArrayA[i][0], dataArrayA[i][1], null]);
+        }
+
+        for (var i = 0; i < dataArrayB.length; i++) {
+          data.addRow([dataArrayB[i][0], null, dataArrayB[i][1]]);
+        }
 
         var options = {
           hAxis: {
@@ -57,7 +68,8 @@
           },
           interpolateNulls:true,
           series:{
-            0:{}
+            0:{color:'#DCDCDC',lineWidth:20,pointsVisible:false},
+            1:{}
           },
           width: 800,
           height: 400
