@@ -5,7 +5,7 @@
       src="https://www.gstatic.com/charts/loader.js"
     ></script>
     <script type="text/javascript">
-        google.charts.load('current', {'packages':['corechart']});
+        google.charts.load('current', {'packages':['corechart','table']});
         google.charts.setOnLoadCallback(drawChartForNum);
         google.charts.setOnLoadCallback(drawChartForRatio);
 
@@ -77,6 +77,16 @@
         var chart = new google.visualization.LineChart(document.getElementById('linechart_ratio'));
         chart.draw(data, options);
       }
+      function drawTable() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'testName');
+        data.addColumn('number', 'lifeTime');
+
+        data.addRows(##%%$$DATAFORTABLE$$%%##);
+
+        var table = new google.visualization.Table(document.getElementById('table'));
+        table.draw(data, {showRowNumber: true, width: '100%', height: '100%'});
+      }
     </script>
     <style>
       .container {
@@ -111,7 +121,8 @@
         flex: 1;
       }
       #linechart_material,
-      #linechart_ratio {
+      #linechart_ratio,
+      #table {
         max-width: 100%;
         flex: 1;
         overflow: hidden;
@@ -143,14 +154,19 @@
         <div class="title">
           <h3>title</h3>
         </div>
-        <div id="linechart_ratio"></div>
-        <p>ここに説明を書きます</p>
+        <div class="box-content">
+          <div id="linechart_ratio"></div>
+          <p>ここに説明を書きます</p>
+        </div>
       </div>
       <div class="box">
         <div class="title">
           <h3>title</h3>
         </div>
-        <p>ここに説明を書きます</p>
+        <div class="box-content">
+          <div id="table"></div>
+          <p>ここに説明を書きます</p>
+        </div>
       </div>
       <div class="box">
         <div class="title">

@@ -225,13 +225,14 @@ function createGoogleCharts(
   fs.writeFileSync(outputPath, chartHTML, "utf-8");
 }
 
-function createGoogleChartsForPassRatio(): void {
-  // ts-node ./createGoogleChartsForPassRatio 70110001 1~7
+function createGoogleChartsLater(): void {
+  // ts-node ./createGoogleChartsLater 70110001 1~7
   const args = process.argv.slice(2);
   const studentNumber: number = Number(args[0]);
   const session: number = Number(args[1]);
   const dataReplacePattern = "##%%$$DATAFORRATIO$$%%##";
   const modelReplacePattern = "##%%$$DATAFORMODEL$$%%##";
+  const tableReplacePattern = "##%%$$DATAFORTABLE$$%%##";
   for (let sid: number = 1; sid <= session; sid++) {
     const htmlPath =
       "./output/" +
@@ -248,15 +249,27 @@ function createGoogleChartsForPassRatio(): void {
       "/cv0" +
       sid +
       "passRatio.txt";
+    const tablePath =
+      "../code-timechart/output/" +
+      studentNumber +
+      "/cv0" +
+      sid +
+      "failedTestLifeTime.txt";
     if (!fs.existsSync(htmlPath)) {
       console.log(`not exists ${htmlPath}`);
       return;
     }
     if (!fs.existsSync(passRatioPath)) {
       console.log(`not exist ${passRatioPath}`);
+      return;
+    }
+    if (!fs.existsSync(tablePath)) {
+      console.log(`not exist ${tablePath}`);
+      return;
     }
     const htmlData = fs.readFileSync(htmlPath, "utf8");
     const passRatioData = fs.readFileSync(passRatioPath, "utf8");
+    const tableData = fs.readFileSync(tablePath, "utf8");
     let max: number = 0;
     const passRatioArray = passRatioData.split("\n").map((line) => {
       const [date, ratio, num] = line.split(",");
@@ -264,6 +277,10 @@ function createGoogleChartsForPassRatio(): void {
         max = Number(num);
       }
       return `[${date},${ratio}]`;
+    });
+    const tableArray = tableData.split("\n").map((line) => {
+      const [name, time] = line.split(",");
+      return `[${name},${time}]`;
     });
     const maxElapsedTime: number = Number(
       passRatioArray[0][passRatioArray.length - 1]
@@ -282,7 +299,8 @@ function createGoogleChartsForPassRatio(): void {
 
     const result = htmlData
       .replace(dataReplacePattern, passRatioArray.join(","))
-      .replace(modelReplacePattern, adjustedData.join(","));
+      .replace(modelReplacePattern, adjustedData.join(","))
+      .replace(tableReplacePattern, tableArray.join(","));
     fs.writeFileSync(htmlPath, result, "utf-8");
   }
 }
