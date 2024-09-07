@@ -9,6 +9,10 @@ codeGenTermDivWithParenthesis
 codeGenTermDivMinus
 codeGenTermAllTest
 codeGenTermSignTest
+codeGenMinus
+codeGenLparSubRpar
+codeGenMult
+codeGenDiv
 testPlusFactor
 testMinusFactor
 testTermMult
@@ -28,7 +32,3 @@ semanticTypeErrorIntMultPint
 semanticTypeErrorIntDivPint
 semanticTypeErrorPintMultPint
 semanticTypeErrorPintDivPint
-codeGenMinus
-codeGenLparSubRpar
-codeGenMult
-codeGenDiv

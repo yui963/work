@@ -170,7 +170,7 @@ async function appendGoogleTimeChartDataForTest(
       if (data[2] == true) {
         data[3] += 1;
         if (data[3] >= 5) {
-          console.log("neglect test is " + data[0] + ", num: " + data[3]);
+          // console.log("neglect test is " + data[0] + ", num: " + data[3]);
         }
       }
     }

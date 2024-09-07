@@ -450,15 +450,18 @@ async function calcFailedTestLifeTime(
           const failDate = new Date(failedTest[item]);
           const duration = passDate.getTime() - failDate.getTime();
           failedTestLifeTime.push(duration);
-          failedTestLifeTimeArray.push([item, duration]); //add
+          failedTestLifeTimeArray.push([item, Math.round(duration / 60000)]); //add
 
           delete failedTest[item];
         }
       }
     }
   }
-
-  resultString = failedTestLifeTimeArray.join("\n");
+  //順位付けをして数を絞る
+  const sortedTop10: [string, number][] = failedTestLifeTimeArray
+    .sort((a, b) => b[1] - a[1]) //
+    .slice(0, 10);
+  resultString = sortedTop10.join("\n");
   let info = {
     "I|FAILED_TEST_LIFETIME|FIX_COUNT": 0,
     "I|FAILED_TEST_LIFETIME|TOTAL": 0,

@@ -91,8 +91,8 @@ function countTestNum(
       firstDate = convertDate(item);
       isFirst = false;
     } else {
-      //1時間超えたら
-      if (targetDate.getTime() - prevDate.getTime() > 3600000) {
+      //10分越えたら
+      if (targetDate.getTime() - prevDate.getTime() > 600000) {
         blank += targetDate.getTime() - prevDate.getTime();
         prevDate = targetDate;
         continue;
@@ -225,121 +225,6 @@ function createGoogleCharts(
   fs.writeFileSync(outputPath, chartHTML, "utf-8");
 }
 
-function createGoogleChartsLater(): void {
-  // ts-node ./createGoogleChartsLater 70110001 1~7
-  const args = process.argv.slice(2);
-  const studentNumber: number = Number(args[0]);
-  const session: number = Number(args[1]);
-  const dataReplacePattern = "##%%$$DATAFORRATIO$$%%##";
-  const modelReplacePattern = "##%%$$DATAFORMODEL$$%%##";
-  const tableReplacePattern = "##%%$$DATAFORTABLE$$%%##";
-  for (let sid: number = 1; sid <= session; sid++) {
-    const htmlPath =
-      "./output/" +
-      studentNumber +
-      "/googleChart" +
-      "_" +
-      studentNumber +
-      "_" +
-      sid +
-      ".html";
-    const passRatioPath =
-      "../code-timechart/output/passRatio/" +
-      studentNumber +
-      "/cv0" +
-      sid +
-      "passRatio.txt";
-    const tablePath =
-      "../code-timechart/output/" +
-      studentNumber +
-      "/cv0" +
-      sid +
-      "failedTestLifeTime.txt";
-    if (!fs.existsSync(htmlPath)) {
-      console.log(`not exists ${htmlPath}`);
-      return;
-    }
-    if (!fs.existsSync(passRatioPath)) {
-      console.log(`not exist ${passRatioPath}`);
-      return;
-    }
-    if (!fs.existsSync(tablePath)) {
-      console.log(`not exist ${tablePath}`);
-      return;
-    }
-    const htmlData = fs.readFileSync(htmlPath, "utf8");
-    const passRatioData = fs.readFileSync(passRatioPath, "utf8");
-    const tableData = fs.readFileSync(tablePath, "utf8");
-    let max: number = 0;
-    const passRatioArray = passRatioData.split("\n").map((line) => {
-      const [date, ratio, num] = line.split(",");
-      if (max < Number(num)) {
-        max = Number(num);
-      }
-      return `[${date},${ratio}]`;
-    });
-    const tableArray = tableData.split("\n").map((line) => {
-      const [name, time] = line.split(",");
-      return `[${name},${time}]`;
-    });
-    const maxElapsedTime: number = Number(
-      passRatioArray[0][passRatioArray.length - 1]
-    );
-    const distributedTestPath = "./output/testDistributedTest.json";
-    const distributedTestData = JSON.parse(
-      fs.readFileSync(distributedTestPath, "utf8")
-    );
-    const distributedTestNum: number =
-      distributedTestData[session - 1].testNames.length;
-    const guidelineData = createGuidelineData(distributedTestNum, max);
-    const adjustedData = adjustDataForElapsedTime(
-      guidelineData,
-      maxElapsedTime
-    );
-
-    const result = htmlData
-      .replace(dataReplacePattern, passRatioArray.join(","))
-      .replace(modelReplacePattern, adjustedData.join(","))
-      .replace(tableReplacePattern, tableArray.join(","));
-    fs.writeFileSync(htmlPath, result, "utf-8");
-  }
-}
-function toFraction(numerator: number, denominator: number): number {
-  return denominator === 0 ? 0 : numerator / denominator;
-}
-function createGuidelineData(
-  distributedTests: number,
-  maxTests: number
-): number[][] {
-  const guidelineData: number[][] = [];
-  for (let i = 0; i <= distributedTests; i++) {
-    const fraction = toFraction(i, distributedTests);
-    guidelineData.push([fraction]);
-  }
-  for (
-    let denominator = distributedTests + 1;
-    denominator <= maxTests;
-    denominator++
-  ) {
-    const numerator = denominator - 1;
-    if (numerator >= 0) {
-      const fraction = toFraction(numerator, denominator);
-      guidelineData.push([fraction]);
-    }
-    guidelineData.push([toFraction(denominator, denominator)]);
-  }
-  return guidelineData;
-}
-function adjustDataForElapsedTime(
-  guidelineData: number[][],
-  maxElapsedTime: number
-): number[][] {
-  const totalPoints = guidelineData.length;
-  return guidelineData.map((data, index) => {
-    const elapsedTime = (index / (totalPoints - 1)) * maxElapsedTime;
-    return [elapsedTime, data[0]];
-  });
-}
 function countTestCaseModel(directoryPath: string): void {
   let testDistributed: TestCaseModel[] = [];
   const outputPath = "./output/testDistributed.json";
