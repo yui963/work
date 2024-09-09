@@ -43,7 +43,7 @@ async function analyzeWSState(wsLog: WSEvent[]): Promise<State[]> {
   return stateList;
 }
 
-function countupFiles(dirpath: string, callback: (fp: string) => void) {
+export function countupFiles(dirpath: string, callback: (fp: string) => void) {
   const dirents = fs.readdirSync(dirpath, { withFileTypes: true });
   for (const dirent of dirents) {
     const fp = path.join(dirpath, dirent.name);
@@ -157,7 +157,7 @@ async function main() {
     "data/70110005/miniCV01forStudent2023/kokokonolabs-log-fv01/ws-history";
   const testResultDirPath2 = "data/70110043/cv04/kokokonolabs-log/ws-history";
   // let testResultStateList1 = await analyzeWSLog(testResultDirPath1);
-  let testResultStateList2 = await analyzeWSLog(testResultDirPath2);
+  let testResultStateList2 = await analyzeWSLog(testResultDirPath1);
   // console.log(testResultStateList1)
   console.log(testResultStateList2);
   for (const s of testResultStateList2) {

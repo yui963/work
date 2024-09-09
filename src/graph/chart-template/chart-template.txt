@@ -55,10 +55,6 @@
 
         var dataArrayA = ##%%$$DATAFORMODEL$$%%##;
         var dataArrayB = ##%%$$DATAFORRATIO$$%%##;
-        var minTime = dataArrayB.length > 0 ? dataArrayB[0][0] : 0;
-        for (var i = 0; i < dataArrayA.length; i++) {
-          data.addRow([dataArrayA[i][0], dataArrayA[i][1], null]);
-        }
 
         for (var i = 0; i < dataArrayB.length; i++) {
           data.addRow([dataArrayB[i][0], null, dataArrayB[i][1]]);
@@ -67,10 +63,7 @@
         var options = {
           hAxis: {
             title: 'time(mins)',
-            format: 'decimal',
-            viewWindow: {
-            min: minTime  
-            }
+            format: 'decimal'
           },
           vAxis:{
             title:'pass ratio'
@@ -134,14 +127,14 @@
       #linechart_num,
       #linechart_ratio,
       #table {
-        max-width: 100%;
-        flex: 1;
+        max-width: 70%;
+        flex: 3;
         overflow: hidden;
       }
       .box p {
         margin: 0;
         padding: 20px;
-        flex-shrink: 0;
+        flex: 1;
         background-color: #f0f0f0;
       }
     </style>
@@ -172,7 +165,7 @@
           <div id="linechart_ratio"></div>
           <p>
           リグレッションテストの観点から、テストが失敗している状態は良くありません。
-          最初は配布されたテストが成功するように実装することから100%に向かって徐々に増加していくことが期待されます。
+          最初は配布されたテストが成功するように実装することから100%に向かって早急に増加していくことが期待されます。
           その後はテストを追加して成功させるというサイクルを行うため、100%と90%前後を行き来していることが好ましいです。
           </p>
         </div>
