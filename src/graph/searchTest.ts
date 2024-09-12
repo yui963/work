@@ -1,6 +1,9 @@
 import * as fs from "fs";
 import * as path from "path";
-
+import {
+  DateAndEstimate,
+  analyzeStateInfoForWS,
+} from "./analyzeStateInfoForWS";
 interface TestCaseModel {
   sid: number;
   num: number;
@@ -60,7 +63,8 @@ function countTestNum(
   studentNumber: string,
   session: string,
   madeTest: string[],
-  testInfoByDate: TestInfoByDate[]
+  testInfoByDate: TestInfoByDate[],
+  dateAndEstimate: DateAndEstimate[]
 ): void {
   const results: [number, null, number][] = [];
   let isFirst: boolean = true;
@@ -84,45 +88,55 @@ function countTestNum(
     );
     processDirectory(langPath, testNames, madeTest);
 
-    //itemを0基準にしてさらに間を詰める
-    targetDate = convertDate(item);
-    if (isFirst) {
-      firstDate = convertDate(item);
-      isFirst = false;
-    } else {
-      //10分越えたら
-      if (targetDate.getTime() - prevDate.getTime() > 600000) {
-        blank += targetDate.getTime() - prevDate.getTime();
-        prevDate = targetDate;
-        continue;
-      }
-    }
-    //ms -> hour
-    const passTime =
-      (targetDate.getTime() - firstDate.getTime() - blank) / (1000 * 60);
-    prevDate = targetDate;
-    const dateFormat = new Date(item.replace(/_/g, " ").replace(/\./g, ":"));
+    // //itemを0基準にしてさらに間を詰める
+    // targetDate = convertDate(item);
+    // if (isFirst) {
+    //   firstDate = convertDate(item);
+    //   isFirst = false;
+    // } else {
+    //   //10分越えたら
+    //   if (targetDate.getTime() - prevDate.getTime() > 600000) {
+    //     blank += targetDate.getTime() - prevDate.getTime();
+    //     prevDate = targetDate;
+    //     continue;
+    //   }
+    // }
+    // //ms -> hour
+    // const passTime =
+    //   (targetDate.getTime() - firstDate.getTime() - blank) / (1000 * 60);
+    // prevDate = targetDate;
+    const dateFormat: Date = new Date(
+      item.replace(/_/g, " ").replace(/\./g, ":")
+    );
     testInfoByDate.push({
       date: dateFormat,
       testNames: testNames,
     });
-    //itemを経過時間に変換する
-    results.push([passTime, null, testNames.length]);
-    finalTestNames = [...testNames];
-    //for debug
-    if (!fs.existsSync("./debug")) {
-      fs.mkdirSync("./debug", { recursive: true });
+    const findResult = dateAndEstimate.find(
+      (item) => new Date(item.date).getTime() == dateFormat.getTime()
+    );
+    if (findResult) {
+      const passTime = findResult.estimate;
+      results.push([passTime, null, testNames.length]);
+      finalTestNames = [...testNames];
+    } else {
+      console.error("findResult is false");
     }
-    fs.writeFileSync(
-      "./debug/debug_" + session + ".txt",
-      finalTestNames.join("\n").toString(),
-      "utf-8"
-    );
-    fs.writeFileSync(
-      "./debug/madeTest_" + session + ".txt",
-      madeTest.join("\n").toString(),
-      "utf-8"
-    );
+
+    // //for debug
+    // if (!fs.existsSync("./debug")) {
+    //   fs.mkdirSync("./debug", { recursive: true });
+    // }
+    // fs.writeFileSync(
+    //   "./debug/debug_" + session + ".txt",
+    //   finalTestNames.join("\n").toString(),
+    //   "utf-8"
+    // );
+    // fs.writeFileSync(
+    //   "./debug/madeTest_" + session + ".txt",
+    //   madeTest.join("\n").toString(),
+    //   "utf-8"
+    // );
   }
 
   for (const item of finalTestNames) {
@@ -167,6 +181,7 @@ function calculateGuideline(
   distributedTests: number
 ): ChartsData {
   const lastResult = results[results.length - 1];
+
   const lastElapsedTime = lastResult[0];
   const lastTestCases = lastResult[2];
   const averageTimePerTest = lastElapsedTime / lastTestCases;
@@ -270,17 +285,24 @@ function createEachPath(studentNumber: string, sid: number): string {
   throw new Error(`Error: Directory containing 0${sid} not found.`);
 }
 function main(): void {
-  const jsonPath = "./output/testDistributed.json";
   const testCaseModelPath = "./testCaseModel";
   let madeTest: string[] = [];
   countTestCaseModel(testCaseModelPath);
   const studentNumber: string = process.argv.slice(2)[0];
   const sid: number = Number(process.argv.slice(2)[1]);
   const testInfoBySid: TestInfoBySid[] = [];
+  const dateAndEstimate: DateAndEstimate[] = analyzeStateInfoForWS();
   for (let i = 1; i <= sid; i++) {
     const filePath = createEachPath(studentNumber, i);
     const testInfoByDate: TestInfoByDate[] = [];
-    countTestNum(filePath, studentNumber, `cv0${i}`, madeTest, testInfoByDate);
+    countTestNum(
+      filePath,
+      studentNumber,
+      `cv0${i}`,
+      madeTest,
+      testInfoByDate,
+      dateAndEstimate
+    );
     testInfoBySid.push({ sid: `cv0${i}`, info: testInfoByDate });
   }
   const outputPath = `../code-timechart/output/testInfoByDate/${studentNumber}testInfoByDate.json`;

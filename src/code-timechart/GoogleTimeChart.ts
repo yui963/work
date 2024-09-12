@@ -405,10 +405,8 @@ async function convertGoogleTimeChartData(
       }
     }
   }
-
   return await convertGoogleTimeChartString(timeChartDataList, options);
 }
-
 /**
  * convert GTimeChartDate[] to Code String as Data in JavaScript Code
  *
