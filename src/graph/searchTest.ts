@@ -117,7 +117,7 @@ function countTestNum(
     );
     if (findResult) {
       const passTime = findResult.estimate;
-      results.push([passTime, null, testNames.length]);
+      results.push([passTime / 60000, null, testNames.length]);
       finalTestNames = [...testNames];
     } else {
       console.error("findResult is false");
