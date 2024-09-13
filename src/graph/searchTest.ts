@@ -215,7 +215,7 @@ function createGoogleCharts(
     studentNumber +
     "_" +
     session +
-    ".html";
+    ".txt";
 
   if (!fs.existsSync(outputPath)) {
     fs.mkdirSync(path.dirname(outputPath), { recursive: true });

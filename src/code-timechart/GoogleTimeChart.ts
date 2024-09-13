@@ -9,6 +9,7 @@ import * as path from "path";
 import { existsSync } from "fs";
 import { time } from "console";
 import { TestInfoByDate, TestInfoBySid } from "../graph/searchTest";
+import { fail } from "assert";
 
 interface GTimeChartData {
   state: State;
@@ -112,7 +113,8 @@ async function appendGoogleTimeChartDataForTest(
   jsonData: TestInfoByDate[],
   database: [string, string | null, boolean, number][],
   jsonDate: Date,
-  passRatioPath: string
+  passRatioPath: string,
+  failedTestLifeTimeArray: [string, number][]
 ) {
   //add
   if (!(event.invokedDate instanceof Date)) {
@@ -145,41 +147,22 @@ async function appendGoogleTimeChartDataForTest(
     }
   }
   for (const item of JsonTest) {
-    if (!database.some(([testName, result]) => testName == item)) {
+    if (!database.some(([testName]) => testName == item)) {
       database.push([item, null, false, 0]);
     }
   }
   const regex = /\(.*?\)$/;
   const failedCase = event.failedCase.map((str) => str.replace(regex, ""));
   const testingCase = event.testingCase.map((str) => str.replace(regex, ""));
-  let flag: boolean = false;
-  for (const data of database) {
-    //失敗フラグが立っているテストの内、一つでも実行されていればカウントを初期化する。
-    if (testingCase.includes(data[0]) && data[2] == true) {
-      flag = true;
-      for (const data of database) {
-        if (data[2] == true) {
-          data[3] = 0;
-        }
-      }
-      break;
-    }
-  }
-  if (!flag) {
-    for (const data of database) {
-      if (data[2] == true) {
-        data[3] += 1;
-        if (data[3] >= 5) {
-          // console.log("neglect test is " + data[0] + ", num: " + data[3]);
-        }
-      }
-    }
-  }
+
   for (const item of failedCase) {
     for (const data of database) {
       if (data[0] == item) {
         data[1] = "fail";
-        data[2] = true;
+        if (data[2] == false) {
+          data[2] = true;
+          data[3] = state.estimateTimeStart;
+        }
         break;
       }
     }
@@ -190,10 +173,21 @@ async function appendGoogleTimeChartDataForTest(
     for (const data of database) {
       if (data[0] == item) {
         data[1] = "pass";
-        data[2] = false;
-        data[3] = 0;
+        if (data[2] == true) {
+          data[2] = false;
+          failedTestLifeTimeArray.push([
+            data[0],
+            state.estimateTimeEnd - data[3],
+          ]);
+          data[3] = 0;
+        }
         break;
       }
+    }
+  }
+  for (const data of database) {
+    if (data[2] == true) {
+      data[3] += 1;
     }
   }
   const totalTests = database.length;
@@ -353,7 +347,7 @@ async function convertGoogleTimeChartData(
       ...entry,
       date: new Date(entry.date),
     }));
-
+  const failedTestLifeTimeArray: [string, number][] = [];
   let database: [string, string | null, boolean, number][] = [];
   const timeChartDataList: GTimeChartData[] = [];
   let jsonDate: Date =
@@ -387,7 +381,8 @@ async function convertGoogleTimeChartData(
         sessionData,
         database,
         jsonDate,
-        passRatioPath
+        passRatioPath,
+        failedTestLifeTimeArray
       );
     } else if (state.type == "run") {
       const event: RunEvent = state.info as RunEvent;
@@ -405,6 +400,16 @@ async function convertGoogleTimeChartData(
       }
     }
   }
+  const filePath = `./output/failedTestLifeTime/${id}/${session}failedTestLifeTime.txt`;
+  if (!fs.existsSync(filePath)) {
+    fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  }
+  const sortedTop10: [string, number][] = failedTestLifeTimeArray
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 10);
+  const result = sortedTop10.join("\n");
+  fs.writeFileSync(filePath, result, "utf8");
+
   return await convertGoogleTimeChartString(timeChartDataList, options);
 }
 /**

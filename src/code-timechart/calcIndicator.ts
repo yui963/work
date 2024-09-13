@@ -45,8 +45,7 @@ export async function calcIndicator(
   const runActivityInfo = calcRunActivity(stateList);
   const testActivityInfo = calcTestActivity(stateList, id);
   const wsHistInfo = calcWSHistory(stateList);
-  const [failedTestLifeTimeInfo, failedTestLifeTimeArray] =
-    await calcFailedTestLifeTime(stateList);
+  const [failedTestLifeTimeInfo] = await calcFailedTestLifeTime(stateList);
 
   const untestedTimeBeforeEditInfo = calcUntestedTimeBeforeEdit(stateList, id);
   const untestedTimeAfterEditInfo = calcUntestedTimeAfterEdit(stateList, id);
@@ -54,11 +53,6 @@ export async function calcIndicator(
   await createTestInvokedDateList(stateList, id, session);
   await resumedDate(stateList, id, session);
   // const IntervalFirstSuccessTestInfo = calcInterval(stateList);
-  const filePath = `./output/failedTestLifeTime/${id}/${session}failedTestLifeTime.txt`;
-  if (!fs.existsSync(filePath)) {
-    fs.mkdirSync(path.dirname(filePath), { recursive: true });
-  }
-  fs.writeFileSync(filePath, failedTestLifeTimeArray, "utf8");
 
   return Object.assign(
     info,
@@ -421,7 +415,6 @@ async function calcFailedTestLifeTime(
 ): Promise<[any, string]> {
   let failedTest: any = {};
   let failedTestLifeTime: number[] = [];
-  let failedTestLifeTimeArray: [string, number][] = [];
   let resultString: string = "";
   for (const state of stateList) {
     if (state.type == "test") {
@@ -450,18 +443,11 @@ async function calcFailedTestLifeTime(
           const failDate = new Date(failedTest[item]);
           const duration = passDate.getTime() - failDate.getTime();
           failedTestLifeTime.push(duration);
-          failedTestLifeTimeArray.push([item, Math.round(duration / 60000)]); //add
-
           delete failedTest[item];
         }
       }
     }
   }
-  //順位付けをして数を絞る
-  const sortedTop10: [string, number][] = failedTestLifeTimeArray
-    .sort((a, b) => b[1] - a[1]) //
-    .slice(0, 10);
-  resultString = sortedTop10.join("\n");
   let info = {
     "I|FAILED_TEST_LIFETIME|FIX_COUNT": 0,
     "I|FAILED_TEST_LIFETIME|TOTAL": 0,
@@ -605,61 +591,6 @@ export async function deleteFile(filePath: string) {
     console.error(`Error deleting file ${filePath}: ${error}`);
   }
 }
-
-// //初めて成功したテストの最大発生間隔を求める
-// //テストが初めて成功したときの要求時刻を配列にまとめてから、最大を求める
-// async function calcInterval(
-//   stateList: State[]
-// ): Promise<{ [name: string]: number }> {
-//   let maxInterval: number = 0;
-//   let intervalList: { [name: string]: number } = { MAXInterval: maxInterval };
-//   let failedTestList: string[] = [];
-//   let passedTestList: string[] = [];
-//   let isFirstFound: boolean = false;
-//   let prevPassDate: number = 0;
-//   for (const state of stateList) {
-//     if (!isFirstFound) {
-//       let startDate: Date = createStartDate(state);
-//       isFirstFound = true;
-//       prevPassDate = startDate.getTime(); //初期は開始時刻
-//     }
-
-//     if (state.type == "test") {
-//       const event: TestEvent = state.info as TestEvent;
-//       for (const name of event.failedCase) {
-//         const failedTestName: string = name.toString();
-//         if (
-//           excludingTestNameList.includes(failedTestName) == false &&
-//           failedTestList.includes(failedTestName) == false
-//         ) {
-//           failedTestList.push(name.toString());
-//         }
-//       }
-//       const passCase = event.testingCase.filter((v: String) => {
-//         return !event.failedCase.includes(v);
-//       });
-//       for (const name of failedTestList) {
-//         if (passCase.includes(name) && !passedTestList.includes(name)) {
-//           intervalList[name];
-//           passedTestList.push(name);
-//           const invokedDate = new Date(event.invokedDate);
-//           const passDate: number = invokedDate.getTime();
-//           // console.log(passDate);
-//           const interval = passDate - prevPassDate;
-//           // console.log(name + "//" + passDate + "//" + prevPassDate);
-//           intervalList[name] = interval;
-//           prevPassDate = passDate;
-//           if (maxInterval < interval) {
-//             maxInterval = interval;
-//             intervalList["MAXInterval"] = maxInterval;
-//           }
-//         }
-//       }
-//     }
-//   }
-//   // console.log(intervalList);
-//   return intervalList;
-// }
 
 async function calcStartDate(
   stateList: State[]

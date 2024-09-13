@@ -13,6 +13,15 @@ function createGoogleChartLater(): void {
   const modelReplacePattern = "##%%$$DATAFORMODEL$$%%##";
   const tableReplacePattern = "##%%$$DATAFORTABLE$$%%##";
   for (let sid = 1; sid <= session; sid++) {
+    const txtPath =
+      "./output/" +
+      studentNumber +
+      "/googleChart" +
+      "_" +
+      studentNumber +
+      "_cv0" +
+      sid +
+      ".txt";
     const htmlPath =
       "./output/" +
       studentNumber +
@@ -51,7 +60,11 @@ function createGoogleChartLater(): void {
       console.log(`not exists ${testDistributedPath}`);
       return;
     }
-    const htmlData = fs.readFileSync(htmlPath, "utf8");
+    if (!fs.existsSync(txtPath)) {
+      console.log(`not exists ${txtPath}`);
+      return;
+    }
+    const htmlData = fs.readFileSync(txtPath, "utf8");
     const passRatioData = fs.readFileSync(passRatioPath, "utf8");
     const tableData = fs.readFileSync(tablePath, "utf8");
     const jsonData = fs.readFileSync(testDistributedPath, "utf8");
