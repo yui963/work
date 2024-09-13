@@ -111,10 +111,11 @@ async function appendGoogleTimeChartDataForTest(
   event: TestEvent,
   timeChartDataList: GTimeChartData[],
   jsonData: TestInfoByDate[],
-  database: [string, string | null, boolean, number][],
+  database: [string, string | null, boolean, number, number][],
   jsonDate: Date,
   passRatioPath: string,
-  failedTestLifeTimeArray: [string, number][]
+  failedTestLifeTimeArray: [string, number][],
+  timeLineDataForFailedTest: [string, Date, Date][]
 ) {
   //add
   if (!(event.invokedDate instanceof Date)) {
@@ -148,7 +149,7 @@ async function appendGoogleTimeChartDataForTest(
   }
   for (const item of JsonTest) {
     if (!database.some(([testName]) => testName == item)) {
-      database.push([item, null, false, 0]);
+      database.push([item, null, false, 0, 0]);
     }
   }
   const regex = /\(.*?\)$/;
@@ -175,9 +176,12 @@ async function appendGoogleTimeChartDataForTest(
         data[1] = "pass";
         if (data[2] == true) {
           data[2] = false;
-          failedTestLifeTimeArray.push([
+          data[4] = state.estimateTimeEnd;
+          failedTestLifeTimeArray.push([data[0], data[4] - data[3]]);
+          timeLineDataForFailedTest.push([
             data[0],
-            state.estimateTimeEnd - data[3],
+            new Date(data[3]),
+            new Date(data[4]),
           ]);
           data[3] = 0;
         }
@@ -348,7 +352,8 @@ async function convertGoogleTimeChartData(
       date: new Date(entry.date),
     }));
   const failedTestLifeTimeArray: [string, number][] = [];
-  let database: [string, string | null, boolean, number][] = [];
+  const timeLineDataForFailedTest: [string, Date, Date][] = [];
+  let database: [string, string | null, boolean, number, number][] = [];
   const timeChartDataList: GTimeChartData[] = [];
   let jsonDate: Date =
     sessionData && sessionData.length > 0 ? sessionData[0].date : new Date();
@@ -382,7 +387,8 @@ async function convertGoogleTimeChartData(
         database,
         jsonDate,
         passRatioPath,
-        failedTestLifeTimeArray
+        failedTestLifeTimeArray,
+        timeLineDataForFailedTest
       );
     } else if (state.type == "run") {
       const event: RunEvent = state.info as RunEvent;
@@ -400,16 +406,21 @@ async function convertGoogleTimeChartData(
       }
     }
   }
-  const filePath = `./output/failedTestLifeTime/${id}/${session}failedTestLifeTime.txt`;
-  if (!fs.existsSync(filePath)) {
-    fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  const failedTestLifeTimePath = `./output/failedTestLifeTime/${id}/${session}failedTestLifeTime.txt`;
+  const timelinePath =
+    "./output/failedTestLifeTime/${id}/${session}timeline.txt";
+  if (!fs.existsSync(failedTestLifeTimePath)) {
+    fs.mkdirSync(path.dirname(failedTestLifeTimePath), { recursive: true });
+  }
+  if (!fs.existsSync(timelinePath)) {
+    fs.mkdirSync(path.dirname(timelinePath), { recursive: true });
   }
   const sortedTop10: [string, number][] = failedTestLifeTimeArray
     .sort((a, b) => b[1] - a[1])
     .slice(0, 10);
   const result = sortedTop10.join("\n");
-  fs.writeFileSync(filePath, result, "utf8");
-
+  fs.writeFileSync(failedTestLifeTimePath, result, "utf8");
+  fs.writeFileSync(timelinePath, timeLineDataForFailedTest.join("\n"), "utf8");
   return await convertGoogleTimeChartString(timeChartDataList, options);
 }
 /**

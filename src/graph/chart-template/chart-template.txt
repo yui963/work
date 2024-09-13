@@ -3,11 +3,12 @@
   <head>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
-      google.charts.load('current', {'packages':['corechart','table']});
+      google.charts.load('current', {'packages':['corechart','table','timeline']});
       google.charts.setOnLoadCallback(function(){
         drawChartForNum();
         drawChartForRatio();
         drawTable();
+        drawTimeline
       });
 
     function drawChartForNum() {
@@ -90,6 +91,15 @@
         var table = new google.visualization.Table(document.getElementById('table'));
         table.draw(data, {showRowNumber: true, width: '100%', height: '100%'});
       }
+      function drawTimeline(){
+        var chart = new google.visualization.Timeline(document.getElementById('timeline'));
+        dataTable.addColumn({ type: 'string', id: 'TestName' });
+        dataTable.addColumn({ type: 'date', id: 'Start' });
+        dataTable.addColumn({ type: 'date', id: 'End' });
+
+        var array = ##%%$$DATAFORTIMELINE$$%%##;
+        data.addRows(array);
+      }
      </script>
 
      <style>
@@ -126,7 +136,8 @@
       }
       #linechart_num,
       #linechart_ratio,
-      #table {
+      #table,
+      #timeline {
         max-width: 70%;
         flex: 3;
         overflow: hidden;
@@ -176,9 +187,9 @@
         </div>
         <div class="box-content">
           <div id="table"></div>
+          <div id="timeline"></div>
           <p>
           上表は、失敗したテストが成功するまでの時間が大きい順にテストを10個抽出したものです。
-          この時間には作業していない時間も含まれています。
           自動テストをベースとする開発では、テストを作成し、それが動作するコードを作成することを最優先とします。
           放置時間が長いテストがあった場合は、自分の開発を見直してみましょう。
           </p>

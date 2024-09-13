@@ -12,6 +12,7 @@ function createGoogleChartLater(): void {
   const dataReplacePattern = "##%%$$DATAFORRATIO$$%%##";
   const modelReplacePattern = "##%%$$DATAFORMODEL$$%%##";
   const tableReplacePattern = "##%%$$DATAFORTABLE$$%%##";
+  const timelineReplacePattern = "##%%$$DATAFORTIMELINE$$%%##";
   for (let sid = 1; sid <= session; sid++) {
     const txtPath =
       "./output/" +
@@ -43,6 +44,12 @@ function createGoogleChartLater(): void {
       "/cv0" +
       sid +
       "failedTestLifeTime.txt";
+    const timelinePath =
+      "../code-timechart/output/failedTestLifeTime/" +
+      studentNumber +
+      "/cv0" +
+      sid +
+      "timeline.txt";
     const testDistributedPath = "./output/testDistributed.json";
     if (!fs.existsSync(htmlPath)) {
       console.log(`not exists ${htmlPath}`);
@@ -60,6 +67,10 @@ function createGoogleChartLater(): void {
       console.log(`not exists ${testDistributedPath}`);
       return;
     }
+    if (!fs.existsSync(timelinePath)) {
+      console.log(`not exists ${timelinePath}`);
+      return;
+    }
     if (!fs.existsSync(txtPath)) {
       console.log(`not exists ${txtPath}`);
       return;
@@ -67,6 +78,7 @@ function createGoogleChartLater(): void {
     const htmlData = fs.readFileSync(txtPath, "utf8");
     const passRatioData = fs.readFileSync(passRatioPath, "utf8");
     const tableData = fs.readFileSync(tablePath, "utf8");
+    const timelineData = fs.readFileSync(timelinePath, "utf8");
     const jsonData = fs.readFileSync(testDistributedPath, "utf8");
     const jsonResult = JSON.parse(jsonData);
     const target = jsonResult.find((item: JsonData) => item.sid == sid);
@@ -99,10 +111,12 @@ function createGoogleChartLater(): void {
       maxElapsedTime
     );
     const data = JSON.stringify(passRatioArray);
+
     const result = htmlData
       .replace(dataReplacePattern, data)
       .replace(modelReplacePattern, JSON.stringify(adjustedData))
-      .replace(tableReplacePattern, JSON.stringify(tableArray));
+      .replace(tableReplacePattern, JSON.stringify(tableArray))
+      .replace(timelineReplacePattern, JSON.stringify(timelineData));
     fs.writeFileSync(htmlPath, result, "utf-8");
   }
 }
