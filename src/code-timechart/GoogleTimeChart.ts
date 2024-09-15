@@ -115,7 +115,7 @@ async function appendGoogleTimeChartDataForTest(
   jsonDate: Date,
   passRatioPath: string,
   failedTestLifeTimeArray: [string, number][],
-  timeLineDataForFailedTest: [string, Date, Date][]
+  timeLineDataForFailedTest: [string, number, number][]
 ) {
   //add
   if (!(event.invokedDate instanceof Date)) {
@@ -178,11 +178,7 @@ async function appendGoogleTimeChartDataForTest(
           data[2] = false;
           data[4] = state.estimateTimeEnd;
           failedTestLifeTimeArray.push([data[0], data[4] - data[3]]);
-          timeLineDataForFailedTest.push([
-            data[0],
-            new Date(data[3]),
-            new Date(data[4]),
-          ]);
+          timeLineDataForFailedTest.push([data[0], data[3], data[4]]);
           data[3] = 0;
         }
         break;
@@ -199,7 +195,7 @@ async function appendGoogleTimeChartDataForTest(
   const passRatio = (passedTests / totalTests) * 100;
   const passRatioData: [number, string] = [
     state.estimateTimeStart,
-    passRatio.toFixed(2),
+    totalTests > 0 ? passRatio.toFixed(2) : "0.00",
   ];
   const fileContent =
     passRatioData[0] + "," + passRatioData[1] + "," + totalTests + "\n";
@@ -352,7 +348,7 @@ async function convertGoogleTimeChartData(
       date: new Date(entry.date),
     }));
   const failedTestLifeTimeArray: [string, number][] = [];
-  const timeLineDataForFailedTest: [string, Date, Date][] = [];
+  const timeLineDataForFailedTest: [string, number, number][] = [];
   let database: [string, string | null, boolean, number, number][] = [];
   const timeChartDataList: GTimeChartData[] = [];
   let jsonDate: Date =
@@ -407,20 +403,24 @@ async function convertGoogleTimeChartData(
     }
   }
   const failedTestLifeTimePath = `./output/failedTestLifeTime/${id}/${session}failedTestLifeTime.txt`;
-  const timelinePath =
-    "./output/failedTestLifeTime/${id}/${session}timeline.txt";
+  const timelinePath = `./output/failedTestLifeTime/${id}/${session}timeline.txt`;
   if (!fs.existsSync(failedTestLifeTimePath)) {
     fs.mkdirSync(path.dirname(failedTestLifeTimePath), { recursive: true });
   }
   if (!fs.existsSync(timelinePath)) {
     fs.mkdirSync(path.dirname(timelinePath), { recursive: true });
   }
-  const sortedTop10: [string, number][] = failedTestLifeTimeArray
+  const sortedTop10: [string, string][] = failedTestLifeTimeArray
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 10);
+    .slice(0, 10)
+    .map(([testName, ms]) => [testName, (ms / 60000).toFixed(2)]);
   const result = sortedTop10.join("\n");
   fs.writeFileSync(failedTestLifeTimePath, result, "utf8");
-  fs.writeFileSync(timelinePath, timeLineDataForFailedTest.join("\n"), "utf8");
+  fs.writeFileSync(
+    timelinePath,
+    JSON.stringify(timeLineDataForFailedTest),
+    "utf8"
+  );
   return await convertGoogleTimeChartString(timeChartDataList, options);
 }
 /**

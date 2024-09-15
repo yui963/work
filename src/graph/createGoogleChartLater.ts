@@ -111,12 +111,11 @@ function createGoogleChartLater(): void {
       maxElapsedTime
     );
     const data = JSON.stringify(passRatioArray);
-
     const result = htmlData
       .replace(dataReplacePattern, data)
       .replace(modelReplacePattern, JSON.stringify(adjustedData))
       .replace(tableReplacePattern, JSON.stringify(tableArray))
-      .replace(timelineReplacePattern, JSON.stringify(timelineData));
+      .replace(timelineReplacePattern, timelineData);
     fs.writeFileSync(htmlPath, result, "utf-8");
   }
 }
