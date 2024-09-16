@@ -180,14 +180,10 @@ async function appendGoogleTimeChartDataForTest(
           failedTestLifeTimeArray.push([data[0], data[4] - data[3]]);
           timeLineDataForFailedTest.push([data[0], data[3], data[4]]);
           data[3] = 0;
+          data[4] = 0;
         }
         break;
       }
-    }
-  }
-  for (const data of database) {
-    if (data[2] == true) {
-      data[3] += 1;
     }
   }
   const totalTests = database.length;
@@ -410,17 +406,30 @@ async function convertGoogleTimeChartData(
   if (!fs.existsSync(timelinePath)) {
     fs.mkdirSync(path.dirname(timelinePath), { recursive: true });
   }
-  const sortedTop10: [string, string][] = failedTestLifeTimeArray
+  const sortedTop10: [string, string][] = Array.from(
+    new Map<string, number>(
+      failedTestLifeTimeArray
+        .sort((a, b) => b[1] - a[1])
+        .reduce((map, [testName, ms]) => {
+          if (!map.has(testName) || map.get(testName)! < ms) {
+            map.set(testName, ms);
+          }
+          return map;
+        }, new Map<string, number>())
+    )
+  )
     .sort((a, b) => b[1] - a[1])
     .slice(0, 10)
     .map(([testName, ms]) => [testName, (ms / 60000).toFixed(2)]);
+  const top10TestNames = sortedTop10.map(([testName]) => testName);
+  const filteredTimeLineData = timeLineDataForFailedTest
+    .filter((data) => top10TestNames.includes(data[0]))
+    .sort(
+      ([, start1, end1], [, start2, end2]) => end2 - start2 - (end1 - start1)
+    );
   const result = sortedTop10.join("\n");
   fs.writeFileSync(failedTestLifeTimePath, result, "utf8");
-  fs.writeFileSync(
-    timelinePath,
-    JSON.stringify(timeLineDataForFailedTest),
-    "utf8"
-  );
+  fs.writeFileSync(timelinePath, JSON.stringify(filteredTimeLineData), "utf8");
   return await convertGoogleTimeChartString(timeChartDataList, options);
 }
 /**

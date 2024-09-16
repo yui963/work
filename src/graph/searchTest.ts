@@ -262,15 +262,16 @@ function countTestCaseModel(directoryPath: string): void {
     encoding: "utf-8",
   });
 }
-function countFirstTestCase(madeTest: string[]): void {
+function countFirstTestCase(): void {
   const projectPath = "./miniCV00forStudent2023/src/test/java/lang";
+  const outputPath = "./output/firstTestCase.txt";
   if (!fs.existsSync(projectPath)) {
     console.error("not exist First Project Folder");
   }
   let hoge: string[] = [];
   const testNames: string[] = [];
   processDirectory(projectPath, testNames, hoge);
-  testNames.map((item) => madeTest.push(item));
+  fs.writeFileSync(outputPath, testNames.toString(), "utf8");
   return;
 }
 function createEachPath(studentNumber: string, sid: number): string {
@@ -292,9 +293,13 @@ function createEachPath(studentNumber: string, sid: number): string {
 }
 function main(): void {
   const testCaseModelPath = "./testCaseModel";
+  const firstTestCasePath = "./output/firstTestCase.txt";
   let madeTest: string[] = [];
-  countFirstTestCase(madeTest);
-  console.log(madeTest);
+  if (!fs.existsSync(firstTestCasePath)) {
+    countFirstTestCase();
+  }
+  const data = fs.readFileSync(firstTestCasePath, "utf8");
+  madeTest = data.split(",");
   countTestCaseModel(testCaseModelPath);
   const studentNumber: string = process.argv.slice(2)[0];
   const sid: number = Number(process.argv.slice(2)[1]);
