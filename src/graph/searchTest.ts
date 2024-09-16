@@ -146,10 +146,6 @@ function countTestNum(
   }
   createGoogleCharts(results, studentNumber, session);
 }
-function convertDate(str: string): Date {
-  const result = new Date(str.replace("_", "T").replace(/\./g, ":"));
-  return result;
-}
 function processDirectory(
   langPath: string,
   testNames: string[],
@@ -266,7 +262,17 @@ function countTestCaseModel(directoryPath: string): void {
     encoding: "utf-8",
   });
 }
-
+function countFirstTestCase(madeTest: string[]): void {
+  const projectPath = "./miniCV00forStudent2023/src/test/java/lang";
+  if (!fs.existsSync(projectPath)) {
+    console.error("not exist First Project Folder");
+  }
+  let hoge: string[] = [];
+  const testNames: string[] = [];
+  processDirectory(projectPath, testNames, hoge);
+  testNames.map((item) => madeTest.push(item));
+  return;
+}
 function createEachPath(studentNumber: string, sid: number): string {
   const basePath = path.join("d:/unzips", studentNumber);
   const dirs = fs.readdirSync(basePath, { withFileTypes: true });
@@ -287,6 +293,8 @@ function createEachPath(studentNumber: string, sid: number): string {
 function main(): void {
   const testCaseModelPath = "./testCaseModel";
   let madeTest: string[] = [];
+  countFirstTestCase(madeTest);
+  console.log(madeTest);
   countTestCaseModel(testCaseModelPath);
   const studentNumber: string = process.argv.slice(2)[0];
   const sid: number = Number(process.argv.slice(2)[1]);
