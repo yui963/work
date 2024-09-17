@@ -29,23 +29,5 @@ export function analyzeStateInfoForWS(): DateAndEstimate[] {
       }
     }
   }
-  writeDateAndEstimateToFile(dateAndEstimateArray, "./debug.txt");
   return dateAndEstimateArray;
-}
-function writeDateAndEstimateToFile(data: DateAndEstimate[], filePath: string) {
-  // データを JSON 形式の文字列に変換
-  const jsonString = JSON.stringify(
-    data,
-    (key, value) => {
-      // Date オブジェクトを ISO 文字列に変換するためのリプレイサー
-      if (value instanceof Date) {
-        return value.toISOString();
-      }
-      return value;
-    },
-    2
-  ); // 2 はインデントのスペース数
-
-  // ファイルに書き込み
-  fs.writeFileSync(filePath, jsonString, "utf8");
 }

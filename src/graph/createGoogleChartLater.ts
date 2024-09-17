@@ -13,6 +13,7 @@ function createGoogleChartLater(): void {
   const modelReplacePattern = "##%%$$DATAFORMODEL$$%%##";
   const tableReplacePattern = "##%%$$DATAFORTABLE$$%%##";
   const timelineReplacePattern = "##%%$$DATAFORTIMELINE$$%%##";
+  const endTimeReplacePattern = "##%%$$ENDTIME$$%%##";
   for (let sid = 1; sid <= session; sid++) {
     const txtPath =
       "./output/" +
@@ -113,6 +114,7 @@ function createGoogleChartLater(): void {
     const data = JSON.stringify(passRatioArray);
     const result = htmlData
       .replace(dataReplacePattern, data)
+      .replace(endTimeReplacePattern, maxElapsedTime.toString())
       .replace(modelReplacePattern, JSON.stringify(adjustedData))
       .replace(tableReplacePattern, JSON.stringify(tableArray))
       .replace(timelineReplacePattern, timelineData);

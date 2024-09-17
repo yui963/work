@@ -10,7 +10,6 @@
         drawTable();
         drawTimeline();
       });
-
     function drawChartForNum() {
       var data = new google.visualization.DataTable();
       data.addColumn('number', 'time(mins)');
@@ -100,6 +99,7 @@
         dataTable.addColumn({ type: 'number', id: 'End' });
 
         var array = ##%%$$DATAFORTIMELINE$$%%##;
+        var endTime = ##%%$$ENDTIME$$%%##
         dataTable.addRows(array);
 
         var options = {
@@ -108,7 +108,11 @@
           },
           avoidOverlappingGridLines: false, 
           width: "auto",
-          height: 500
+          height: 500,
+          hAxis: {
+            minValue: 0, 
+            macValue: endTime
+          },
         };
 
         chart.draw(dataTable,options);
