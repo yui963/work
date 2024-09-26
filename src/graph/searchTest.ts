@@ -67,12 +67,7 @@ function countTestNum(
   dateAndEstimate: DateAndEstimate[]
 ): void {
   const results: [number, null, number][] = [];
-  let isFirst: boolean = true;
   const items: string[] = fs.readdirSync(directoryPath); //ws-history
-  let firstDate: Date = new Date();
-  let targetDate: Date = new Date();
-  let prevDate: Date = new Date();
-  let blank: number = 0;
   let finalTestNames: string[] = [];
   //item is YYYY-MM-DD
 
