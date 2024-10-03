@@ -111,7 +111,7 @@
           height: 500,
           hAxis: {
             minValue: 0, 
-            macValue: endTime
+            maxValue: endTime
           },
         };
 

@@ -363,22 +363,27 @@ async function convertGoogleTimeChartData(
     let rowLabel = "";
     let barLabel = "";
     if (!(state.type == "test") && cycleFlag == "3") {
-      cycleDataList.push(["test", "", cycleStartDate, cycleEndTime]);
+      cycleDataList.push(["'TestCycle'", "''", cycleStartDate, cycleEndTime]);
       cycleFlag = "0";
       cycleStartDate = 0;
       cycleEndTime = 0;
     }
     if (state.type == "edit") {
       const event: EditEvent = state.info as EditEvent;
-      if (cycleFlag == "0" && isTestCode(event.filePath)) {
-        cycleStartDate = state.estimateTimeStart;
-        cycleFlag = "1";
-        console.log("1");
-      } else if (cycleFlag == "1" && isProductCode(event.filePath)) {
+      if (cycleFlag == "1" && isProductCode(event.filePath)) {
         cycleFlag = "2";
       } else if (cycleFlag == "2" && !isProductCode(event.filePath)) {
-        cycleFlag = "0";
-        cycleStartDate = 0;
+        //readingは許容するようにする
+        if (event.eventName.toString() == "onDidChangeTextDocument") {
+          cycleFlag = "0";
+          cycleStartDate = 0;
+        }
+      } else if (cycleFlag == "0" && isTestCode(event.filePath)) {
+        cycleStartDate = state.estimateTimeStart;
+        if (!(cycleStartDate > 0)) {
+          console.log("error cycleStartDate");
+        }
+        cycleFlag = "1";
       }
       const timeChartData = await createGoogleTimeChartDataForEdit(
         state,
@@ -456,9 +461,16 @@ async function convertGoogleTimeChartData(
   const result = sortedTop10.join("\n");
   fs.writeFileSync(failedTestLifeTimePath, result, "utf8");
   fs.writeFileSync(timelinePath, JSON.stringify(filteredTimeLineData), "utf8");
-  return (
-    await convertGoogleTimeChartString(timeChartDataList, options)
-  ).concat(cycleDataList.toString());
+  let convertResult = await convertGoogleTimeChartString(
+    timeChartDataList,
+    options
+  );
+  convertResult = convertResult.slice(0, -1);
+  for (const item of cycleDataList) {
+    convertResult += ",[" + item.toString() + "]\n";
+  }
+  convertResult += "];";
+  return convertResult;
 }
 /**
  * convert GTimeChartDate[] to Code String as Data in JavaScript Code
