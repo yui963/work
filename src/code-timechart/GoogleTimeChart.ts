@@ -363,7 +363,12 @@ async function convertGoogleTimeChartData(
     let rowLabel = "";
     let barLabel = "";
     if (!(state.type == "test") && cycleFlag == "3") {
-      cycleDataList.push(["'TestCycle'", "''", cycleStartDate, cycleEndTime]);
+      cycleDataList.push([
+        "'TestFirstProcess'",
+        "''",
+        cycleStartDate,
+        cycleEndTime,
+      ]);
       cycleFlag = "0";
       cycleStartDate = 0;
       cycleEndTime = 0;

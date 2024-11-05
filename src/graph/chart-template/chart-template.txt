@@ -12,20 +12,20 @@
       });
     function drawChartForNum() {
       var data = new google.visualization.DataTable();
-      data.addColumn('number', 'time(mins)');
-      data.addColumn('number','good model');
-      data.addColumn("number", "yours");
+      data.addColumn('number', '時間(分)');
+      data.addColumn('number','理想');
+      data.addColumn("number", "あなた");
 
       var array = ##%%$$DATA$$%%##
       data.addRows(array);
 
       var options = {
         hAxis: {
-          title: 'time(mins)',
+          title: '時間(分)',
           format: 'decimal' 
         },
         vAxis:{
-          title:'number of test cases', 
+          title:'テストケース数', 
           viewWindow: {
             min: 0
           }
@@ -48,9 +48,9 @@
     }
     function drawChartForRatio() {
         var data = new google.visualization.DataTable();
-        data.addColumn('number', 'time(mins)');
-        data.addColumn('number','good model');
-        data.addColumn("number", "yours");
+        data.addColumn('number', '時間(分)');
+        data.addColumn('number','理想');
+        data.addColumn("number", "あなた");
 
         var dataArrayA = ##%%$$DATAFORMODEL$$%%##;
         var dataArrayB = ##%%$$DATAFORRATIO$$%%##;
@@ -63,11 +63,11 @@
         }
         var options = {
           hAxis: {
-            title: 'time(mins)',
+            title: '時間(分)',
             format: 'decimal'
           },
           vAxis:{
-            title:'pass ratio'
+            title:'成功率(%)'
           },
           series:{
             0:{color:'#DCDCDC',lineWidth:10,pointsVisible:false},
@@ -81,8 +81,8 @@
       }
       function drawTable() {
         var data = new google.visualization.DataTable();
-        data.addColumn('string', 'testName');
-        data.addColumn('number', 'lifeTime(mins)');
+        data.addColumn('string', 'テストケース名');
+        data.addColumn('number', '成功するまでの時間(分)');
         
         var array = ##%%$$DATAFORTABLE$$%%##;
         data.addRows(array);
@@ -214,19 +214,19 @@
     <div class="container">
       <div class="box">
         <div class = "title">
-          <h3>テスト数の増加傾向</h3>
+          <h3>時間経過に伴うテストケース数の推移</h3>
         </div>
         <div class = "box-content">
           <div id="linechart_num"></div>
           <p>
           機能の増加に伴ってテストの数も増えることが期待されます。
-          最初は配布されたテストに関係する実装をすることからテストの数は増加しませんが、後半はモデルのように時系列に比例して増加することが好ましいです。
+          最初は配布されたテストに関係する実装をすることからテストの数は増加しませんが、後半はモデルのように経過時間に比例して増加することが好ましいです。
           </p>
         </div>
       </div>
       <div class="box">
         <div class = "title">
-          <h3>新規テストを対象とした成功率推移</h3>
+          <h3>作成済みテストケースの成功率推移</h3>
         </div>
         <div class="box-content">
           <div id="linechart_ratio"></div>
@@ -239,14 +239,14 @@
       </div>
       <div class="box">
         <div class = "title">
-          <h3>失敗したテストを放置していないか</h3>
+          <h3>失敗したテストが成功するまでの時間</h3>
         </div>
         <div class="box-content">
           <div id="table"></div>
           <p>
           左表は、失敗したテストが成功するまでの時間が大きい順にテストを10個抽出したものです。
           自動テストをベースとする開発では、テストを作成し、それが動作するコードを作成することを最優先とします。
-          放置時間が長いテストがあった場合は、自分の開発を見直してみましょう。
+          成功するまでの時間が長いテストがあった場合は、自分の開発を見直してみましょう。
           </p>
         </div>
         <div class = "box-content">
