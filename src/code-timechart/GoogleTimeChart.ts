@@ -364,7 +364,7 @@ async function convertGoogleTimeChartData(
     let barLabel = "";
     if (!(state.type == "test") && cycleFlag == "3") {
       cycleDataList.push([
-        "'TestFirstProcess'",
+        "'TestFirstDuration'",
         "''",
         cycleStartDate,
         cycleEndTime,

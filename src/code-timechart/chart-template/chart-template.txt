@@ -19,7 +19,7 @@
         dataTable.addColumn({ type: 'number', id: 'Start' });
         dataTable.addColumn({ type: 'number', id: 'End' });
         var data = ##%%$$DATA$$%%##
-        var label = ['#SUMMARY|TEST','TestCycle','#SUMMARY|MAIN'];
+        var label = ['#SUMMARY|TEST','TestFirstDuration','#SUMMARY|MAIN'];
         var filteredData = data.filter(function(row) {
           return label.some(function(l){
             return row[0].indexOf(l) != -1;
