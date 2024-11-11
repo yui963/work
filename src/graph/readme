@@ -1,3 +1,49 @@
 ts-node ./searchTest.ts 70110001 7
 ts-node ./createGoogleTimeChart.ts 70110001
 ts-node ./createGoogleChartLater.ts 70110001 7
+
+add changed files
+createGoogleTimeChart.ts
+↓
+createGoogleTimeChartに渡す引数が増加
+
+GoogleTimeChart.ts
+↓
+creategoogleTimeChart
+→引数追加
+convertGoogleTimeChartData
+→引数追加
+→input testInfoByDate.json
+→make passRatio.txt Path
+→output failedTestLifeTimePath.txt, timeline.txt
+→output convertResult(+cycleDataList)
+appendGoogleTimeChartDataForTest
+→テストデータベースの管理をしている
+
+searchTest.ts
+import {
+  DateAndEstimate,
+  analyzeStateInfoForWS,
+} from "./analyzeStateInfoForWS";
+input
+./chart-template/chart-template.txt
+./output/testDistributed.json
+./miniCV00forStudent2023/src/test/java/lang
+./testCaseModel
+./output/firstTestCase.txt
+output
+./output/${studentNumber}/googleChart_${studentNumber}_${sid}.txt
+./output/firstTestCase.txt
+../code-timechart/output/testInfoByDate/${studentNumber}testInfoByDate.json
+firstTestCaseについてはプログラム内で受け渡し可能？
+
+createGoogleChartLater.ts
+output
+各種初期宣言されているpath
+
+analyzeStateInfoForWS.ts
+import {
+  StateInfo,
+  stateInfoJsonPath,
+} from "../code-timechart/analyzeStateInfo";
+import { WSEvent } from "../code-timechart/analyzeWS";

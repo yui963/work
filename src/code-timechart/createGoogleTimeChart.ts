@@ -1,19 +1,9 @@
 import * as fs from "fs-extra";
 import * as path from "path";
-import { join, dirname } from "path";
 import { createGoogleTimeChart } from "./GoogleTimeChart";
 import { StateInfo, stateInfoJsonPath } from "./analyzeStateInfo";
-import { existsSync } from "fs";
 
-// let madeTestCases: String[] = [];
-// export function setMadeTestCases(newCases: String[]) {
-//   madeTestCases = newCases;
-//   return madeTestCases;
-// }
-// export function getMadeTestCases() {
-//   return madeTestCases;
-// }
-export function createChartByIDandSession() {
+export async function createChartByIDandSession() {
   // const outputChartDir = "./output/chart/";
   const outputChartDir = path.join(process.cwd(), "output", "chart");
   const stateInfoJsonBuffer = fs.readFileSync(stateInfoJsonPath);
@@ -43,12 +33,6 @@ export function createChartByIDandSession() {
     );
 
     // create chart
-    // const madeTestCasesPath = join(
-    //   process.cwd(),
-    //   "output",
-    //   "test-run",
-    //   `madeTestList.json`
-    // );
     createGoogleTimeChart(
       header,
       stateInfo.stateList,
@@ -58,12 +42,6 @@ export function createChartByIDandSession() {
       stateInfo.id,
       stateInfo.session
     );
-    // .then(() => {
-    //   fs.ensureDir(dirname(madeTestCasesPath));
-    //   if (existsSync(madeTestCasesPath)) {
-    //     fs.writeFile(madeTestCasesPath, JSON.stringify(madeTestCases));
-    //   }
-    // })
 
     // createGoogleTimeChart(header, stateInfo.stateList, {'timeFormat': 'estimate'}, "./chart-template/chart-template.txt", outputChartDir + "/chart" + chartFileBase + ".html")
     // createGoogleTimeChart(header, stateInfo.stateList, {'timeFormat': 'date'}, "./chart-template/chart-template-date.txt", outputChartDir + "/chartDate" + chartFileBase + ".html")

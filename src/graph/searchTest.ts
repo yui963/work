@@ -82,24 +82,6 @@ function countTestNum(
       "lang"
     );
     processDirectory(langPath, testNames, madeTest);
-
-    // //itemを0基準にしてさらに間を詰める
-    // targetDate = convertDate(item);
-    // if (isFirst) {
-    //   firstDate = convertDate(item);
-    //   isFirst = false;
-    // } else {
-    //   //10分越えたら
-    //   if (targetDate.getTime() - prevDate.getTime() > 600000) {
-    //     blank += targetDate.getTime() - prevDate.getTime();
-    //     prevDate = targetDate;
-    //     continue;
-    //   }
-    // }
-    // //ms -> hour
-    // const passTime =
-    //   (targetDate.getTime() - firstDate.getTime() - blank) / (1000 * 60);
-    // prevDate = targetDate;
     const dateFormat: Date = new Date(
       item.replace(/_/g, " ").replace(/\./g, ":")
     );
@@ -117,21 +99,6 @@ function countTestNum(
     } else {
       console.error("findResult is false");
     }
-
-    // //for debug
-    // if (!fs.existsSync("./debug")) {
-    //   fs.mkdirSync("./debug", { recursive: true });
-    // }
-    // fs.writeFileSync(
-    //   "./debug/debug_" + session + ".txt",
-    //   finalTestNames.join("\n").toString(),
-    //   "utf-8"
-    // );
-    // fs.writeFileSync(
-    //   "./debug/madeTest_" + session + ".txt",
-    //   madeTest.join("\n").toString(),
-    //   "utf-8"
-    // );
   }
 
   for (const item of finalTestNames) {
@@ -263,7 +230,7 @@ function countFirstTestCase(): void {
   if (!fs.existsSync(projectPath)) {
     console.error("not exist First Project Folder");
   }
-  let hoge: string[] = [];
+  let hoge: string[] = []; //初期の空配列
   const testNames: string[] = [];
   processDirectory(projectPath, testNames, hoge);
   fs.writeFileSync(outputPath, testNames.toString(), "utf8");

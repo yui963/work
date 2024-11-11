@@ -6,10 +6,7 @@ import { RunEvent } from "./analyzeRunResults";
 import { WSEvent } from "./analyzeWS";
 import { getFileNameFromDotPath, isProductCode, isTestCode } from "./common";
 import * as path from "path";
-import { existsSync } from "fs";
-import { time } from "console";
 import { TestInfoByDate, TestInfoBySid } from "../graph/searchTest";
-import { fail } from "assert";
 
 interface GTimeChartData {
   state: State;
@@ -285,7 +282,6 @@ async function appendGoogleTimeChartDataForTest(
         beginDate: state.datetimeStart,
         endDate: state.datetimeEnd,
       };
-
       if (timeChartData != null) {
         timeChartDataList.push(timeChartData);
         timeChartDataList.push(await getSummaryData(timeChartData));
@@ -547,7 +543,6 @@ async function convertGoogleTimeChartString(
     data += "]";
   }
   data += "\n]";
-
   return data;
 }
 export async function createGoogleTimeChart(
@@ -562,7 +557,7 @@ export async function createGoogleTimeChart(
   try {
     const heaerReplacePattern = "##%%$$HEADER$$%%##";
     const dataReplacePattern = "##%%$$DATA$$%%##";
-    let chartData: String = await convertGoogleTimeChartData(
+    const chartData: String = await convertGoogleTimeChartData(
       stateList,
       options,
       id,
