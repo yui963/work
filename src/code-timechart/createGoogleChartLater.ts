@@ -1,4 +1,4 @@
-import * as fs from "fs";
+import * as fs from "fs-extra";
 interface JsonData {
   sid: number;
   num: number;
@@ -18,7 +18,7 @@ function createGoogleChartLater(): void {
     const txtPath =
       "./output/" +
       studentNumber +
-      "/googleChart" +
+      "/graph" +
       "_" +
       studentNumber +
       "_cv0" +
@@ -27,26 +27,22 @@ function createGoogleChartLater(): void {
     const htmlPath =
       "./output/" +
       studentNumber +
-      "/googleChart" +
+      "/graph" +
       "_" +
       studentNumber +
       "_cv0" +
       sid +
       ".html";
     const passRatioPath =
-      "../code-timechart/output/passRatio/" +
-      studentNumber +
-      "/cv0" +
-      sid +
-      "passRatio.txt";
+      "./output/passRatio/" + studentNumber + "/cv0" + sid + "passRatio.txt";
     const tablePath =
-      "../code-timechart/output/failedTestLifeTime/" +
+      "./output/failedTestLifeTime/" +
       studentNumber +
       "/cv0" +
       sid +
       "failedTestLifeTime.txt";
     const timelinePath =
-      "../code-timechart/output/failedTestLifeTime/" +
+      "./output/failedTestLifeTime/" +
       studentNumber +
       "/cv0" +
       sid +

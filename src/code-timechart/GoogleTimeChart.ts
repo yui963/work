@@ -6,7 +6,7 @@ import { RunEvent } from "./analyzeRunResults";
 import { WSEvent } from "./analyzeWS";
 import { getFileNameFromDotPath, isProductCode, isTestCode } from "./common";
 import * as path from "path";
-import { TestInfoByDate, TestInfoBySid } from "../graph/searchTest";
+import { TestInfoByDate, TestInfoBySid } from "./searchTest";
 
 interface GTimeChartData {
   state: State;
@@ -18,7 +18,30 @@ interface GTimeChartData {
   beginDate: Date;
   endDate: Date;
 }
-
+async function createTestFirstJSON(
+  id: String,
+  sid: String,
+  durations: [number, number][]
+): Promise<void> {
+  const outputPath = `./output/TestFirstDuration/${id}/${sid}_TestFirstDuration.json`;
+  let existingData: { sid: String; durations: [number, number][] }[] = [];
+  if (fs.existsSync(outputPath)) {
+    const fileContent = fs.readFileSync(outputPath, "utf-8");
+    try {
+      existingData = JSON.parse(fileContent);
+    } catch (error) {
+      console.error("Failed to parse JSON.");
+    }
+  }
+  const index = existingData.findIndex((entry) => entry.sid == sid);
+  if (index != -1) {
+    existingData[index].durations = durations;
+  } else {
+    existingData.push({ sid: sid, durations: durations });
+  }
+  const jsonData = JSON.stringify(existingData, null, 2);
+  fs.writeFileSync(outputPath, jsonData, "utf-8");
+}
 async function getSummaryData(base: GTimeChartData): Promise<GTimeChartData> {
   let rowLabel = "#SUMMARY";
   const state = base.state;
@@ -330,10 +353,10 @@ async function convertGoogleTimeChartData(
   id: String,
   session: String
 ): Promise<String> {
-  let cycleStartDate: number = 0;
-  let cycleEndTime: number = 0;
-  let cycleFlag: string = "0"; //1 is testCode edit,run,  2 is productCode edit, 3 is testCode run
-  const cycleDataList: [string, string, number, number][] = [];
+  let testFirstStartDate: number = 0;
+  let testFirstEndDate: number = 0;
+  let flag: string = "0"; //1 is testCode edit,run,  2 is productCode edit, 3 is testCode run
+  const testFirstDurationList: [number, number][] = [];
   const jsonPath = "./output/testInfoByDate/" + id + "testInfoByDate.json";
   const data = fs.readFileSync(jsonPath, "utf8");
   const jsonData = JSON.parse(data);
@@ -354,37 +377,31 @@ async function convertGoogleTimeChartData(
   if (fs.existsSync(passRatioPath)) {
     fs.unlinkSync(passRatioPath);
   }
-
+  //以下でテストファーストのプロセスを判別する
   for (const state of stateList) {
-    let rowLabel = "";
-    let barLabel = "";
-    if (!(state.type == "test") && cycleFlag == "3") {
-      cycleDataList.push([
-        "'TestFirstDuration'",
-        "''",
-        cycleStartDate,
-        cycleEndTime,
-      ]);
-      cycleFlag = "0";
-      cycleStartDate = 0;
-      cycleEndTime = 0;
-    }
+    // let rowLabel = "";
+    // let barLabel = "";
     if (state.type == "edit") {
       const event: EditEvent = state.info as EditEvent;
-      if (cycleFlag == "1" && isProductCode(event.filePath)) {
-        cycleFlag = "2";
-      } else if (cycleFlag == "2" && !isProductCode(event.filePath)) {
-        //readingは許容するようにする
+      if (flag == "1" && isProductCode(event.filePath)) {
+        flag = "2";
+      } else if (flag == "2" && isTestCode(event.filePath)) {
         if (event.eventName.toString() == "onDidChangeTextDocument") {
-          cycleFlag = "0";
-          cycleStartDate = 0;
+          flag = "0";
+          testFirstStartDate = 0;
         }
-      } else if (cycleFlag == "0" && isTestCode(event.filePath)) {
-        cycleStartDate = state.estimateTimeStart;
-        if (!(cycleStartDate > 0)) {
-          console.log("error cycleStartDate");
+      } else if (flag == "3" && isTestCode(event.filePath)) {
+        if (event.eventName.toString() == "onDidChangeTextDocument") {
+          testFirstDurationList.push([testFirstStartDate, testFirstEndDate]);
+          flag = "1";
+          testFirstStartDate = state.estimateTimeStart;
         }
-        cycleFlag = "1";
+      } else if (flag == "0" && isTestCode(event.filePath)) {
+        testFirstStartDate = state.estimateTimeStart;
+        if (!(testFirstStartDate > 0)) {
+          console.log("error testFirstStartDate");
+        }
+        flag = "1";
       }
       const timeChartData = await createGoogleTimeChartDataForEdit(
         state,
@@ -396,12 +413,11 @@ async function convertGoogleTimeChartData(
       }
     } else if (state.type == "test") {
       const event: TestEvent = state.info as TestEvent;
-      if (cycleFlag == "0") {
-        cycleStartDate = state.estimateTimeStart;
-        cycleFlag = "1";
-      } else if (cycleFlag == "2") {
-        cycleEndTime = state.estimateTimeEnd;
-        cycleFlag = "3";
+      if (flag == "0") {
+        testFirstStartDate = state.estimateTimeStart;
+        flag = "1";
+      } else if (flag == "2") {
+        flag = "3";
       }
       await appendGoogleTimeChartDataForTest(
         state,
@@ -429,7 +445,22 @@ async function convertGoogleTimeChartData(
         timeChartDataList.push(await getSummaryData(timeChartData));
       }
     }
+    if (flag == "3") {
+      testFirstEndDate = state.estimateTimeEnd;
+    }
+    // if (!(state.type == "test") && flag == "3") {
+    //   cycleDataList.push([
+    //     "'TestFirstDuration'",
+    //     "''",
+    //     testFirstStartDate,
+    //     testFirstEndDate,
+    //   ]);
+    //   flag = "0";
+    //   testFirstStartDate = 0;
+    //   testFirstEndDate = 0;
+    // }
   }
+  createTestFirstJSON(id, session, testFirstDurationList);
   const failedTestLifeTimePath = `./output/failedTestLifeTime/${id}/${session}failedTestLifeTime.txt`;
   const timelinePath = `./output/failedTestLifeTime/${id}/${session}timeline.txt`;
   if (!fs.existsSync(failedTestLifeTimePath)) {
@@ -467,10 +498,10 @@ async function convertGoogleTimeChartData(
     options
   );
   convertResult = convertResult.slice(0, -1);
-  for (const item of cycleDataList) {
-    convertResult += ",[" + item.toString() + "]\n";
-  }
-  convertResult += "];";
+  // for (const item of cycleDataList) {
+  //   convertResult += ",[" + item.toString() + "]\n";
+  // }
+  // convertResult += "];";
   return convertResult;
 }
 /**

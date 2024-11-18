@@ -3,7 +3,7 @@ import * as path from "path";
 import {
   DateAndEstimate,
   analyzeStateInfoForWS,
-} from "../code-timechart/analyzeStateInfoForWS";
+} from "./analyzeStateInfoForWS";
 interface TestCaseModel {
   sid: number;
   num: number;
@@ -164,11 +164,11 @@ function createGoogleCharts(
   const dataReplacePattern = "##%%$$DATA$$%%##";
   const titleRePlacePattern = "##%%$$TITLE$$%%##";
   const sessionReplacePattern = "##%%$$SESSION$$%%##";
-  const samplePath = "./chart-template/chart-template.txt";
+  const samplePath = "./chart-template/graph-template.txt";
   const outputPath =
-    "./output/" +
+    "./output/graph" +
     studentNumber +
-    "/googleChart" +
+    "/graph" +
     "_" +
     studentNumber +
     "_" +
@@ -274,7 +274,7 @@ function main(): void {
     );
     testInfoBySid.push({ sid: `cv0${i}`, info: testInfoByDate });
   }
-  const outputPath = `../code-timechart/output/testInfoByDate/${studentNumber}testInfoByDate.json`;
+  const outputPath = `./output/testInfoByDate/${studentNumber}testInfoByDate.json`;
   if (!fs.existsSync(outputPath)) {
     fs.mkdirSync(path.dirname(outputPath), { recursive: true });
   }
