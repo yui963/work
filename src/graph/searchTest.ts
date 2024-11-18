@@ -3,7 +3,7 @@ import * as path from "path";
 import {
   DateAndEstimate,
   analyzeStateInfoForWS,
-} from "./analyzeStateInfoForWS";
+} from "../code-timechart/analyzeStateInfoForWS";
 interface TestCaseModel {
   sid: number;
   num: number;
@@ -224,17 +224,15 @@ function countTestCaseModel(directoryPath: string): void {
     encoding: "utf-8",
   });
 }
-function countFirstTestCase(): void {
+function countFirstTestCase(): string {
   const projectPath = "./miniCV00forStudent2023/src/test/java/lang";
-  const outputPath = "./output/firstTestCase.txt";
   if (!fs.existsSync(projectPath)) {
     console.error("not exist First Project Folder");
   }
   let hoge: string[] = []; //初期の空配列
   const testNames: string[] = [];
   processDirectory(projectPath, testNames, hoge);
-  fs.writeFileSync(outputPath, testNames.toString(), "utf8");
-  return;
+  return testNames.toString();
 }
 function createEachPath(studentNumber: string, sid: number): string {
   const basePath = path.join("d:/unzips", studentNumber);
@@ -255,12 +253,8 @@ function createEachPath(studentNumber: string, sid: number): string {
 }
 function main(): void {
   const testCaseModelPath = "./testCaseModel";
-  const firstTestCasePath = "./output/firstTestCase.txt";
   let madeTest: string[] = [];
-  if (!fs.existsSync(firstTestCasePath)) {
-    countFirstTestCase();
-  }
-  const data = fs.readFileSync(firstTestCasePath, "utf8");
+  const data = countFirstTestCase();
   madeTest = data.split(",");
   countTestCaseModel(testCaseModelPath);
   const studentNumber: string = process.argv.slice(2)[0];

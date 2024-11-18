@@ -30,20 +30,11 @@ input
 ./output/testDistributed.json
 ./miniCV00forStudent2023/src/test/java/lang
 ./testCaseModel
-./output/firstTestCase.txt
 output
 ./output/${studentNumber}/googleChart_${studentNumber}_${sid}.txt
-./output/firstTestCase.txt
 ../code-timechart/output/testInfoByDate/${studentNumber}testInfoByDate.json
-firstTestCaseについてはプログラム内で受け渡し可能？
 
 createGoogleChartLater.ts
 output
 各種初期宣言されているpath
 
-analyzeStateInfoForWS.ts
-import {
-  StateInfo,
-  stateInfoJsonPath,
-} from "../code-timechart/analyzeStateInfo";
-import { WSEvent } from "../code-timechart/analyzeWS";

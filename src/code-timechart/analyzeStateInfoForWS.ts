@@ -1,9 +1,6 @@
 import * as fs from "fs";
-import {
-  StateInfo,
-  stateInfoJsonPath,
-} from "../code-timechart/analyzeStateInfo";
-import { WSEvent } from "../code-timechart/analyzeWS";
+import { StateInfo, stateInfoJsonPath } from "./analyzeStateInfo";
+import { WSEvent } from "./analyzeWS";
 export interface DateAndEstimate {
   date: Date;
   estimate: number;
