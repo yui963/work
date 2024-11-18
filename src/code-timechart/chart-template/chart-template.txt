@@ -4,13 +4,16 @@
 -->
 <html>
   <head>
-    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script
+      type="text/javascript"
+      src="https://www.gstatic.com/charts/loader.js"
+    ></script>
 
     <script type="text/javascript">
       google.charts.load("current", {packages:["timeline"]});
       google.charts.setOnLoadCallback(drawChart);
       function drawChart() {
-    
+
         var container = document.getElementById('graph');
         var chart = new google.visualization.Timeline(container);
         var dataTable = new google.visualization.DataTable();
@@ -18,17 +21,24 @@
         dataTable.addColumn({ type: 'string', id: 'Action' });
         dataTable.addColumn({ type: 'number', id: 'Start' });
         dataTable.addColumn({ type: 'number', id: 'End' });
+        dataTable.addColumn({type:' string', role:'style' });
+
         var data = ##%%$$DATA$$%%##
-        var label = ['#SUMMARY|TEST','TestFirstDuration','#SUMMARY|MAIN'];
-        var filteredData = data.filter(function(row) {
-          return label.some(function(l){
-            return row[0].indexOf(l) != -1;
-          });
-        });
+        var durations = ##%%$$DURATION$$%%##
+        var label = ['#SUMMARY|TEST','#SUMMARY|MAIN'];
+        var filteredData = data.filter((row) => label.some((l) => row[0].indexOf(1) != -1))
+            .map((row) => {
+              const start = row[2];
+              const isWithinDuration = durations.some(([dStart, dEnd]) => {
+                return start >= dStart && start <= dEnd;
+              });
+              const color = isWithinDuration ? "blue" : "red";
+              return [row[0], row[1], row[2], row[3], `color: ${color}`];
+            });
         dataTable.addRows(
           filteredData
         );
-        
+
         const options = {
           width: "auto",
           height: 500,
@@ -40,9 +50,9 @@
         chart.draw(dataTable, options);
       }
     </script>
-</head>
+  </head>
   <body>
     <h1>##%%$$HEADER$$%%##</h1>
-    <div id="graph" style="height: 1200px;overflow:auto"></div>
+    <div id="graph" style="height: 1200px; overflow: auto"></div>
   </body>
 </html>

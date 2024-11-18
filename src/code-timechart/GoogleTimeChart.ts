@@ -18,30 +18,6 @@ interface GTimeChartData {
   beginDate: Date;
   endDate: Date;
 }
-async function createTestFirstJSON(
-  id: String,
-  sid: String,
-  durations: [number, number][]
-): Promise<void> {
-  const outputPath = `./output/TestFirstDuration/${id}/${sid}_TestFirstDuration.json`;
-  let existingData: { sid: String; durations: [number, number][] }[] = [];
-  if (fs.existsSync(outputPath)) {
-    const fileContent = fs.readFileSync(outputPath, "utf-8");
-    try {
-      existingData = JSON.parse(fileContent);
-    } catch (error) {
-      console.error("Failed to parse JSON.");
-    }
-  }
-  const index = existingData.findIndex((entry) => entry.sid == sid);
-  if (index != -1) {
-    existingData[index].durations = durations;
-  } else {
-    existingData.push({ sid: sid, durations: durations });
-  }
-  const jsonData = JSON.stringify(existingData, null, 2);
-  fs.writeFileSync(outputPath, jsonData, "utf-8");
-}
 async function getSummaryData(base: GTimeChartData): Promise<GTimeChartData> {
   let rowLabel = "#SUMMARY";
   const state = base.state;
@@ -352,7 +328,10 @@ async function convertGoogleTimeChartData(
   options: any,
   id: String,
   session: String
-): Promise<String> {
+): Promise<{
+  convertResult: String;
+  testFirstDurationList: [number, number][];
+}> {
   let testFirstStartDate: number = 0;
   let testFirstEndDate: number = 0;
   let flag: string = "0"; //1 is testCode edit,run,  2 is productCode edit, 3 is testCode run
@@ -460,7 +439,6 @@ async function convertGoogleTimeChartData(
     //   testFirstEndDate = 0;
     // }
   }
-  createTestFirstJSON(id, session, testFirstDurationList);
   const failedTestLifeTimePath = `./output/failedTestLifeTime/${id}/${session}failedTestLifeTime.txt`;
   const timelinePath = `./output/failedTestLifeTime/${id}/${session}timeline.txt`;
   if (!fs.existsSync(failedTestLifeTimePath)) {
@@ -502,7 +480,7 @@ async function convertGoogleTimeChartData(
   //   convertResult += ",[" + item.toString() + "]\n";
   // }
   // convertResult += "];";
-  return convertResult;
+  return { convertResult, testFirstDurationList };
 }
 /**
  * convert GTimeChartDate[] to Code String as Data in JavaScript Code
@@ -588,17 +566,26 @@ export async function createGoogleTimeChart(
   try {
     const heaerReplacePattern = "##%%$$HEADER$$%%##";
     const dataReplacePattern = "##%%$$DATA$$%%##";
-    const chartData: String = await convertGoogleTimeChartData(
+    const durationPattern = "##%%$$DURATION$$%%##";
+    const result = await convertGoogleTimeChartData(
       stateList,
       options,
       id,
       session
     );
+    const chartData: String = result.convertResult;
+    const testFirstDurationList: [number, number][] =
+      result.testFirstDurationList;
     const template = await fs.readFile(templatePath);
     let chartHTML = template
       .toString()
-      .replace(dataReplacePattern, chartData.toString());
-    chartHTML = chartHTML.replace(heaerReplacePattern, header);
+      .replace(
+        dataReplacePattern,
+        chartData
+          .toString()
+          .replace(heaerReplacePattern, header)
+          .replace(durationPattern, testFirstDurationList.toString())
+      );
     fs.ensureFileSync(chartFilePath);
     fs.writeFile(chartFilePath, chartHTML);
   } catch (error: any) {
