@@ -16,7 +16,7 @@ function createGoogleChartLater(): void {
   const endTimeReplacePattern = "##%%$$ENDTIME$$%%##";
   for (let sid = 1; sid <= session; sid++) {
     const txtPath =
-      "./output/" +
+      "./output/graph/" +
       studentNumber +
       "/graph" +
       "_" +
@@ -25,7 +25,7 @@ function createGoogleChartLater(): void {
       sid +
       ".txt";
     const htmlPath =
-      "./output/" +
+      "./output/graph/" +
       studentNumber +
       "/graph" +
       "_" +
@@ -48,10 +48,6 @@ function createGoogleChartLater(): void {
       sid +
       "timeline.txt";
     const testDistributedPath = "./output/testDistributed.json";
-    if (!fs.existsSync(htmlPath)) {
-      console.log(`not exists ${htmlPath}`);
-      return;
-    }
     if (!fs.existsSync(passRatioPath)) {
       console.log(`not exist ${passRatioPath}`);
       return;

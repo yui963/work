@@ -16,7 +16,7 @@
       data.addColumn('number','理想');
       data.addColumn("number", "あなた");
 
-      var array = ##%%$$DATA$$%%##
+      var array = ##%%$$DATA$$%%##;
       data.addRows(array);
 
       var options = {
@@ -99,7 +99,7 @@
         dataTable.addColumn({ type: 'number', id: 'End' });
 
         var array = ##%%$$DATAFORTIMELINE$$%%##;
-        var endTime = ##%%$$ENDTIME$$%%##
+        var endTime = ##%%$$ENDTIME$$%%##;
         dataTable.addRows(array);
 
         var options = {

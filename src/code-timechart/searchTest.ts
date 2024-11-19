@@ -166,7 +166,7 @@ function createGoogleCharts(
   const sessionReplacePattern = "##%%$$SESSION$$%%##";
   const samplePath = "./chart-template/graph-template.txt";
   const outputPath =
-    "./output/graph" +
+    "./output/graph/" +
     studentNumber +
     "/graph" +
     "_" +

@@ -363,7 +363,9 @@ async function convertGoogleTimeChartData(
     if (state.type == "edit") {
       const event: EditEvent = state.info as EditEvent;
       if (flag == "1" && isProductCode(event.filePath)) {
-        flag = "2";
+        if (event.eventName.toString() == "onDidChangeTextDocument") {
+          flag = "2";
+        }
       } else if (flag == "2" && isTestCode(event.filePath)) {
         if (event.eventName.toString() == "onDidChangeTextDocument") {
           flag = "0";
@@ -551,7 +553,7 @@ async function convertGoogleTimeChartString(
     }
     data += "]";
   }
-  data += "\n]";
+  data += "\n]]";
   return data;
 }
 export async function createGoogleTimeChart(
@@ -564,7 +566,7 @@ export async function createGoogleTimeChart(
   session: String
 ) {
   try {
-    const heaerReplacePattern = "##%%$$HEADER$$%%##";
+    const headerReplacePattern = "##%%$$HEADER$$%%##";
     const dataReplacePattern = "##%%$$DATA$$%%##";
     const durationPattern = "##%%$$DURATION$$%%##";
     const result = await convertGoogleTimeChartData(
@@ -579,13 +581,9 @@ export async function createGoogleTimeChart(
     const template = await fs.readFile(templatePath);
     let chartHTML = template
       .toString()
-      .replace(
-        dataReplacePattern,
-        chartData
-          .toString()
-          .replace(heaerReplacePattern, header)
-          .replace(durationPattern, testFirstDurationList.toString())
-      );
+      .replace(dataReplacePattern, chartData.toString())
+      .replace(headerReplacePattern, header)
+      .replace(durationPattern, JSON.stringify(testFirstDurationList));
     fs.ensureFileSync(chartFilePath);
     fs.writeFile(chartFilePath, chartHTML);
   } catch (error: any) {
