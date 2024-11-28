@@ -356,6 +356,8 @@ async function convertGoogleTimeChartData(
   if (fs.existsSync(passRatioPath)) {
     fs.unlinkSync(passRatioPath);
   }
+  //テスト数と参照時刻の配列
+  let lastTestNum: number = 0;
   //以下でテストファーストのプロセスを判別する
   for (const state of stateList) {
     // let rowLabel = "";
@@ -365,6 +367,31 @@ async function convertGoogleTimeChartData(
       if (flag == "1" && isProductCode(event.filePath)) {
         if (event.eventName.toString() == "onDidChangeTextDocument") {
           flag = "2";
+          //テスト数の増加観測
+          // const targetIndex = sessionData.findIndex((entry) => {
+          //   const date1 = new Date(entry.date);
+          //   const date2 = new Date(event.datetime);
+          //   return date1.getTime() > date2.getTime();
+          // });
+          // const target =
+          //   targetIndex > 0
+          //     ? sessionData[targetIndex - 1]
+          //     : sessionData[targetIndex];
+          // const targetLength = target.testNames.length;
+
+          //棄却タイムラインの作成
+          //1から0に落ちたときに、それまでの時間帯を配列に保存してそれを別の色で表示する。
+          const targetLength = database.length;
+          if (session == "cv05") {
+            if (targetLength == 0) {
+            }
+          }
+          if (!(lastTestNum < targetLength)) {
+            flag = "0";
+            testFirstStartDate = 0;
+          } else {
+            lastTestNum = targetLength;
+          }
         }
       } else if (flag == "2" && isTestCode(event.filePath)) {
         if (event.eventName.toString() == "onDidChangeTextDocument") {
@@ -429,17 +456,6 @@ async function convertGoogleTimeChartData(
     if (flag == "3") {
       testFirstEndDate = state.estimateTimeEnd;
     }
-    // if (!(state.type == "test") && flag == "3") {
-    //   cycleDataList.push([
-    //     "'TestFirstDuration'",
-    //     "''",
-    //     testFirstStartDate,
-    //     testFirstEndDate,
-    //   ]);
-    //   flag = "0";
-    //   testFirstStartDate = 0;
-    //   testFirstEndDate = 0;
-    // }
   }
   const failedTestLifeTimePath = `./output/failedTestLifeTime/${id}/${session}failedTestLifeTime.txt`;
   const timelinePath = `./output/failedTestLifeTime/${id}/${session}timeline.txt`;
@@ -478,10 +494,11 @@ async function convertGoogleTimeChartData(
     options
   );
   convertResult = convertResult.slice(0, -1);
-  // for (const item of cycleDataList) {
-  //   convertResult += ",[" + item.toString() + "]\n";
-  // }
-  // convertResult += "];";
+  const timeChartData = testFirstDurationList;
+  testFirstDurationList.map((row) => {
+    convertResult += ",['testFirstDuration',''," + row.toString() + "]\n";
+  });
+  convertResult += "]";
   return { convertResult, testFirstDurationList };
 }
 /**
@@ -553,7 +570,7 @@ async function convertGoogleTimeChartString(
     }
     data += "]";
   }
-  data += "\n]]";
+  data += "]";
   return data;
 }
 export async function createGoogleTimeChart(

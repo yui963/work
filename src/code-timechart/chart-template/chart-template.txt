@@ -24,7 +24,7 @@
 
         var data = ##%%$$DATA$$%%##;
         var durations = ##%%$$DURATION$$%%##;
-        var label = ['#SUMMARY|TEST','#SUMMARY|MAIN'];
+        var label = ['#SUMMARY|TEST','#SUMMARY|MAIN','testFirstDuration'];
         var filteredData = data.filter((row) => label.some((l) => row[0].indexOf(l) != -1))
             .map((row) => {
               const start = row[2];
