@@ -24,14 +24,34 @@
 
         var data = ##%%$$DATA$$%%##;
         var durations = ##%%$$DURATION$$%%##;
+        var oneToZero = ##%%$$ONETOZERO$$%%##;
+        var twoToZero = ##%%$$TWOTOZERO$$%%##;
         var label = ['#SUMMARY|TEST','#SUMMARY|MAIN','testFirstDuration'];
         var filteredData = data.filter((row) => label.some((l) => row[0].indexOf(l) != -1))
             .map((row) => {
+              let color;
               const start = row[2];
               const isWithinDuration = durations.some(([dStart, dEnd]) => {
                 return start >= dStart && start <= dEnd;
               });
-              const color = isWithinDuration ? "#4169e1" : "#ff7f50";
+              const isEndDuration = durations[durations.length-1][1] < start;
+              const isInOneToZero = oneToZero.some(([dStart, dEnd]) => {
+                return start >= dStart && start <= dEnd;
+              });
+              const isInTwoToZero = twoToZero.some(([dStart, dEnd]) => {
+                return start >= dStart && start <= dEnd;
+              });
+              if(isWithinDuration){
+                color = "#4169e1";
+              }else if(isInOneToZero){
+                color = "#ffa500";
+              }else if(isInTwoToZero){
+                color = "#ffc0cb";
+              }else if(isEndDuration){
+                color = "4169e1";
+              }else{
+                color = "#ff0000";
+              }
               return [row[0], row[1], color ,row[2], row[3]];
             });
         filteredData.map((row)=>{console.log(row)});

@@ -107,7 +107,7 @@ async function appendGoogleTimeChartDataForTest(
   event: TestEvent,
   timeChartDataList: GTimeChartData[],
   jsonData: TestInfoByDate[],
-  database: [string, string | null, boolean, number, number][],
+  testInfoList: [string, string | null, boolean, number, number][],
   jsonDate: Date,
   passRatioPath: string,
   failedTestLifeTimeArray: [string, number][],
@@ -136,16 +136,16 @@ async function appendGoogleTimeChartDataForTest(
     return;
   }
   let JsonTest: string[] = findItem.testNames;
-  //database upgrade
-  for (let i = database.length - 1; i >= 0; i--) {
-    const [testName] = database[i];
+  //testInfoList upgrade
+  for (let i = testInfoList.length - 1; i >= 0; i--) {
+    const [testName] = testInfoList[i];
     if (!JsonTest.includes(testName)) {
-      database.splice(i, 1);
+      testInfoList.splice(i, 1);
     }
   }
   for (const item of JsonTest) {
-    if (!database.some(([testName]) => testName == item)) {
-      database.push([item, null, false, 0, 0]);
+    if (!testInfoList.some(([testName]) => testName == item)) {
+      testInfoList.push([item, null, false, 0, 0]);
     }
   }
   const regex = /\(.*?\)$/;
@@ -153,7 +153,7 @@ async function appendGoogleTimeChartDataForTest(
   const testingCase = event.testingCase.map((str) => str.replace(regex, ""));
 
   for (const item of failedCase) {
-    for (const data of database) {
+    for (const data of testInfoList) {
       if (data[0] == item) {
         data[1] = "fail";
         if (data[2] == false) {
@@ -167,7 +167,7 @@ async function appendGoogleTimeChartDataForTest(
 
   const passCase = testingCase.filter((item) => !failedCase.includes(item));
   for (const item of passCase) {
-    for (const data of database) {
+    for (const data of testInfoList) {
       if (data[0] == item) {
         data[1] = "pass";
         if (data[2] == true) {
@@ -182,8 +182,10 @@ async function appendGoogleTimeChartDataForTest(
       }
     }
   }
-  const totalTests = database.length;
-  const passedTests = database.filter(([_, result]) => result == "pass").length;
+  const totalTests = testInfoList.length;
+  const passedTests = testInfoList.filter(
+    ([_, result]) => result == "pass"
+  ).length;
   const passRatio = (passedTests / totalTests) * 100;
   const passRatioData: [number, string] = [
     state.estimateTimeStart,
@@ -331,11 +333,15 @@ async function convertGoogleTimeChartData(
 ): Promise<{
   convertResult: String;
   testFirstDurationList: [number, number][];
+  oneToZeroDurationList: [number, number][];
+  twoToZeroDurationList: [number, number][];
 }> {
   let testFirstStartDate: number = 0;
   let testFirstEndDate: number = 0;
   let flag: string = "0"; //1 is testCode edit,run,  2 is productCode edit, 3 is testCode run
   const testFirstDurationList: [number, number][] = [];
+  const oneToZeroDurationList: [number, number][] = [];
+  const twoToZeroDurationList: [number, number][] = [];
   const jsonPath = "./output/testInfoByDate/" + id + "testInfoByDate.json";
   const data = fs.readFileSync(jsonPath, "utf8");
   const jsonData = JSON.parse(data);
@@ -347,7 +353,7 @@ async function convertGoogleTimeChartData(
     }));
   const failedTestLifeTimeArray: [string, number][] = [];
   const timeLineDataForFailedTest: [string, number, number][] = [];
-  let database: [string, string | null, boolean, number, number][] = [];
+  let testInfoList: [string, string | null, boolean, number, number][] = [];
   const timeChartDataList: GTimeChartData[] = [];
   let jsonDate: Date =
     sessionData && sessionData.length > 0 ? sessionData[0].date : new Date();
@@ -378,15 +384,12 @@ async function convertGoogleTimeChartData(
           //     ? sessionData[targetIndex - 1]
           //     : sessionData[targetIndex];
           // const targetLength = target.testNames.length;
-
-          //棄却タイムラインの作成
-          //1から0に落ちたときに、それまでの時間帯を配列に保存してそれを別の色で表示する。
-          const targetLength = database.length;
-          if (session == "cv05") {
-            if (targetLength == 0) {
-            }
-          }
+          const targetLength = testInfoList.length;
           if (!(lastTestNum < targetLength)) {
+            oneToZeroDurationList.push([
+              testFirstStartDate,
+              state.estimateTimeEnd,
+            ]);
             flag = "0";
             testFirstStartDate = 0;
           } else {
@@ -395,6 +398,10 @@ async function convertGoogleTimeChartData(
         }
       } else if (flag == "2" && isTestCode(event.filePath)) {
         if (event.eventName.toString() == "onDidChangeTextDocument") {
+          twoToZeroDurationList.push([
+            testFirstStartDate,
+            state.estimateTimeEnd,
+          ]);
           flag = "0";
           testFirstStartDate = 0;
         }
@@ -421,10 +428,7 @@ async function convertGoogleTimeChartData(
       }
     } else if (state.type == "test") {
       const event: TestEvent = state.info as TestEvent;
-      if (flag == "0") {
-        testFirstStartDate = state.estimateTimeStart;
-        flag = "1";
-      } else if (flag == "2") {
+      if (flag == "2") {
         flag = "3";
       }
       await appendGoogleTimeChartDataForTest(
@@ -432,7 +436,7 @@ async function convertGoogleTimeChartData(
         event,
         timeChartDataList,
         sessionData,
-        database,
+        testInfoList,
         jsonDate,
         passRatioPath,
         failedTestLifeTimeArray,
@@ -494,12 +498,18 @@ async function convertGoogleTimeChartData(
     options
   );
   convertResult = convertResult.slice(0, -1);
-  const timeChartData = testFirstDurationList;
+  convertResult += ",\n";
   testFirstDurationList.map((row) => {
-    convertResult += ",['testFirstDuration',''," + row.toString() + "]\n";
+    convertResult += "['testFirstDuration', 'pass', " + row.toString() + "],\n";
   });
+  convertResult = convertResult.slice(0, -2);
   convertResult += "]";
-  return { convertResult, testFirstDurationList };
+  return {
+    convertResult,
+    testFirstDurationList,
+    oneToZeroDurationList,
+    twoToZeroDurationList,
+  };
 }
 /**
  * convert GTimeChartDate[] to Code String as Data in JavaScript Code
@@ -585,7 +595,10 @@ export async function createGoogleTimeChart(
   try {
     const headerReplacePattern = "##%%$$HEADER$$%%##";
     const dataReplacePattern = "##%%$$DATA$$%%##";
+    const testFirstDataPattern = "##%%$$TESTFIRSTDATA$$%%##";
     const durationPattern = "##%%$$DURATION$$%%##";
+    const oneToZeroPattern = "##%%$$ONETOZERO$$%%##";
+    const twoToZeroPattern = "##%%$$TWOTOZERO$$%%##";
     const result = await convertGoogleTimeChartData(
       stateList,
       options,
@@ -595,15 +608,57 @@ export async function createGoogleTimeChart(
     const chartData: String = result.convertResult;
     const testFirstDurationList: [number, number][] =
       result.testFirstDurationList;
-    const template = await fs.readFile(templatePath);
+    const oneToZeroDurationList: [number, number][] =
+      result.oneToZeroDurationList;
+    const twoToZeroDurationList: [number, number][] =
+      result.twoToZeroDurationList;
+    // const template = await fs.readFile(templatePath);
+    // let chartHTML = template
+    //   .toString()
+    //   .replace(dataReplacePattern, chartData.toString())
+    //   .replace(headerReplacePattern, header)
+    //   .replace(durationPattern, JSON.stringify(testFirstDurationList))
+    //   .replace(oneToZeroPattern, JSON.stringify(oneToZeroDurationList))
+    //   .replace(twoToZeroPattern, JSON.stringify(twoToZeroDurationList));
+    // fs.ensureFileSync(chartFilePath);
+    // fs.writeFile(chartFilePath, chartHTML);
+    const graph_templatePath = `./output/graph/${id}/graph_${id}_${session}.txt`;
+    const template = await fs.readFile(graph_templatePath);
+    const specificData = await getSpecificChartData(chartData);
     let chartHTML = template
       .toString()
-      .replace(dataReplacePattern, chartData.toString())
-      .replace(headerReplacePattern, header)
-      .replace(durationPattern, JSON.stringify(testFirstDurationList));
+      .replace(testFirstDataPattern, JSON.stringify(specificData))
+      .replace(durationPattern, JSON.stringify(testFirstDurationList))
+      .replace(oneToZeroPattern, JSON.stringify(oneToZeroDurationList))
+      .replace(twoToZeroPattern, JSON.stringify(twoToZeroDurationList));
     fs.ensureFileSync(chartFilePath);
-    fs.writeFile(chartFilePath, chartHTML);
+    fs.writeFile(graph_templatePath, chartHTML);
   } catch (error: any) {
     console.error(`Error: createGoogleTimeChart(): ${error.message}`);
   }
+}
+async function getSpecificChartData(
+  chartData: String
+): Promise<(string | number)[][]> {
+  const targetName = [
+    "#SUMMARY|TEST|READING",
+    "#SUMMARY|TEST|EDITING",
+    "#SUMMARY|TEST|DO_TEST",
+    "#SUMMARY|MAIN|READING",
+    "#SUMMARY|MAIN|EDITING",
+    "testFirstDuration",
+  ];
+  // console.log(chartData.replace(/'/g, '"').toString());
+  const parseData: [string, string, number, number][] = JSON.parse(
+    chartData
+      .replace(/\n/g, "")
+      .replace(/\s+/g, " ")
+      .replace(/'/g, '"')
+      .toString()
+  );
+  const filteredData = parseData.filter((line) => targetName.includes(line[0]));
+  const result = filteredData.map((line) => {
+    return [line[0], "", line[2], line[3]];
+  });
+  return result;
 }
