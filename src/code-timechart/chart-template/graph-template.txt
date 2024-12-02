@@ -26,7 +26,7 @@
         var options = {
           hAxis: {
             title: '時間(分)',
-            format: 'decimal'
+            format: 'decimal',
           },
           vAxis:{
             title:'テストケース数',
@@ -142,7 +142,6 @@
               const isWithinDuration = durations.some(([dStart, dEnd]) => {
                 return start >= dStart && start <= dEnd;
               });
-              const isEndDuration = durations[durations.length-1][1] < start;
               const isInOneToZero = oneToZero.some(([dStart, dEnd]) => {
                 return start >= dStart && start <= dEnd;
               });
@@ -155,8 +154,6 @@
                 color = "#ffa500";
               }else if(isInTwoToZero){
                 color = "#ffc0cb";
-              }else if(isEndDuration){
-                color = "4169e1";
               }else{
                 color = "#ff0000";
               }
@@ -181,11 +178,14 @@
     </script>
 
     <style>
+      body {
+        font-family: "メイリオ", Meiryo, sans-serif;
+      }
       .container {
         display: flex;
         flex-direction: column;
-        height: 250vh;
-        width: 90%;
+        height: 300vh;
+        width: 95%;
         box-sizing: border-box;
         gap: 10px;
         padding: 10px;
@@ -196,7 +196,7 @@
         display: flex;
         flex-direction: column;
         gap: 10px;
-        border: 1px solid black;
+        border: 2px solid black;
         box-sizing: border-box;
         padding: 10px;
         min-height: 100px;
@@ -216,14 +216,15 @@
       }
       #linechart_num,
       #linechart_ratio {
-        max-width: 70%;
+        display: flex;
+        max-width: 100%;
         flex: 3;
         overflow: hidden;
         align-items: center;
         justify-content: center;
       }
       #table {
-        max-width: 70%;
+        max-width: 50%;
         flex: 3;
         overflow: hidden;
         align-items: center;
@@ -254,23 +255,29 @@
       .box p {
         margin: 0;
         padding: 20px;
+        letter-spacing: 3px;
+        line-height: 1.6;
+        /* font-weight: 550; */
+        font-feature-settings: "palt";
         flex: 1;
-        background-color: #f0f0f0;
+        border: 2px solid #d0d0d0;
       }
       #timeline {
-        max-width: 100%;
+        display: flex;
+        max-width: 95%;
         flex: 3;
         overflow: hidden;
         margin-top: 20px;
         justify-content: center;
       }
       #timeline-testFirst {
-        max-width: 100%;
+        display: flex;
+        max-width: 95%;
         flex: 3;
         overflow: hidden;
         margin-top: 20px;
         justify-content: center;
-        height: 300px;
+        height: 400px;
       }
     </style>
   </head>
@@ -286,40 +293,11 @@
         </div>
         <div class="box-content">
           <div id="linechart_num"></div>
-          <p>
-            機能の増加に伴ってテストの数も増えることが期待されます。
-            最初は配布されたテストに関係する実装をすることからテストの数は増加しませんが、
-            後半はモデルのように経過時間に比例して増加することが好ましいです。
-          </p>
-        </div>
-      </div>
-      <div class="box">
-        <div class="title">
-          <h3>作成済みテストケースの成功率推移</h3>
         </div>
         <div class="box-content">
-          <div id="linechart_ratio"></div>
           <p>
-            リグレッションテストの観点から、テストが失敗している状態は良くありません。
-            最初は配布されたテストが成功するように実装することから100%に向かって早急に増加していくことが期待されます。
-            その後はテストを追加して成功させるというプロセスを行うため、100%と90%前後を行き来していることが好ましいです。
+            機能の増加に伴ってテストの数も増えることが期待されます。最初は配布されたテストに関係する実装をすることからテストの数は増加しませんが、後半はモデルのように経過時間に比例して増加することが好ましいです。
           </p>
-        </div>
-      </div>
-      <div class="box">
-        <div class="title">
-          <h3>失敗したテストが成功するまでの時間</h3>
-        </div>
-        <div class="box-content">
-          <div id="table"></div>
-          <p>
-            左表は、失敗したテストが成功するまでの時間が大きい順にテストを10個抽出したものです。
-            自動テストをベースとする開発では、テストを作成し、それが動作するコードを作成することを最優先とします。
-            成功するまでの時間が長いテストがあった場合は、自分の開発を見直してみましょう。
-          </p>
-        </div>
-        <div class="box-content">
-          <div id="timeline"></div>
         </div>
       </div>
       <div class="box">
@@ -330,7 +308,78 @@
           <div id="timeline-testFirst"></div>
         </div>
         <div class="box-content">
-          <p>description</p>
+          <div id="legend">
+            <div style="display: flex">
+              <div
+                style="
+                  width: 20px;
+                  height: 20px;
+                  background-color: #4169e1;
+                  margin-right: 5px;
+                "
+              ></div>
+              <span style="margin-right: 15px">成功</span>
+              <div
+                style="
+                  width: 20px;
+                  height: 20px;
+                  background-color: #ff0000;
+                  margin-right: 5px;
+                "
+              ></div>
+              <span style="margin-right: 15px">失敗</span>
+              <div
+                style="
+                  width: 20px;
+                  height: 20px;
+                  background-color: #ffa500;
+                  margin-right: 5px;
+                "
+              ></div>
+              <span style="margin-right: 15px">テスト実行後にテスト編集</span>
+              <div
+                style="
+                  width: 20px;
+                  height: 20px;
+                  background-color: #ffc0cb;
+                  margin-right: 5px;
+                "
+              ></div>
+              <span style="margin-right: 15px">機能実装中にテスト編集</span>
+            </div>
+          </div>
+        </div>
+        <div id="box-context">
+          <p>
+            機能を実装する前にテストを作成することで、要件を明確にし、プログラムの設計を効率的に進める助けになります。「テスト作成」「機能実装」「テスト実行」というプロセスを繰り返すことで、効率的な開発を行いましょう。
+          </p>
+        </div>
+      </div>
+      <div class="box">
+        <div class="title">
+          <h3>作成済みテストケースの成功率推移</h3>
+        </div>
+        <div class="box-content">
+          <div id="linechart_ratio"></div>
+        </div>
+        <div class="box-content">
+          <p>
+            リグレッションテストの観点から、テストが失敗している状態は良くありません。最初は配布されたテストが成功するように実装することから100%に向かって早急に増加していくことが期待されます。その後はテストを追加して成功させるというプロセスを行うため、100%と90%前後を行き来していることが好ましいです。
+          </p>
+        </div>
+      </div>
+      <div class="box">
+        <div class="title">
+          <h3>失敗したテストが成功するまでの時間</h3>
+        </div>
+        <div class="box-content">
+          <div id="table"></div>
+          <p>
+            左表は、失敗したテストが成功するまでの時間が大きい10個を抽出したものです。自動テストをベースとする開発では、テストを作成し、それが動作するコードを作成することを最優先とします。成功するまでの時間が長いテストがあった場合は、自分の開発を見直してみましょう。
+          </p>
+        </div>
+        <div class="box-content">
+          <div id="timeline"></div>
         </div>
       </div>
     </div>

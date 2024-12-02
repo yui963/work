@@ -642,10 +642,10 @@ async function getSpecificChartData(
 ): Promise<(string | number)[][]> {
   const targetName = [
     "#SUMMARY|TEST|READING",
-    "#SUMMARY|TEST|EDITING",
+    "#SUMMARY|TEST|EDITTING",
     "#SUMMARY|TEST|DO_TEST",
     "#SUMMARY|MAIN|READING",
-    "#SUMMARY|MAIN|EDITING",
+    "#SUMMARY|MAIN|EDITTING",
     "testFirstDuration",
   ];
   // console.log(chartData.replace(/'/g, '"').toString());
@@ -658,7 +658,7 @@ async function getSpecificChartData(
   );
   const filteredData = parseData.filter((line) => targetName.includes(line[0]));
   const result = filteredData.map((line) => {
-    return [line[0], "", line[2], line[3]];
+    return [line[0].replace("#SUMMARY|", ""), "", line[2], line[3]];
   });
   return result;
 }
