@@ -16,7 +16,7 @@
         });
       function drawChartForNum() {
         var data = new google.visualization.DataTable();
-        data.addColumn('number', '時間(分)');
+        data.addColumn('number', '経過時間(分)');
         data.addColumn('number','理想');
         data.addColumn("number", "あなた");
 
@@ -25,7 +25,7 @@
 
         var options = {
           hAxis: {
-            title: '時間(分)',
+            title: '経過時間(分)',
             format: 'decimal',
           },
           vAxis:{
@@ -52,7 +52,7 @@
       }
       function drawChartForRatio() {
           var data = new google.visualization.DataTable();
-          data.addColumn('number', '時間(分)');
+          data.addColumn('number', '経過時間(分)');
           data.addColumn('number','理想');
           data.addColumn("number", "あなた");
 
@@ -67,11 +67,11 @@
           }
           var options = {
             hAxis: {
-              title: '時間(分)',
+              title: '経過時間(分)',
               format: 'decimal'
             },
             vAxis:{
-              title:'成功率(%)'
+              title:'全体の成功率(%)'
             },
             series:{
               0:{color:'#ADD8E6',lineWidth:10,pointsVisible:false},
@@ -83,45 +83,47 @@
           var chart = new google.visualization.LineChart(document.getElementById('linechart_ratio'));
           chart.draw(data, options);
         }
-        function drawTable() {
+      function drawTable() {
           var data = new google.visualization.DataTable();
           data.addColumn('string', 'テストケース名');
-          data.addColumn('number', '成功するまでの時間(分)');
+          data.addColumn('number', '失敗から成功するまでの時間(分)');
 
           var array = ##%%$$DATAFORTABLE$$%%##;
           data.addRows(array);
 
           var table = new google.visualization.Table(document.getElementById('table'));
           table.draw(data, {showRowNumber: true, width: 500, height: "auto"});
-        }
-        function drawTimelineForTestInfo(){
-          var container = document.getElementById('timeline');
-          var chart = new google.visualization.Timeline(container);
-          var dataTable = new google.visualization.DataTable();
-          dataTable.addColumn({ type: 'string', id: 'TestName' });
-          dataTable.addColumn({ type: 'number', id: 'Start' });
-          dataTable.addColumn({ type: 'number', id: 'End' });
+      }
+      function drawTimelineForTestInfo(){
+        var container = document.getElementById('timeline');
+        var chart = new google.visualization.Timeline(container);
+        var dataTable = new google.visualization.DataTable();
+        dataTable.addColumn({ type: 'string', id: 'TestName' });
+        dataTable.addColumn({ type: 'number', id: 'Start' });
+        dataTable.addColumn({ type: 'number', id: 'End' });
 
-          var array = ##%%$$DATAFORTIMELINE$$%%##;
-          var endTime = ##%%$$ENDTIME$$%%##;
-          dataTable.addRows(array);
+        var array = ##%%$$DATAFORTIMELINE$$%%##;
+        var endTime = ##%%$$ENDTIME$$%%##;
+        var calcTimeZone = 15 * 60 * 60 * 1000;
+        var result = array.map((row)=> {return [row[0],row[1] + calcTimeZone,row[2] + calcTimeZone]})
+        dataTable.addRows(result);
 
-          var options = {
-            timeline: {
-              showBarLabels: false
-            },
-            avoidOverlappingGridLines: false,
-            width: "auto",
-            height: 500,
-            hAxis: {
-              minValue: 0,
-              maxValue: endTime
-            },
-          };
-
-          chart.draw(dataTable,options);
-        }
-        function drawTimelinesForTestFirst(){
+        var options = {
+          timeline: {
+            showBarLabels: false,
+            singleColor: '#8d8'
+          },
+          width: "auto",
+          height: 500,
+          hAxis: {
+            minValue: new Date(15 * 60 * 60 * 1000),
+            // maxValue: endTime + calcTimeZone,
+            format:'HH:mm'
+          },
+        };
+        chart.draw(dataTable,options);
+      }
+      function drawTimelinesForTestFirst(){
         var container = document.getElementById('timeline-testFirst');
         var chart = new google.visualization.Timeline(container);
         var dataTable = new google.visualization.DataTable();
@@ -134,6 +136,7 @@
         var durations = ##%%$$DURATION$$%%##;
         var oneToZero = ##%%$$ONETOZERO$$%%##;
         var twoToZero = ##%%$$TWOTOZERO$$%%##;
+        var calcTimeZone = 15 * 60 * 60 * 1000;
         var filteredData =
           data
             .map((row) => {
@@ -157,7 +160,7 @@
               }else{
                 color = "#ff0000";
               }
-              return [row[0], row[1], color ,row[2], row[3]];
+              return [row[0], row[1], color , row[2] +  calcTimeZone,row[3] + calcTimeZone];
             });
         dataTable.addRows(
           filteredData
@@ -166,14 +169,13 @@
             timeline: {
               showBarLabels: false
             },
-            avoidOverlappingGridLines: false,
             width: "auto",
-            height: 500,
+            height: 350,
             hAxis: {
-              minValue: 0
+              minValue:new Date(15 * 60 * 60 * 1000)
             },
           };
-        chart.draw(dataTable);
+        chart.draw(dataTable,options);
       }
     </script>
 
@@ -184,13 +186,13 @@
       .container {
         display: flex;
         flex-direction: column;
-        height: 300vh;
+        height: 370vh;
         width: 95%;
         box-sizing: border-box;
         gap: 10px;
         padding: 10px;
+        margin: 20px;
         overflow-y: auto;
-        padding-left: 150px;
       }
       .box {
         display: flex;
@@ -210,6 +212,13 @@
         display: flex;
         flex-direction: row;
         gap: 10px;
+        padding: 10px;
+        align-items: center;
+        flex: 1;
+        justify-content: center;
+      }
+      .box-content-graph {
+        display: flex;
         align-items: center;
         flex: 1;
         justify-content: center;
@@ -224,7 +233,7 @@
         justify-content: center;
       }
       #table {
-        max-width: 50%;
+        /* max-width: 40%; */
         flex: 3;
         overflow: hidden;
         align-items: center;
@@ -269,6 +278,7 @@
         overflow: hidden;
         margin-top: 20px;
         justify-content: center;
+        height: 440px;
       }
       #timeline-testFirst {
         display: flex;
@@ -277,7 +287,24 @@
         overflow: hidden;
         margin-top: 20px;
         justify-content: center;
-        height: 400px;
+        height: 290px;
+      }
+      #timeline-legend {
+        flex-direction: column;
+        align-items: flex-start;
+        display: flex;
+        margin-left: 20px;
+      }
+      .timeline-xLabel {
+        display: flex;
+        justify-content: center;
+      }
+      .graph-title {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        font-size: 16px;
+        font-weight: bold;
       }
     </style>
   </head>
@@ -289,64 +316,82 @@
     <div class="container">
       <div class="box">
         <div class="title">
-          <h3>時間経過に伴うテストケース数の推移</h3>
+          <h3>機能の追加に伴ってテストを作成しているか</h3>
         </div>
-        <div class="box-content">
-          <div id="linechart_num"></div>
+        <div>
+          <div class="box-content">
+            <div id="linechart_num"></div>
+          </div>
+          <div class="graph-title">図1　時間経過に伴うテストケース数推移</div>
         </div>
+
         <div class="box-content">
           <p>
-            機能の増加に伴ってテストの数も増えることが期待されます。最初は配布されたテストに関係する実装をすることからテストの数は増加しませんが、後半はモデルのように経過時間に比例して増加することが好ましいです。
+            時間が経過すれば実装した機能は増えていき、テストの数は増えていくことが期待されます。最初は配布されたテストに関係する実装をすることからテストの数は増加しませんが、後半はモデルのように経過時間に比例して増加することが好ましいです。
           </p>
         </div>
       </div>
       <div class="box">
         <div class="title">
-          <h3>テストファーストのプロセス実施有無</h3>
+          <h3>
+            テストファースト<span style="text-decoration: underline"
+              >(機能実装前にテスト作成)</span
+            >を厳守した開発ができているか
+          </h3>
         </div>
-        <div class="box-content">
-          <div id="timeline-testFirst"></div>
+        <div>
+          <div class="box-content-graph">
+            <div id="timeline-testFirst"></div>
+          </div>
+          <div class="timeline-xLabel">経過時間(HH:mm)</div>
+          <div class="graph-title" style="margin-top: 10px">
+            図2　開発中のどの時間帯の作業がテストファーストを厳守できていたか
+          </div>
         </div>
-        <div class="box-content">
-          <div id="legend">
-            <div style="display: flex">
-              <div
-                style="
-                  width: 20px;
-                  height: 20px;
-                  background-color: #4169e1;
-                  margin-right: 5px;
-                "
-              ></div>
-              <span style="margin-right: 15px">成功</span>
-              <div
-                style="
-                  width: 20px;
-                  height: 20px;
-                  background-color: #ff0000;
-                  margin-right: 5px;
-                "
-              ></div>
-              <span style="margin-right: 15px">失敗</span>
-              <div
-                style="
-                  width: 20px;
-                  height: 20px;
-                  background-color: #ffa500;
-                  margin-right: 5px;
-                "
-              ></div>
-              <span style="margin-right: 15px">テスト実行後にテスト編集</span>
-              <div
-                style="
-                  width: 20px;
-                  height: 20px;
-                  background-color: #ffc0cb;
-                  margin-right: 5px;
-                "
-              ></div>
-              <span style="margin-right: 15px">機能実装中にテスト編集</span>
-            </div>
+        <div id="timeline-legend">
+          <div class="box-content">
+            <div
+              style="
+                width: 20px;
+                height: 20px;
+                background-color: #4169e1;
+                margin-right: 5px;
+              "
+            ></div>
+            <span style="margin-right: 15px"
+              >テスト作成 → [ループ: 実装 → テスト実行]</span
+            >
+          </div>
+          <div class="box-content">
+            <div
+              style="
+                width: 20px;
+                height: 20px;
+                background-color: #ff0000;
+                margin-right: 5px;
+              "
+            ></div>
+            <span style="margin-right: 15px">テスト未作成</span>
+            <div
+              style="
+                width: 20px;
+                height: 20px;
+                background-color: #ffc0cb;
+                margin-right: 5px;
+              "
+            ></div>
+            <span style="margin-right: 15px"
+              >テスト実行前（機能実装中）にテスト編集</span
+            >
+            <div
+              style="
+                width: 20px;
+                height: 20px;
+                background-color: #ffa500;
+                margin-right: 5px;
+              "
+            ></div>
+            <span style="margin-right: 15px">テスト実行後にテスト編集</span>
           </div>
         </div>
         <div id="box-context">
@@ -357,29 +402,43 @@
       </div>
       <div class="box">
         <div class="title">
-          <h3>作成済みテストケースの成功率推移</h3>
+          <h3>
+            実装中の機能に関連しない失敗テストが存在しないように開発しているか
+          </h3>
         </div>
-        <div class="box-content">
-          <div id="linechart_ratio"></div>
+        <div>
+          <div class="box-content">
+            <div id="linechart_ratio"></div>
+          </div>
+          <div class="graph-title">図3　テストケース全体の成功率推移</div>
         </div>
-        <div class="box-content">
-          <p>
-            リグレッションテストの観点から、テストが失敗している状態は良くありません。最初は配布されたテストが成功するように実装することから100%に向かって早急に増加していくことが期待されます。その後はテストを追加して成功させるというプロセスを行うため、100%と90%前後を行き来していることが好ましいです。
-          </p>
-        </div>
+        <p>
+          リグレッションテストの観点から、テストが失敗している状態は良くありません。最初は配布されたテストが成功するように実装することから100%に向かって早急に増加していくことが期待されます。その後はテストを追加して成功させるというプロセスを行うため、100%と90%前後を行き来していることが好ましいです。
+        </p>
       </div>
       <div class="box">
         <div class="title">
-          <h3>失敗したテストが成功するまでの時間</h3>
+          <h3>失敗のまま放置されていたテストの詳細</h3>
         </div>
         <div class="box-content">
-          <div id="table"></div>
+          <div style="flex-direction: column">
+            <div class="graph-title">
+              表1　失敗のまま放置されていたテストと時間(上位)
+            </div>
+            <div id="table"></div>
+          </div>
           <p>
-            左表は、失敗したテストが成功するまでの時間が大きい10個を抽出したものです。自動テストをベースとする開発では、テストを作成し、それが動作するコードを作成することを最優先とします。成功するまでの時間が長いテストがあった場合は、自分の開発を見直してみましょう。
+            左表は、失敗したテストが成功するまでの時間が大きかったものを抽出したものです。自動テストをベースとする開発では、テストを作成し、それが動作するコードを作成することを最優先とします。成功するまでの時間が長いテストがあった場合は、自分の開発を見直してみましょう。
           </p>
         </div>
-        <div class="box-content">
-          <div id="timeline"></div>
+        <div>
+          <div class="box-content-graph">
+            <div id="timeline"></div>
+          </div>
+          <div class="timeline-xLabel">経過時間(HH:mm)</div>
+          <div class="graph-title" style="margin-top: 10px">
+            図4　開発中のどの時間帯にテストが失敗のまま放置されていたか
+          </div>
         </div>
       </div>
     </div>

@@ -339,6 +339,7 @@ async function convertGoogleTimeChartData(
   let testFirstStartDate: number = 0;
   let testFirstEndDate: number = 0;
   let flag: string = "0"; //1 is testCode edit,run,  2 is productCode edit, 3 is testCode run
+  let isTestDo: boolean = false;
   const testFirstDurationList: [number, number][] = [];
   const oneToZeroDurationList: [number, number][] = [];
   const twoToZeroDurationList: [number, number][] = [];
@@ -386,12 +387,18 @@ async function convertGoogleTimeChartData(
           // const targetLength = target.testNames.length;
           const targetLength = testInfoList.length;
           if (!(lastTestNum < targetLength)) {
-            oneToZeroDurationList.push([
-              testFirstStartDate,
-              state.estimateTimeEnd,
-            ]);
-            flag = "0";
-            testFirstStartDate = 0;
+            if (isTestDo) {
+              oneToZeroDurationList.push([
+                testFirstStartDate,
+                state.estimateTimeEnd,
+              ]);
+              flag = "0";
+              isTestDo = false;
+              testFirstStartDate = 0;
+            } else {
+              flag = "0";
+              testFirstStartDate = 0;
+            }
           } else {
             lastTestNum = targetLength;
           }
@@ -409,6 +416,7 @@ async function convertGoogleTimeChartData(
         if (event.eventName.toString() == "onDidChangeTextDocument") {
           testFirstDurationList.push([testFirstStartDate, testFirstEndDate]);
           flag = "1";
+          isTestDo = true;
           testFirstStartDate = state.estimateTimeStart;
         }
       } else if (flag == "0" && isTestCode(event.filePath)) {
@@ -483,7 +491,7 @@ async function convertGoogleTimeChartData(
   )
     .sort((a, b) => b[1] - a[1])
     .slice(0, 10)
-    .map(([testName, ms]) => [testName, (ms / 60000).toFixed(2)]);
+    .map(([testName, ms]) => [testName, (ms / 60000).toFixed(0)]);
   const top10TestNames = sortedTop10.map(([testName]) => testName);
   const filteredTimeLineData = timeLineDataForFailedTest
     .filter((data) => top10TestNames.includes(data[0]))
@@ -500,7 +508,8 @@ async function convertGoogleTimeChartData(
   convertResult = convertResult.slice(0, -1);
   convertResult += ",\n";
   testFirstDurationList.map((row) => {
-    convertResult += "['testFirstDuration', 'pass', " + row.toString() + "],\n";
+    convertResult +=
+      "['テストファーストができている時間', 'pass', " + row.toString() + "],\n";
   });
   convertResult = convertResult.slice(0, -2);
   convertResult += "]";
@@ -646,9 +655,9 @@ async function getSpecificChartData(
     "#SUMMARY|TEST|DO_TEST",
     "#SUMMARY|MAIN|READING",
     "#SUMMARY|MAIN|EDITTING",
-    "testFirstDuration",
+    // "テストファーストができている時間",
   ];
-  // console.log(chartData.replace(/'/g, '"').toString());
+
   const parseData: [string, string, number, number][] = JSON.parse(
     chartData
       .replace(/\n/g, "")
@@ -658,7 +667,22 @@ async function getSpecificChartData(
   );
   const filteredData = parseData.filter((line) => targetName.includes(line[0]));
   const result = filteredData.map((line) => {
-    return [line[0].replace("#SUMMARY|", ""), "", line[2], line[3]];
+    //labelの書き換えをここで行う。
+    if (line[0] == targetName[0]) {
+      return ["TestCode | Reading", "", line[2], line[3]];
+    } else if (line[0] == targetName[1]) {
+      return ["TestCode | Editing", "", line[2], line[3]];
+    } else if (line[0] == targetName[2]) {
+      return ["TestCode | Do", "", line[2], line[3]];
+    } else if (line[0] == targetName[3]) {
+      return ["ProductCode | Reading", "", line[2], line[3]];
+    } else if (line[0] == targetName[4]) {
+      return ["ProductCode | Editing", "", line[2], line[3]];
+    } else if (line[0] == targetName[5]) {
+      return [line[0], "", line[2], line[3]];
+    } else {
+      throw new Error(`Invalid line[0] value: ${line[0]}`);
+    }
   });
   return result;
 }
