@@ -85,8 +85,17 @@ function createGoogleChartLater(): void {
         if (maxNum < Number(num)) {
           maxNum = Number(num);
         }
-        return [Number(date) / (1000 * 60), Number(ratio)];
+        return [Number(date), Number(ratio)]; //Number(date) / (1000 * 60)
       });
+    const EndTime: number = Number(
+      passRatioArray[passRatioArray.length - 1][0]
+    );
+    const passRatioArrayMins = passRatioArray.map((row) => {
+      return [row[0] / (1000 * 60), row[1]];
+    });
+    const maxElapsedTime: number = Number(
+      passRatioArrayMins[passRatioArray.length - 1][0]
+    );
     const tableArray: [string, number][] = tableData
       .split("\n")
       .filter((line) => line.trim() != "")
@@ -95,18 +104,15 @@ function createGoogleChartLater(): void {
         const time = parseFloat(timeStr);
         return [name, time];
       });
-    const maxElapsedTime: number = Number(
-      passRatioArray[passRatioArray.length - 1][0]
-    );
     const guidelineData = createGuidelineData(distributedTestNum, maxNum);
     const adjustedData = adjustDataForElapsedTime(
       guidelineData,
       maxElapsedTime
     );
-    const data = JSON.stringify(passRatioArray);
+    const data = JSON.stringify(passRatioArrayMins);
     const result = htmlData
       .replace(dataReplacePattern, data)
-      .replace(endTimeReplacePattern, maxElapsedTime.toString())
+      .replace(endTimeReplacePattern, EndTime.toString())
       .replace(modelReplacePattern, JSON.stringify(adjustedData))
       .replace(tableReplacePattern, JSON.stringify(tableArray))
       .replace(timelineReplacePattern, timelineData);
