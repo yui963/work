@@ -7,6 +7,10 @@ import { WSEvent } from "./analyzeWS";
 import { getFileNameFromDotPath, isProductCode, isTestCode } from "./common";
 import * as path from "path";
 import { TestInfoByDate, TestInfoBySid } from "./searchTest";
+import {
+  writeTestFirstProcessResult,
+  writeTestLifeTimeResult,
+} from "./rankCalculator";
 
 interface GTimeChartData {
   state: State;
@@ -343,6 +347,8 @@ async function convertGoogleTimeChartData(
   const testFirstDurationList: [number, number][] = [];
   const oneToZeroDurationList: [number, number][] = [];
   const twoToZeroDurationList: [number, number][] = [];
+  let testFirstDurationSum: number = 0;
+  let endTime: number = 0;
   const jsonPath = "./output/testInfoByDate/" + id + "testInfoByDate.json";
   const data = fs.readFileSync(jsonPath, "utf8");
   const jsonData = JSON.parse(data);
@@ -369,6 +375,7 @@ async function convertGoogleTimeChartData(
   for (const state of stateList) {
     // let rowLabel = "";
     // let barLabel = "";
+    endTime = state.estimateTimeEnd;
     if (state.type == "edit") {
       const event: EditEvent = state.info as EditEvent;
       if (flag == "1" && isProductCode(event.filePath)) {
@@ -415,6 +422,7 @@ async function convertGoogleTimeChartData(
       } else if (flag == "3" && isTestCode(event.filePath)) {
         if (event.eventName.toString() == "onDidChangeTextDocument") {
           testFirstDurationList.push([testFirstStartDate, testFirstEndDate]);
+          testFirstDurationSum += testFirstEndDate - testFirstStartDate;
           flag = "1";
           isTestDo = true;
           testFirstStartDate = state.estimateTimeStart;
@@ -469,7 +477,7 @@ async function convertGoogleTimeChartData(
       testFirstEndDate = state.estimateTimeEnd;
     }
   }
-  const failedTestLifeTimePath = `./output/failedTestLifeTime/${id}/${session}failedTestLifeTime.txt`;
+  const failedTestLifeTimePath = `./output/failedTestLifeTime/${id}/${session}failedTestLifeTime.json`;
   const timelinePath = `./output/failedTestLifeTime/${id}/${session}timeline.txt`;
   if (!fs.existsSync(failedTestLifeTimePath)) {
     fs.mkdirSync(path.dirname(failedTestLifeTimePath), { recursive: true });
@@ -498,21 +506,28 @@ async function convertGoogleTimeChartData(
     .sort(
       ([, start1, end1], [, start2, end2]) => end2 - start2 - (end1 - start1)
     );
-  const result = sortedTop10.join("\n");
-  fs.writeFileSync(failedTestLifeTimePath, result, "utf8");
+  //json形式で保存するようにして、同時にresult.jsonにも書き込むようにする。
+  const avgTestLifeTime =
+    sortedTop10.reduce((sum, current) => sum + Number(current[1]), 0) /
+    sortedTop10.length;
+  writeTestLifeTimeResult(id.toString(), session.toString(), avgTestLifeTime);
+  fs.writeFileSync(
+    failedTestLifeTimePath,
+    JSON.stringify(sortedTop10, null, 2),
+    "utf8"
+  );
   fs.writeFileSync(timelinePath, JSON.stringify(filteredTimeLineData), "utf8");
   let convertResult = await convertGoogleTimeChartString(
     timeChartDataList,
     options
   );
-  convertResult = convertResult.slice(0, -1);
-  convertResult += ",\n";
-  testFirstDurationList.map((row) => {
-    convertResult +=
-      "['テストファーストができている時間', 'pass', " + row.toString() + "],\n";
-  });
-  convertResult = convertResult.slice(0, -2);
-  convertResult += "]";
+  const testFirstProcessResult = testFirstDurationSum / endTime;
+  writeTestFirstProcessResult(
+    id.toString(),
+    session.toString(),
+    testFirstProcessResult
+  );
+
   return {
     convertResult,
     testFirstDurationList,

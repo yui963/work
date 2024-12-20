@@ -1,4 +1,5 @@
 import * as fs from "fs-extra";
+import { getTestFirstProcessRank, getTestLifeTimeRank } from "./rankCalculator";
 interface JsonData {
   sid: number;
   num: number;
@@ -14,6 +15,8 @@ function createGoogleChartLater(): void {
   const tableReplacePattern = "##%%$$DATAFORTABLE$$%%##";
   const timelineReplacePattern = "##%%$$DATAFORTIMELINE$$%%##";
   const endTimeReplacePattern = "##%%$$ENDTIME$$%%##";
+  const testFirstProcessRankPattern = "##%%$$TESTFIRSTPROCESSRANK$$%%##";
+  const testLifeTimeRankPattern = "##%%$$TESTLIFETIMERANK$$%%##";
   for (let sid = 1; sid <= session; sid++) {
     const txtPath =
       "./output/graph/" +
@@ -40,7 +43,7 @@ function createGoogleChartLater(): void {
       studentNumber +
       "/cv0" +
       sid +
-      "failedTestLifeTime.txt";
+      "failedTestLifeTime.json";
     const timelinePath =
       "./output/failedTestLifeTime/" +
       studentNumber +
@@ -96,26 +99,40 @@ function createGoogleChartLater(): void {
     const maxElapsedTime: number = Number(
       passRatioArrayMins[passRatioArray.length - 1][0]
     );
-    const tableArray: [string, number][] = tableData
-      .split("\n")
-      .filter((line) => line.trim() != "")
-      .map((line) => {
-        const [name, timeStr] = line.split(",");
+    const tableArray: [string, number][] = JSON.parse(tableData).map(
+      ([name, timeStr]: [string, string]) => {
         const time = parseFloat(timeStr);
         return [name, time];
-      });
+      }
+    );
     const guidelineData = createGuidelineData(distributedTestNum, maxNum);
     const adjustedData = adjustDataForElapsedTime(
       guidelineData,
       maxElapsedTime
     );
     const data = JSON.stringify(passRatioArrayMins);
+    const testFirstProcessRank = getTestFirstProcessRank(
+      "cv0" + sid.toString(),
+      studentNumber.toString()
+    );
+    const testLifeTimeRank = getTestLifeTimeRank(
+      "cv0" + sid.toString(),
+      studentNumber.toString()
+    );
     const result = htmlData
       .replace(dataReplacePattern, data)
       .replace(endTimeReplacePattern, EndTime.toString())
       .replace(modelReplacePattern, JSON.stringify(adjustedData))
       .replace(tableReplacePattern, JSON.stringify(tableArray))
-      .replace(timelineReplacePattern, timelineData);
+      .replace(timelineReplacePattern, timelineData)
+      .replace(
+        testFirstProcessRankPattern,
+        testFirstProcessRank[1] + "人中" + testFirstProcessRank[0] + "位"
+      )
+      .replace(
+        testLifeTimeRankPattern,
+        testLifeTimeRank[1] + "人中" + testFirstProcessRank[0] + "位"
+      );
     fs.writeFileSync(htmlPath, result, "utf-8");
   }
 }

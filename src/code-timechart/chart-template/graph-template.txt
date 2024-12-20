@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <link rel="stylesheet" href="../../../css/styles.css" />
     <script
       type="text/javascript"
       src="https://www.gstatic.com/charts/loader.js"
@@ -178,135 +179,6 @@
         chart.draw(dataTable,options);
       }
     </script>
-
-    <style>
-      body {
-        font-family: "メイリオ", Meiryo, sans-serif;
-      }
-      .container {
-        display: flex;
-        flex-direction: column;
-        height: 400vh;
-        width: 95%;
-        box-sizing: border-box;
-        gap: 10px;
-        padding: 10px;
-        margin: 20px;
-        overflow-y: auto;
-      }
-      .box {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        border: 2px solid black;
-        box-sizing: border-box;
-        padding: 10px;
-        min-height: 100px;
-        overflow: hidden;
-      }
-      .box .title {
-        font-weight: bold;
-        text-align: center;
-      }
-      .box-content {
-        display: flex;
-        flex-direction: row;
-        gap: 10px;
-        padding: 10px;
-        align-items: center;
-        flex: 1;
-        justify-content: center;
-      }
-      .box-content-graph {
-        display: flex;
-        align-items: center;
-        flex: 1;
-        justify-content: center;
-      }
-      #linechart_num,
-      #linechart_ratio {
-        display: flex;
-        max-width: 100%;
-        flex: 3;
-        overflow: hidden;
-        align-items: center;
-        justify-content: center;
-      }
-      #table {
-        /* max-width: 40%; */
-        flex: 3;
-        overflow: hidden;
-        align-items: center;
-        justify-content: center;
-        margin-left: 30px;
-        background-color: #ffffff;
-        border-collapse: collapse;
-      }
-      #table table {
-        width: 100%;
-        border-spacing: 0;
-      }
-
-      #table .google-visualization-table-tr {
-        background-color: #f9f9f9;
-      }
-
-      #table .google-visualization-table-th {
-        background-color: #4caf50;
-        color: black;
-        padding: 10px;
-      }
-
-      #table .google-visualization-table-td {
-        border: 1px solid #ddd;
-        padding: 10px;
-      }
-      .box p {
-        margin: 0;
-        padding: 20px;
-        letter-spacing: 3px;
-        line-height: 1.6;
-        /* font-weight: 550; */
-        font-feature-settings: "palt";
-        flex: 1;
-        border: 2px solid #d0d0d0;
-      }
-      #timeline {
-        display: flex;
-        max-width: 95%;
-        flex: 3;
-        overflow: hidden;
-        margin-top: 20px;
-        justify-content: center;
-        height: 440px;
-      }
-      #timeline-testFirst {
-        display: flex;
-        max-width: 95%;
-        flex: 3;
-        overflow: hidden;
-        margin-top: 20px;
-        justify-content: center;
-        height: 290px;
-      }
-      #timeline-legend {
-        flex-direction: column;
-        align-items: flex-start;
-        display: flex;
-        margin-left: 20px;
-      }
-      .timeline-xLabel {
-        display: flex;
-        justify-content: center;
-      }
-      .graph-title {
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
-        font-size: 16px;
-        font-weight: bold;
-      }
-    </style>
   </head>
   <body>
     <div>
@@ -332,6 +204,7 @@
         </div>
       </div>
       <div class="box">
+        <div class="rank">##%%$$TESTFIRSTPROCESSRANK$$%%##</div>
         <div class="title">
           <h3>
             テストファースト<span style="text-decoration: underline"
@@ -339,6 +212,7 @@
             >を厳守した開発ができているか
           </h3>
         </div>
+
         <div>
           <div class="box-content-graph">
             <div id="timeline-testFirst"></div>
@@ -419,6 +293,7 @@
         </p>
       </div>
       <div class="box">
+        <div class="rank">##%%$$TESTLIFETIMERANK$$%%##</div>
         <div class="title">
           <h3>失敗のまま放置されていたテストの詳細</h3>
         </div>
