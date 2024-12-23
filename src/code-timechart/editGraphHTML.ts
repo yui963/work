@@ -1,12 +1,16 @@
 import * as fs from "fs-extra";
-import { getTestFirstProcessRank, getTestLifeTimeRank } from "./rankCalculator";
+import {
+  getPassRatioRank,
+  getTestFirstProcessRank,
+  getTestLifeTimeRank,
+  getTestNumRank,
+} from "./rankCalculator";
 interface JsonData {
   sid: number;
   num: number;
   testNames: string[];
 }
-function createGoogleChartLater(): void {
-  // ts-node ./createGoogleChartsLater 70110001 1~7
+function editGraphHTML(): void {
   const args = process.argv.slice(2);
   const studentNumber: number = Number(args[0]);
   const session: number = Number(args[1]);
@@ -17,6 +21,8 @@ function createGoogleChartLater(): void {
   const endTimeReplacePattern = "##%%$$ENDTIME$$%%##";
   const testFirstProcessRankPattern = "##%%$$TESTFIRSTPROCESSRANK$$%%##";
   const testLifeTimeRankPattern = "##%%$$TESTLIFETIMERANK$$%%##";
+  const testNumRankPattern = "##%%$$TESTNUMRANK$$%%##";
+  const passRatioRankPattern = "##%%$$PASSRATIORANK$$%%##";
   for (let sid = 1; sid <= session; sid++) {
     const txtPath =
       "./output/graph/" +
@@ -93,11 +99,11 @@ function createGoogleChartLater(): void {
     const EndTime: number = Number(
       passRatioArray[passRatioArray.length - 1][0]
     );
-    const passRatioArrayMins = passRatioArray.map((row) => {
+    const passRatioArrayToMins = passRatioArray.map((row) => {
       return [row[0] / (1000 * 60), row[1]];
     });
     const maxElapsedTime: number = Number(
-      passRatioArrayMins[passRatioArray.length - 1][0]
+      passRatioArrayToMins[passRatioArray.length - 1][0]
     );
     const tableArray: [string, number][] = JSON.parse(tableData).map(
       ([name, timeStr]: [string, string]) => {
@@ -110,12 +116,20 @@ function createGoogleChartLater(): void {
       guidelineData,
       maxElapsedTime
     );
-    const data = JSON.stringify(passRatioArrayMins);
+    const data = JSON.stringify(passRatioArrayToMins);
     const testFirstProcessRank = getTestFirstProcessRank(
       "cv0" + sid.toString(),
       studentNumber.toString()
     );
     const testLifeTimeRank = getTestLifeTimeRank(
+      "cv0" + sid.toString(),
+      studentNumber.toString()
+    );
+    const testNumRank = getTestNumRank(
+      "cv0" + sid.toString(),
+      studentNumber.toString()
+    );
+    const passRatioRank = getPassRatioRank(
       "cv0" + sid.toString(),
       studentNumber.toString()
     );
@@ -132,15 +146,25 @@ function createGoogleChartLater(): void {
       .replace(
         testLifeTimeRankPattern,
         testLifeTimeRank[1] + "人中" + testFirstProcessRank[0] + "位"
+      )
+      .replace(
+        testNumRankPattern,
+        testNumRank[1] + "人中" + testNumRank[0] + "位"
+      )
+      .replace(
+        passRatioRankPattern,
+        passRatioRank[1] + "人中" + passRatioRank[0] + "位"
       );
     fs.writeFileSync(htmlPath, result, "utf-8");
   }
 }
+
 function createGuidelineData(
   distributedTests: number,
   maxTests: number
 ): number[][] {
   const guidelineData: number[][] = [];
+
   for (let i = 0; i <= distributedTests; i++) {
     const fraction = toFraction(i, distributedTests);
     guidelineData.push([fraction]);
@@ -152,8 +176,7 @@ function createGuidelineData(
   ) {
     const numerator = denominator - 1;
     if (numerator >= 0) {
-      const fraction = toFraction(numerator, denominator);
-      guidelineData.push([fraction]);
+      guidelineData.push([toFraction(numerator, denominator)]);
     }
     guidelineData.push([toFraction(denominator, denominator)]);
   }
@@ -177,4 +200,4 @@ function toFraction(numerator: number, denominator: number): number {
   const result = numerator / denominator;
   return Math.round(result * 100 * 100) / 100;
 }
-createGoogleChartLater();
+editGraphHTML();

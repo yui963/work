@@ -4,6 +4,7 @@ import {
   DateAndEstimate,
   analyzeStateInfoForWS,
 } from "./analyzeStateInfoForWS";
+import { writeAvgDifferenceTestSum } from "./rankCalculator";
 interface TestCaseModel {
   sid: number;
   num: number;
@@ -66,7 +67,7 @@ function countTestNum(
   testInfoByDate: TestInfoByDate[],
   dateAndEstimate: DateAndEstimate[]
 ): void {
-  const results: [number, null, number][] = [];
+  const results: [number, number, number][] = [];
   const items: string[] = fs.readdirSync(directoryPath); //ws-history
   let finalTestNames: string[] = [];
   //item is YYYY-MM-DD
@@ -94,7 +95,7 @@ function countTestNum(
     );
     if (findResult) {
       const passTime = findResult.estimate;
-      results.push([passTime / 60000, null, testNames.length]);
+      results.push([passTime / 60000, 0, testNames.length]);
       finalTestNames = [...testNames];
     } else {
       console.error("findResult is false");
@@ -133,7 +134,7 @@ function processSubdirectory(
     }
   }
 }
-type ChartsData = [number, null | number, number][];
+type ChartsData = [number, number, number][];
 function calculateGuideline(
   results: ChartsData,
   distributedTests: number
@@ -162,7 +163,7 @@ function createGoogleCharts(
   session: string
 ) {
   const dataReplacePattern = "##%%$$DATA$$%%##";
-  const titleRePlacePattern = "##%%$$TITLE$$%%##";
+  const titleReplacePattern = "##%%$$TITLE$$%%##";
   const sessionReplacePattern = "##%%$$SESSION$$%%##";
   const samplePath = "./chart-template/graph-template.txt";
   const outputPath =
@@ -186,13 +187,18 @@ function createGoogleCharts(
   );
   const distributedTestNum: number =
     distributedTestsData[Number(session.slice(-1)) - 1].testNames.length;
-  const jsonResults = JSON.stringify(
-    calculateGuideline(results, distributedTestNum)
-  );
+  const chartData = calculateGuideline(results, distributedTestNum);
+  const jsonResults = JSON.stringify(chartData);
+
+  const differenceTestSum = chartData
+    .map((element) => Math.abs(element[1] - element[2]))
+    .reduce((sum, value) => sum + value, 0);
+  const avgDifferenceSum = differenceTestSum / chartData.length;
+  writeAvgDifferenceTestSum(studentNumber, session, avgDifferenceSum);
   const chartHTML = template
     .toString()
     .replace(dataReplacePattern, jsonResults)
-    .replace(titleRePlacePattern, studentNumber)
+    .replace(titleReplacePattern, studentNumber)
     .replace(sessionReplacePattern, session);
   fs.writeFileSync(outputPath, chartHTML, "utf-8");
 }

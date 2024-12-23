@@ -1,6 +1,4 @@
-import { create } from "domain";
 import * as fs from "fs-extra";
-import { targetData } from "./dataInfo";
 interface SessionResult {
   sid: string;
   sessionResults: StudentResult[];
@@ -9,6 +7,8 @@ interface StudentResult {
   id: string;
   testFirstProcessRate: number | null;
   avgTestLifeTime: number | null;
+  avgDifferenceTestSum: number | null;
+  avgPassRatioDifferent: number | null;
 }
 const studentResultJSONPath = "./output/studentResult.json";
 export function writeTestFirstProcessResult(
@@ -35,6 +35,38 @@ export function writeTestLifeTimeResult(
   const sessionData = findStudentResult(jsonData, sid);
   const targetStudent = findTargetStudentData(sessionData, id);
   targetStudent.avgTestLifeTime = avgLifeTime;
+
+  fs.writeFileSync(
+    studentResultJSONPath,
+    JSON.stringify(jsonData, null, 2),
+    "utf-8"
+  );
+}
+export function writeAvgPassRatioDifferent(
+  id: string,
+  sid: string,
+  avgPassRatioDifferent: number
+): void {
+  const jsonData = readSessionResultJSON();
+  const sessionData = findStudentResult(jsonData, sid);
+  const targetStudent = findTargetStudentData(sessionData, id);
+  targetStudent.avgPassRatioDifferent = avgPassRatioDifferent;
+
+  fs.writeFileSync(
+    studentResultJSONPath,
+    JSON.stringify(jsonData, null, 2),
+    "utf-8"
+  );
+}
+export function writeAvgDifferenceTestSum(
+  id: string,
+  sid: string,
+  avgDifferenceTestSum: number
+): void {
+  const jsonData = readSessionResultJSON();
+  const sessionData = findStudentResult(jsonData, sid);
+  const targetStudent = findTargetStudentData(sessionData, id);
+  targetStudent.avgDifferenceTestSum = avgDifferenceTestSum;
 
   fs.writeFileSync(
     studentResultJSONPath,
@@ -87,11 +119,31 @@ export function getTestLifeTimeRank(sid: string, id: string): [number, number] {
   const rank = sortedStudents.findIndex((student) => student.id === id) + 1;
   return [rank, sortedStudents.length];
 }
+export function getTestNumRank(sid: string, id: string): [number, number] {
+  const jsonData = readSessionResultJSON();
+  const sessionData = findStudentResult(jsonData, sid);
+  const sortedStudents = sessionData.sort(
+    (a, b) => (a.avgDifferenceTestSum ?? 0) - (b.avgDifferenceTestSum ?? 0)
+  );
+  const rank = sortedStudents.findIndex((student) => student.id === id) + 1;
+  return [rank, sortedStudents.length];
+}
+export function getPassRatioRank(sid: string, id: string): [number, number] {
+  const jsonData = readSessionResultJSON();
+  const sessionData = findStudentResult(jsonData, sid);
+  const sortedStudents = sessionData.sort(
+    (a, b) => (a.avgDifferenceTestSum ?? 0) - (b.avgDifferenceTestSum ?? 0)
+  );
+  const rank = sortedStudents.findIndex((student) => student.id === id) + 1;
+  return [rank, sortedStudents.length];
+}
 function createEmptyObject(id: string) {
   return {
     id: id,
     testFirstProcessRate: null,
     avgTestLifeTime: null,
+    avgDifferenceTestSum: null,
+    avgPassRatioDifferent: null,
   };
 }
 function findTargetStudentData(
