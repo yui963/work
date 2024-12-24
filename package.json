@@ -3,6 +3,8 @@
     "gh-pages": "^6.1.0"
   },
   "dependencies": {
+    "adm-zip": "^0.5.16",
+    "compressing": "^1.10.1",
     "fs": "^0.0.1-security",
     "fs-extra": "^11.2.0"
   }
