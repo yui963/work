@@ -13,7 +13,7 @@ import { KokokonoLabsLogFormatter } from './constants';
 import { getSubZipFiles, getSubdirectories } from './common';
 
 // ストレージと対象学籍番号をリストしたテキストファイルを指定
-const DEST_STRAGE: string = 'G:';
+const DEST_STRAGE: string = 'D:';
 const FOLDERS_NAME: string = KokokonoLabsLogFormatter.FOLDERS + 'All' + '.txt';
 // 提出パス
 // const drivePath: string = join(KokokonoLabsLogFormatter.VOLUMES, STRAGE); // Mac

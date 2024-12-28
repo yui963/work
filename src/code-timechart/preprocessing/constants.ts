@@ -8,7 +8,7 @@ export namespace KokokonoLabsLogFormatter {
   export const EDIT_LOG_DIR: string = "edit-activity";
   export const DATE_TIME_FORMAT: string = "yyyy-MM-dd_HH.mm.ss";
   export const UNZIPS: string = "Unzips2024";
-  export const FOLDERS: string = "FoldersName";
+  export const FOLDERS: string = "FoldersName2024";
   export const VOLUMES: string = "/Volumes";
   export const DRIVE_ZERO_PATH: string = "/Volumes/exB-0";
   export const ANALYZE_BASE_PATH: string = "/Volumes/exB-0/unzips";
