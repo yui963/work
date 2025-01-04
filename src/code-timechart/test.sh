@@ -1,13 +1,15 @@
 #!/bin/bash
-for((i=0;i<1;i++)); do
-    ts-node ./searchTest.ts "70110014" "7"
+student_numbers=("70110005" "70110008" "70110009" "70110014")
+# student_numbers=("70110005")
+for student_number in "${student_numbers[@]}"; do
+    ts-node ./searchTest.ts "${student_number}" "7"
     if [ $? -eq 0 ]; then
-        ts-node ./createGoogleTimeChart.ts "70110014"
+        ts-node ./createGoogleTimeChart.ts "${student_number}"
         if [ $? -eq 0 ]; then
-            ts-node ./savePassRatio.ts "70110014" "7"
+            ts-node ./savePassRatio.ts "${student_number}" "7"
         fi
     fi
 done
-for((i=0;i<1;i++)); do
-    ts-node ./editGraphHTML.ts "70110014" "7"
+for student_number in "${student_numbers[@]}"; do
+    ts-node ./editGraphHTML.ts "${student_number}" "7"
 done

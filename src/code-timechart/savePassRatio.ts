@@ -48,6 +48,7 @@ function savePassRatioPath(): void {
     );
   }
 }
+//補完処理
 function createGuidelineDataForCalcRank(
   distributedTests: number,
   maxTests: number,
@@ -55,10 +56,11 @@ function createGuidelineDataForCalcRank(
 ): number[][] {
   const guidelineData: number[][] = [];
   const guidelineFractions: number[][] = [];
-
+  //前半の分数挿入(後に削除)
   for (let i = 0; i <= distributedTests; i++) {
     guidelineFractions.push([toFraction(i, distributedTests)]);
   }
+  //後半の分数挿入
   for (
     let denominator = distributedTests + 1;
     denominator <= maxTests;
@@ -70,7 +72,6 @@ function createGuidelineDataForCalcRank(
     }
     guidelineFractions.push([toFraction(denominator, denominator)]);
   }
-  // 補間のための時間調整
   const totalPoints = guidelineFractions.length;
   const maxElapsedTime = passRatioArray[passRatioArray.length - 1][0];
 
@@ -78,34 +79,23 @@ function createGuidelineDataForCalcRank(
     const elapsedTime = (index / (totalPoints - 1)) * maxElapsedTime;
     return [elapsedTime, data[0]];
   });
-  // 実際の時刻に基づいて補間
   let currentIndex = 0;
-  for (const timestamp of passRatioArray) {
+  for (const element of interpolatedData) {
+    const date = element[0];
+    const rate = element[1];
+    //補完時刻の次のデータポイントを取得
     while (
-      currentIndex < interpolatedData.length - 1 &&
-      interpolatedData[currentIndex][0] < timestamp[0]
+      currentIndex < passRatioArray.length - 1 &&
+      passRatioArray[currentIndex][0] < date
     ) {
       currentIndex++;
     }
-
-    if (currentIndex === 0 || currentIndex >= interpolatedData.length) {
-      guidelineData.push([
-        timestamp[0],
-        interpolatedData[currentIndex][1],
-        timestamp[1],
-      ]);
+    if (currentIndex != 0) {
+      guidelineData.push([date, rate, passRatioArray[currentIndex - 1][1]]);
     } else {
-      // 線形補間
-      const [prevTime, prevValue] = interpolatedData[currentIndex - 1];
-      const [nextTime, nextValue] = interpolatedData[currentIndex];
-      const interpolatedValue =
-        prevValue +
-        ((nextValue - prevValue) / (nextTime - prevTime)) *
-          (timestamp[0] - prevTime);
-      guidelineData.push([timestamp[0], interpolatedValue, timestamp[1]]);
+      guidelineData.push([date, rate, 0]);
     }
   }
-
   return guidelineData;
 }
 function toFraction(numerator: number, denominator: number): number {
