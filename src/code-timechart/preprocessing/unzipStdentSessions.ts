@@ -22,8 +22,8 @@ import { getSubZipFiles, getSubdirectories } from "./common";
 import { KokokonoLabsLogFormatter } from "./constants";
 import { setSessionNo } from "./getUnzipedSessionNo";
 //destが解凍先
-const SOURCE_STRAGE: string = "D:";
-const DEST_STRAGE: string = "D:";
+const SOURCE_STRAGE: string = "E:";
+const DEST_STRAGE: string = "G:";
 
 const DEST_FOLDERSNAME: string = "All";
 

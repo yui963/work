@@ -114,7 +114,7 @@ export function getTestLifeTimeRank(sid: string, id: string): [number, number] {
   const jsonData = readSessionResultJSON();
   const sessionData = findStudentResult(jsonData, sid);
   const sortedStudents = sessionData.sort(
-    (a, b) => (a.avgTestLifeTime ?? 0) - (b.avgTestLifeTime ?? 0)
+    (a, b) => (b.avgTestLifeTime ?? 0) - (a.avgTestLifeTime ?? 0)
   );
   const rank = sortedStudents.findIndex((student) => student.id === id) + 1;
   return [rank, sortedStudents.length];

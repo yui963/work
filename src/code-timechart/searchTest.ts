@@ -135,25 +135,13 @@ function processSubdirectory(
   }
 }
 type ChartsData = [number, number, number][];
-function calculateGuideline(
-  results: ChartsData,
-  distributedTests: number
-): ChartsData {
+function calculateGuideline(results: ChartsData): ChartsData {
   const lastResult = results[results.length - 1];
-
   const lastElapsedTime = lastResult[0];
   const lastTestCases = lastResult[2];
-  const averageTimePerTest = lastElapsedTime / lastTestCases;
-  const parallelEndTime = distributedTests * averageTimePerTest;
   return results.map(([elapsedTime, guidelineTestCases, testCases]) => {
-    if (elapsedTime <= parallelEndTime) {
-      guidelineTestCases = distributedTests;
-    } else {
-      const remainingTime = elapsedTime - parallelEndTime;
-      const remainingTests = lastTestCases - distributedTests;
-      const slope = remainingTests / (lastElapsedTime - parallelEndTime);
-      guidelineTestCases = distributedTests + remainingTime * slope;
-    }
+    const slope = lastTestCases / lastElapsedTime;
+    guidelineTestCases = elapsedTime * slope;
     return [elapsedTime, guidelineTestCases, testCases];
   });
 }
@@ -180,14 +168,7 @@ function createGoogleCharts(
     fs.mkdirSync(path.dirname(outputPath), { recursive: true });
   }
   const template = fs.readFileSync(samplePath);
-
-  const distributedTestsPath = "./output/testDistributed.json";
-  const distributedTestsData = JSON.parse(
-    fs.readFileSync(distributedTestsPath, "utf8")
-  );
-  const distributedTestNum: number =
-    distributedTestsData[Number(session.slice(-1)) - 1].testNames.length;
-  const chartData = calculateGuideline(results, distributedTestNum);
+  const chartData = calculateGuideline(results);
   const jsonResults = JSON.stringify(chartData);
 
   const differenceTestSum = chartData
@@ -202,36 +183,8 @@ function createGoogleCharts(
     .replace(sessionReplacePattern, session);
   fs.writeFileSync(outputPath, chartHTML, "utf-8");
 }
-
-function countTestCaseModel(directoryPath: string): void {
-  let testDistributed: TestCaseModel[] = [];
-  const outputPath = "./output/testDistributed.json";
-  if (fs.existsSync(outputPath)) {
-    fs.unlinkSync(outputPath);
-  }
-  for (let i = 1; i <= 7; i++) {
-    let hoge: string[] = [];
-    const testNames: string[] = [];
-    let str = `test0${i}`;
-    const langPath = path.join(directoryPath, str, "java", "lang");
-    processDirectory(langPath, testNames, hoge);
-    const data = {
-      sid: i,
-      num: testNames.length,
-      testNames: testNames,
-    };
-    testDistributed.push(data);
-  }
-  if (!fs.existsSync(outputPath)) {
-    fs.mkdirSync(path.dirname(outputPath), { recursive: true });
-  }
-  fs.writeFileSync(outputPath, JSON.stringify(testDistributed, null, 2), {
-    flag: "a",
-    encoding: "utf-8",
-  });
-}
 function countFirstTestCase(): string {
-  const projectPath = "./miniCV00forStudent2023/src/test/java/lang";
+  const projectPath = "./miniCV00forStudent2024/src/test/java/lang";
   if (!fs.existsSync(projectPath)) {
     console.error("not exist First Project Folder");
   }
@@ -258,11 +211,9 @@ function createEachPath(studentNumber: string, sid: number): string {
   throw new Error(`Error: Directory containing 0${sid} not found.`);
 }
 function main(): void {
-  const testCaseModelPath = "./testCaseModel";
   let madeTest: string[] = [];
   const data = countFirstTestCase();
   madeTest = data.split(",");
-  countTestCaseModel(testCaseModelPath);
   const studentNumber: string = process.argv.slice(2)[0];
   const sid: number = Number(process.argv.slice(2)[1]);
   const testInfoBySid: TestInfoBySid[] = [];

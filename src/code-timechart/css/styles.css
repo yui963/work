@@ -107,7 +107,7 @@ body {
   overflow: hidden;
   margin-top: 20px;
   justify-content: center;
-  height: 290px;
+  height: 300px;
 }
 #timeline-legend {
   flex-direction: column;

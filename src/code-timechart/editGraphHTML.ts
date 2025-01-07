@@ -56,17 +56,12 @@ function editGraphHTML(): void {
       "/cv0" +
       sid +
       "timeline.txt";
-    const testDistributedPath = "./output/testDistributed.json";
     if (!fs.existsSync(passRatioPath)) {
       console.log(`not exist ${passRatioPath}`);
       return;
     }
     if (!fs.existsSync(tablePath)) {
       console.log(`not exist ${tablePath}`);
-      return;
-    }
-    if (!fs.existsSync(testDistributedPath)) {
-      console.log(`not exists ${testDistributedPath}`);
       return;
     }
     if (!fs.existsSync(timelinePath)) {
@@ -81,10 +76,6 @@ function editGraphHTML(): void {
     const passRatioData = fs.readFileSync(passRatioPath, "utf8");
     const tableData = fs.readFileSync(tablePath, "utf8");
     const timelineData = fs.readFileSync(timelinePath, "utf8");
-    const jsonData = fs.readFileSync(testDistributedPath, "utf8");
-    const jsonResult = JSON.parse(jsonData);
-    const target = jsonResult.find((item: JsonData) => item.sid == sid);
-    const distributedTestNum: number = target.num;
     let maxNum: number = 0;
     const passRatioArray = passRatioData
       .split("\n")
@@ -111,7 +102,7 @@ function editGraphHTML(): void {
         return [name, time];
       }
     );
-    const guidelineData = createGuidelineData(distributedTestNum, maxNum);
+    const guidelineData = createGuidelineData(maxNum);
     const adjustedData = adjustDataForElapsedTime(
       guidelineData,
       maxElapsedTime
@@ -159,21 +150,10 @@ function editGraphHTML(): void {
   }
 }
 
-function createGuidelineData(
-  distributedTests: number,
-  maxTests: number
-): number[][] {
+function createGuidelineData(maxTests: number): number[][] {
   const guidelineData: number[][] = [];
 
-  for (let i = 0; i <= distributedTests; i++) {
-    const fraction = toFraction(i, distributedTests);
-    guidelineData.push([fraction]);
-  }
-  for (
-    let denominator = distributedTests + 1;
-    denominator <= maxTests;
-    denominator++
-  ) {
+  for (let denominator = 1; denominator <= maxTests; denominator++) {
     const numerator = denominator - 1;
     if (numerator >= 0) {
       guidelineData.push([toFraction(numerator, denominator)]);

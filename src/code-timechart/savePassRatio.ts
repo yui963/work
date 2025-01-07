@@ -10,17 +10,12 @@ function savePassRatioPath(): void {
   const studentNumber: number = Number(args[0]);
   const session: number = Number(args[1]);
   for (let sid = 1; sid <= session; sid++) {
-    const testDistributedPath = "./output/testDistributed.json";
     const passRatioPath =
       "./output/passRatio/" + studentNumber + "/cv0" + sid + "passRatio.txt";
     if (!fs.existsSync(passRatioPath)) {
       console.log(`not exist ${passRatioPath}`);
       return;
     }
-    const jsonData = fs.readFileSync(testDistributedPath, "utf8");
-    const jsonResult = JSON.parse(jsonData);
-    const target = jsonResult.find((item: JsonData) => item.sid == sid);
-    const distributedTestNum: number = target.num;
     const passRatioData = fs.readFileSync(passRatioPath, "utf8");
     let maxNum: number = 0;
     const passRatioArray = passRatioData
@@ -34,7 +29,6 @@ function savePassRatioPath(): void {
         return [Number(date), Number(ratio)]; //Number(date) / (1000 * 60)
       });
     const guidelineDataForCalcRank = createGuidelineDataForCalcRank(
-      distributedTestNum,
       maxNum,
       passRatioArray
     );
@@ -50,22 +44,12 @@ function savePassRatioPath(): void {
 }
 //補完処理
 function createGuidelineDataForCalcRank(
-  distributedTests: number,
   maxTests: number,
   passRatioArray: number[][]
 ): number[][] {
   const guidelineData: number[][] = [];
   const guidelineFractions: number[][] = [];
-  //前半の分数挿入(後に削除)
-  for (let i = 0; i <= distributedTests; i++) {
-    guidelineFractions.push([toFraction(i, distributedTests)]);
-  }
-  //後半の分数挿入
-  for (
-    let denominator = distributedTests + 1;
-    denominator <= maxTests;
-    denominator++
-  ) {
+  for (let denominator = 1; denominator <= maxTests; denominator++) {
     const numerator = denominator - 1;
     if (numerator >= 0) {
       guidelineFractions.push([toFraction(numerator, denominator)]);
