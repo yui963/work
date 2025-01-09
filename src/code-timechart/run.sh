@@ -12,6 +12,8 @@ for((i=0;i<size;i++)); do
         fi
     fi
 done
-for((i=0;i<size;i++)); do
+for((j=0;j<size;j++)); do
+    id=$(jq -r ".data[$i].studentID" "$json_file")
+    session=$(jq ".data[$i].session | map(select(. == 1)) | length" "$json_file")
     ts-node ./editGraphHTML.ts "$id" "$session"
 done

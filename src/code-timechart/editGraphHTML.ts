@@ -58,19 +58,19 @@ function editGraphHTML(): void {
       "timeline.txt";
     if (!fs.existsSync(passRatioPath)) {
       console.log(`not exist ${passRatioPath}`);
-      return;
+      continue;
     }
     if (!fs.existsSync(tablePath)) {
       console.log(`not exist ${tablePath}`);
-      return;
+      continue;
     }
     if (!fs.existsSync(timelinePath)) {
       console.log(`not exists ${timelinePath}`);
-      return;
+      continue;
     }
     if (!fs.existsSync(txtPath)) {
       console.log(`not exists ${txtPath}`);
-      return;
+      continue;
     }
     const htmlData = fs.readFileSync(txtPath, "utf8");
     const passRatioData = fs.readFileSync(passRatioPath, "utf8");

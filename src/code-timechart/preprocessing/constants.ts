@@ -13,5 +13,5 @@ export namespace KokokonoLabsLogFormatter {
   export const DRIVE_ZERO_PATH: string = "/Volumes/exB-0";
   export const ANALYZE_BASE_PATH: string = "/Volumes/exB-0/unzips";
   export const UNZIP_STRAGE: string = "G:";
-  export const ZIP_STRAGE: string = "E:";
+  export const ZIP_STRAGE: string = "H:";
 }

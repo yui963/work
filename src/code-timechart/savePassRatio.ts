@@ -14,7 +14,7 @@ function savePassRatioPath(): void {
       "./output/passRatio/" + studentNumber + "/cv0" + sid + "passRatio.txt";
     if (!fs.existsSync(passRatioPath)) {
       console.log(`not exist ${passRatioPath}`);
-      return;
+      continue;
     }
     const passRatioData = fs.readFileSync(passRatioPath, "utf8");
     let maxNum: number = 0;

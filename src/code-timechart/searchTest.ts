@@ -5,11 +5,6 @@ import {
   analyzeStateInfoForWS,
 } from "./analyzeStateInfoForWS";
 import { writeAvgDifferenceTestSum } from "./rankCalculator";
-interface TestCaseModel {
-  sid: number;
-  num: number;
-  testNames: string[];
-}
 export interface TestInfoByDate {
   date: Date;
   testNames: string[];
@@ -107,6 +102,10 @@ function countTestNum(
       madeTest.push(item); //全部終わってからまとめて更新する
     }
   }
+  if (results.length == 0) {
+    console.log(studentNumber + ":" + session + " is fail");
+    return;
+  }
   createGoogleCharts(results, studentNumber, session);
 }
 function processDirectory(
@@ -194,7 +193,7 @@ function countFirstTestCase(): string {
   return testNames.toString();
 }
 function createEachPath(studentNumber: string, sid: number): string {
-  const basePath = path.join("d:/unzips", studentNumber);
+  const basePath = path.join("G:/unzips2024", studentNumber);
   const dirs = fs.readdirSync(basePath, { withFileTypes: true });
 
   for (const dir of dirs) {

@@ -22,11 +22,10 @@ import { getSubZipFiles, getSubdirectories } from "./common";
 import { KokokonoLabsLogFormatter } from "./constants";
 import { setSessionNo } from "./getUnzipedSessionNo";
 //destが解凍先
-const SOURCE_STRAGE: string = "E:";
+const SOURCE_STRAGE: string = "H:";
 const DEST_STRAGE: string = "G:";
 
 const DEST_FOLDERSNAME: string = "All";
-
 const foldersNameDir: string = path.join(
   KokokonoLabsLogFormatter.FOLDERS,
   `FoldersName2024${DEST_FOLDERSNAME}.txt`

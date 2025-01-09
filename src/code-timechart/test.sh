@@ -1,6 +1,6 @@
 #!/bin/bash
-student_numbers=("70110005" "70110008" "70110009" "70110014")
-# student_numbers=("70110005")
+# student_numbers=("70110005" "70110008" "70110009" "70110014")
+student_numbers=("70210001")
 for student_number in "${student_numbers[@]}"; do
     ts-node ./searchTest.ts "${student_number}" "7"
     if [ $? -eq 0 ]; then

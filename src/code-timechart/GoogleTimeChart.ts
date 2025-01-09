@@ -127,10 +127,10 @@ async function appendGoogleTimeChartDataForTest(
   while (event.invokedDate.getTime() > jsonDate.getTime()) {
     const index = jsonData.findIndex((entry) => entry.date == jsonDate);
 
-    if (index != -1 && index + 1 < jsonData.length) {
+    if (index != -1 && index + 1 <= jsonData.length) {
       jsonDate = jsonData[index + 1].date;
     } else {
-      console.log("json index error");
+      console.log("json index error: ");
       break;
     }
   }
