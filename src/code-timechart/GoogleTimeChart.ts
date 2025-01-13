@@ -381,19 +381,9 @@ async function convertGoogleTimeChartData(
       if (flag == "1" && isProductCode(event.filePath)) {
         if (event.eventName.toString() == "onDidChangeTextDocument") {
           flag = "2";
-          //テスト数の増加観測
-          // const targetIndex = sessionData.findIndex((entry) => {
-          //   const date1 = new Date(entry.date);
-          //   const date2 = new Date(event.datetime);
-          //   return date1.getTime() > date2.getTime();
-          // });
-          // const target =
-          //   targetIndex > 0
-          //     ? sessionData[targetIndex - 1]
-          //     : sessionData[targetIndex];
-          // const targetLength = target.testNames.length;
           const targetLength = testInfoList.length;
           if (!(lastTestNum < targetLength)) {
+            //テスト実行後、テストの内容編集
             if (isTestDo) {
               oneToZeroDurationList.push([
                 testFirstStartDate,
@@ -403,6 +393,7 @@ async function convertGoogleTimeChartData(
               isTestDo = false;
               testFirstStartDate = 0;
             } else {
+              //テストの数が増えていないから作成していない
               flag = "0";
               testFirstStartDate = 0;
             }

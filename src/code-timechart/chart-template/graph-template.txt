@@ -13,7 +13,13 @@
           drawTable();
           drawTimelineForTestInfo();
           drawTimelinesForTestFirst();
+          drawChartForNumBest();
+          drawTimelineForTestFirstBest();
+          drawChartForRatioBest();
         });
+      function drawChartForNumBest(){}
+      function drawTimelineForTestFirstBest(){}
+      function drawChartForRatioBest(){}
       function drawChartForNum() {
         var data = new google.visualization.DataTable();
         data.addColumn('number', '経過時間(分)');
@@ -27,6 +33,9 @@
           hAxis: {
             title: '経過時間(分)',
             format: 'decimal',
+            viewWindow: {
+              min: 0
+            }
           },
           vAxis:{
             title:'テストケース数',
@@ -348,7 +357,9 @@
 
         <div class="box-content">
           <p>
-            時間が経過すれば実装した機能は増えていき、テストの数は増えていくことが期待されます。最初は配布されたテストに関係する実装をすることからテストの数は増加しませんが、後半は理想的なモデルのように経過時間に比例して増加することが好ましいです。
+            時間が経過すれば実装した機能は増えていき、それに対応するテストの数も増えていくことが期待されます。
+            また、機能実装毎にテストを作成していれば、段階的に増加していくはずです。
+            理想的なモデルのように経過時間に比例して増加することが好ましいです。
           </p>
         </div>
       </div>
@@ -453,7 +464,8 @@
           <div class="graph-title">図3　テストケース全体の成功率推移</div>
         </div>
         <p>
-          リグレッションテストの観点から、実装中の機能に関係しないテストが失敗している状態は良くありません。最初は配布されたテストが成功するように実装することから100%に向かって早急に増加していくことが期待されます。その後はテストを追加して成功させるというプロセスを行うため、100%と90%前後を行き来していることが好ましいです。
+          リグレッションテストの観点から、実装中の機能に関係しないテストが失敗している状態は良くありません。
+          テストを追加して成功させるというプロセスを繰り返して開発を進めるため、100%と90%前後を行き来していることが好ましいです。
         </p>
       </div>
       <div class="box">
@@ -472,7 +484,7 @@
             <p>
               左表は、失敗したテストが成功するまでの時間が大きかったものを最大10件抽出したものです。
               下図は、各テストが開発のどの時間帯に、失敗のまま放置されていたかを示すタイムラインチャートです。
-              時間が長いテストがあった場合は、時間帯やテスト内容から原因について振り返りましょう。
+              時間が長いテストがあった場合は、時間帯やテストの内容から原因について振り返りましょう。
             </p>
             <div
               style="display: flex; justify-content: center; margin-top: 50px"

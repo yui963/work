@@ -207,7 +207,8 @@ function createEachPath(studentNumber: string, sid: number): string {
       return createdPath;
     }
   }
-  throw new Error(`Error: Directory containing 0${sid} not found.`);
+  console.log(`Error: Directory containing 0${sid} not found.`);
+  return "NotFound";
 }
 function main(): void {
   let madeTest: string[] = [];
@@ -219,6 +220,9 @@ function main(): void {
   const dateAndEstimate: DateAndEstimate[] = analyzeStateInfoForWS();
   for (let i = 1; i <= sid; i++) {
     const filePath = createEachPath(studentNumber, i);
+    if (filePath == "NotFound") {
+      continue;
+    }
     const testInfoByDate: TestInfoByDate[] = [];
     countTestNum(
       filePath,

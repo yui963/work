@@ -1,9 +1,10 @@
 import * as fs from "fs-extra";
-interface SessionResult {
+import test from "node:test";
+export interface SessionResult {
   sid: string;
   sessionResults: StudentResult[];
 }
-interface StudentResult {
+export interface StudentResult {
   id: string;
   testFirstProcessRate: number | null;
   avgTestLifeTime: number | null;
