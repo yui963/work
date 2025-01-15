@@ -101,6 +101,7 @@ function getSessionFolderNo(filePath: string): number {
     /miniCV(\d{2})/,
     /cv(\d{2})-.*-log-\d{4}.\d{2}.\d{2}/,
     /\d{8}-.*cv(\d{2})/,
+    /miniCV(\d{2})-main/,
   ];
 
   const fileName: string = path.basename(filePath);

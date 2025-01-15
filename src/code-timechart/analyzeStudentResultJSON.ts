@@ -32,42 +32,54 @@ function getBestRank(studentResults: StudentResult[]): void {
 function findTopTestFirstProcessRateId(
   studentResults: StudentResult[]
 ): string {
-  return studentResults.reduce((topItem, currentItem) =>
-    (currentItem.testFirstProcessRate ?? -Infinity) >
-    (topItem.testFirstProcessRate ?? -Infinity)
-      ? currentItem
-      : topItem
-  ).id;
+  return studentResults.reduce((topItem, currentItem) => {
+    const currentRate = currentItem.testFirstProcessRate;
+    const topRate = topItem.testFirstProcessRate;
+    if (currentRate === null) return topItem;
+    if (topRate === null || currentRate > topRate) {
+      return currentItem;
+    }
+    return topItem;
+  }).id;
 }
 
 function findTopAvgTestLifeTimeId(studentResults: StudentResult[]): string {
-  return studentResults.reduce((topItem, currentItem) =>
-    (currentItem.avgTestLifeTime ?? -Infinity) >
-    (topItem.avgTestLifeTime ?? -Infinity)
-      ? currentItem
-      : topItem
-  ).id;
+  return studentResults.reduce((topItem, currentItem) => {
+    const currentRate = currentItem.avgTestLifeTime;
+    const topRate = topItem.avgTestLifeTime;
+    if (currentRate === null) return topItem;
+    if (topRate === null || currentRate < topRate) {
+      return currentItem;
+    }
+    return topItem;
+  }).id;
 }
 
 function findTopAvgDifferenceTestSumId(
   studentResults: StudentResult[]
 ): string {
-  return studentResults.reduce((topItem, currentItem) =>
-    (currentItem.avgDifferenceTestSum ?? -Infinity) >
-    (topItem.avgDifferenceTestSum ?? -Infinity)
-      ? currentItem
-      : topItem
-  ).id;
+  return studentResults.reduce((topItem, currentItem) => {
+    const currentRate = currentItem.avgDifferenceTestSum;
+    const topRate = topItem.avgDifferenceTestSum;
+    if (currentRate === null) return topItem;
+    if (topRate === null || currentRate < topRate) {
+      return currentItem;
+    }
+    return topItem;
+  }).id;
 }
 
 function findTopAvgPassRatioDifferentId(
   studentResults: StudentResult[]
 ): string {
-  return studentResults.reduce((topItem, currentItem) =>
-    (currentItem.avgPassRatioDifferent ?? -Infinity) >
-    (topItem.avgPassRatioDifferent ?? -Infinity)
-      ? currentItem
-      : topItem
-  ).id;
+  return studentResults.reduce((topItem, currentItem) => {
+    const currentRate = currentItem.avgPassRatioDifferent;
+    const topRate = topItem.avgPassRatioDifferent;
+    if (currentRate === null) return topItem;
+    if (topRate === null || currentRate < topRate) {
+      return currentItem;
+    }
+    return topItem;
+  }).id;
 }
 main();

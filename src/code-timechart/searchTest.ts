@@ -16,7 +16,8 @@ export interface TestInfoBySid {
 function searchTestNames(
   path: string,
   testNames: string[],
-  madeTest: string[]
+  madeTest: string[],
+  lastPath: string
 ): void {
   let flag: boolean = false;
   let comment: boolean = false;
@@ -42,11 +43,14 @@ function searchTestNames(
     if (!comment && !line.includes("//") && line.includes("@Test")) {
       flag = true;
     } else if (flag && !(line == "\n") && !comment) {
-      const methodName = line
-        .replace(/public void /g, "")
-        .replace(/\(.*/, "")
-        .replace(/\r+$/, "")
-        .trim();
+      const methodName =
+        line
+          .replace(/public void /g, "")
+          .replace(/\(.*/, "")
+          .replace(/\r+$/, "")
+          .trim() +
+        ":" +
+        lastPath;
       if (!madeTest.includes(methodName) && !testNames.includes(methodName)) {
         testNames.push(methodName);
       }
@@ -129,7 +133,7 @@ function processSubdirectory(
   for (const item of subItems) {
     const fullPath = path.join(subPath, item);
     if (fs.statSync(fullPath).isFile()) {
-      searchTestNames(fullPath, testNames, madeTest);
+      searchTestNames(fullPath, testNames, madeTest, item);
     }
   }
 }
@@ -197,7 +201,8 @@ function createEachPath(studentNumber: string, sid: number): string {
   const dirs = fs.readdirSync(basePath, { withFileTypes: true });
 
   for (const dir of dirs) {
-    if (dir.isDirectory() && dir.name.includes("CV0" + sid)) {
+    const cv = sid < 10 ? "CV0" + sid.toString() : "CV" + sid.toString();
+    if (dir.isDirectory() && dir.name.includes(cv)) {
       const sessionPath = path.join(basePath, dir.name);
       const createdPath = path.join(
         sessionPath,
@@ -223,16 +228,17 @@ function main(): void {
     if (filePath == "NotFound") {
       continue;
     }
+    const cv = i < 10 ? "cv0" + i.toString() : "cv" + i.toString();
     const testInfoByDate: TestInfoByDate[] = [];
     countTestNum(
       filePath,
       studentNumber,
-      `cv0${i}`,
+      cv,
       madeTest,
       testInfoByDate,
       dateAndEstimate
     );
-    testInfoBySid.push({ sid: `cv0${i}`, info: testInfoByDate });
+    testInfoBySid.push({ sid: cv, info: testInfoByDate });
   }
   const outputPath = `./output/testInfoByDate/${studentNumber}testInfoByDate.json`;
   if (!fs.existsSync(outputPath)) {

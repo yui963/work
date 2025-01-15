@@ -115,9 +115,13 @@ export function getTestLifeTimeRank(sid: string, id: string): [number, number] {
   const jsonData = readSessionResultJSON();
   const sessionData = findStudentResult(jsonData, sid);
   const sortedStudents = sessionData.sort(
-    (a, b) => (b.avgTestLifeTime ?? 0) - (a.avgTestLifeTime ?? 0)
+    (a, b) => (a.avgTestLifeTime ?? 0) - (b.avgTestLifeTime ?? 0)
   );
   const rank = sortedStudents.findIndex((student) => student.id === id) + 1;
+  // if ((sid = "cv07")) {
+  //   console.log(sortedStudents);
+  //   console.log(rank);
+  // }
   return [rank, sortedStudents.length];
 }
 export function getTestNumRank(sid: string, id: string): [number, number] {
@@ -133,7 +137,7 @@ export function getPassRatioRank(sid: string, id: string): [number, number] {
   const jsonData = readSessionResultJSON();
   const sessionData = findStudentResult(jsonData, sid);
   const sortedStudents = sessionData.sort(
-    (a, b) => (a.avgDifferenceTestSum ?? 0) - (b.avgDifferenceTestSum ?? 0)
+    (a, b) => (a.avgPassRatioDifferent ?? 0) - (b.avgPassRatioDifferent ?? 0)
   );
   const rank = sortedStudents.findIndex((student) => student.id === id) + 1;
   return [rank, sortedStudents.length];

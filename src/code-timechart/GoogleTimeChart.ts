@@ -158,7 +158,7 @@ async function appendGoogleTimeChartDataForTest(
 
   for (const item of failedCase) {
     for (const data of testInfoList) {
-      if (data[0] == item) {
+      if (data[0].includes(item)) {
         data[1] = "fail";
         if (data[2] == false) {
           data[2] = true;
@@ -172,7 +172,7 @@ async function appendGoogleTimeChartDataForTest(
   const passCase = testingCase.filter((item) => !failedCase.includes(item));
   for (const item of passCase) {
     for (const data of testInfoList) {
-      if (data[0] == item) {
+      if (data[0].includes(item)) {
         data[1] = "pass";
         if (data[2] == true) {
           data[2] = false;
@@ -186,19 +186,24 @@ async function appendGoogleTimeChartDataForTest(
       }
     }
   }
-  const totalTests = testInfoList.length;
+  //nullはまだ実行されていないから含めてはいけない
+  // const totalTests = testInfoList.length;
+  const totalTests = testInfoList.filter(
+    ([_, result]) => result == "pass" || result == "fail"
+  ).length;
   const passedTests = testInfoList.filter(
     ([_, result]) => result == "pass"
   ).length;
-  const passRatio = (passedTests / totalTests) * 100;
-  const passRatioData: [number, string] = [
-    state.estimateTimeStart,
-    totalTests > 0 ? passRatio.toFixed(2) : "0.00",
-  ];
-  const fileContent =
-    passRatioData[0] + "," + passRatioData[1] + "," + totalTests + "\n";
-  fs.appendFileSync(passRatioPath, fileContent, "utf8");
-
+  if (totalTests != 0) {
+    const passRatio = (passedTests / totalTests) * 100;
+    const passRatioData: [number, string] = [
+      state.estimateTimeStart,
+      totalTests > 0 ? passRatio.toFixed(2) : "0.00",
+    ];
+    const fileContent =
+      passRatioData[0] + "," + passRatioData[1] + "," + totalTests + "\n";
+    fs.appendFileSync(passRatioPath, fileContent, "utf8");
+  }
   let barLabel = Math.round(event.passRatio) + "%";
   barLabel +=
     "( failed: " +

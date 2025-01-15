@@ -71,6 +71,7 @@ export function getZipSessionNo(file: string): number {
     /(\d{2}).zip/,
     /\d{8}-.*cv(\d{2})/,
     /cv(\d{2})-kokokonolabs-log/,
+    /miniCV(\d{2})-main.zip/,
   ];
   const zipPattern: RegExp = /\.zip$/;
   // const startDotPattern: RegExp = /^[^.].*$/;
@@ -133,10 +134,10 @@ function setSessionNo(sessionList: number[]): number[] {
 
 async function fetchSessionNumber() {
   for (const studentID of studentIDList) {
-    const studentIDPath: string = path.join(SOURCE_STRAGE, studentID);
+    const studentIDPath: string = path.join(SOURCE_STRAGE, studentID.trim());
     const sessionList = await getSessionNoList(studentIDPath);
     const converted = setSessionNo(sessionList);
-    students.push(new Student(studentID, converted));
+    students.push(new Student(studentID.trim(), converted));
   }
 }
 

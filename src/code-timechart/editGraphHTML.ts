@@ -5,11 +5,6 @@ import {
   getTestLifeTimeRank,
   getTestNumRank,
 } from "./rankCalculator";
-interface JsonData {
-  sid: number;
-  num: number;
-  testNames: string[];
-}
 function editGraphHTML(): void {
   const args = process.argv.slice(2);
   const studentNumber: number = Number(args[0]);
@@ -23,15 +18,19 @@ function editGraphHTML(): void {
   const testLifeTimeRankPattern = "##%%$$TESTLIFETIMERANK$$%%##";
   const testNumRankPattern = "##%%$$TESTNUMRANK$$%%##";
   const passRatioRankPattern = "##%%$$PASSRATIORANK$$%%##";
+  const passRatioBestPattern = "##%%$$PASSRATIOBESTPATH$$%%##";
+  const testFirstProcessBestPattern = "##%%$$TESTFIRSTBESTPATH$$%%##";
+  const testNumBestPattern = "##%%$$TESTNUMBESTPATH$$%%##";
   for (let sid = 1; sid <= session; sid++) {
+    const cv = sid < 10 ? "cv0" + sid.toString() : "cv" + sid.toString();
     const txtPath =
       "./output/graph/" +
       studentNumber +
       "/graph" +
       "_" +
       studentNumber +
-      "_cv0" +
-      sid +
+      "_" +
+      cv +
       ".txt";
     const htmlPath =
       "./output/graph/" +
@@ -39,23 +38,26 @@ function editGraphHTML(): void {
       "/graph" +
       "_" +
       studentNumber +
-      "_cv0" +
-      sid +
+      "_" +
+      cv +
       ".html";
     const passRatioPath =
-      "./output/passRatio/" + studentNumber + "/cv0" + sid + "passRatio.txt";
+      "./output/passRatio/" + studentNumber + "/" + cv + "passRatio.txt";
     const tablePath =
       "./output/failedTestLifeTime/" +
       studentNumber +
-      "/cv0" +
-      sid +
+      "/" +
+      cv +
       "failedTestLifeTime.json";
     const timelinePath =
       "./output/failedTestLifeTime/" +
       studentNumber +
-      "/cv0" +
-      sid +
+      "/" +
+      cv +
       "timeline.txt";
+    const testNumBestPath = "./images/" + cv + "testNumBest.png";
+    const testFirstBestPath = "./images/" + cv + "testFirstBest.png";
+    const passRatioBestPath = "./images/" + cv + "passRatioBest.png";
     if (!fs.existsSync(passRatioPath)) {
       console.log(`not exist ${passRatioPath}`);
       continue;
@@ -109,21 +111,12 @@ function editGraphHTML(): void {
     );
     const data = JSON.stringify(passRatioArrayToMins);
     const testFirstProcessRank = getTestFirstProcessRank(
-      "cv0" + sid.toString(),
+      cv,
       studentNumber.toString()
     );
-    const testLifeTimeRank = getTestLifeTimeRank(
-      "cv0" + sid.toString(),
-      studentNumber.toString()
-    );
-    const testNumRank = getTestNumRank(
-      "cv0" + sid.toString(),
-      studentNumber.toString()
-    );
-    const passRatioRank = getPassRatioRank(
-      "cv0" + sid.toString(),
-      studentNumber.toString()
-    );
+    const testLifeTimeRank = getTestLifeTimeRank(cv, studentNumber.toString());
+    const testNumRank = getTestNumRank(cv, studentNumber.toString());
+    const passRatioRank = getPassRatioRank(cv, studentNumber.toString());
     const result = htmlData
       .replace(dataReplacePattern, data)
       .replace(endTimeReplacePattern, EndTime.toString())
@@ -136,7 +129,7 @@ function editGraphHTML(): void {
       )
       .replace(
         testLifeTimeRankPattern,
-        testLifeTimeRank[1] + "人中" + testFirstProcessRank[0] + "位"
+        testLifeTimeRank[1] + "人中" + testLifeTimeRank[0] + "位"
       )
       .replace(
         testNumRankPattern,
@@ -145,7 +138,10 @@ function editGraphHTML(): void {
       .replace(
         passRatioRankPattern,
         passRatioRank[1] + "人中" + passRatioRank[0] + "位"
-      );
+      )
+      .replace(testNumBestPattern, testNumBestPath)
+      .replace(testFirstProcessBestPattern, testFirstBestPath)
+      .replace(passRatioBestPattern, passRatioBestPath);
     fs.writeFileSync(htmlPath, result, "utf-8");
   }
 }

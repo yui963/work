@@ -13,13 +13,7 @@
           drawTable();
           drawTimelineForTestInfo();
           drawTimelinesForTestFirst();
-          drawChartForNumBest();
-          drawTimelineForTestFirstBest();
-          drawChartForRatioBest();
         });
-      function drawChartForNumBest(){}
-      function drawTimelineForTestFirstBest(){}
-      function drawChartForRatioBest(){}
       function drawChartForNum() {
         var data = new google.visualization.DataTable();
         data.addColumn('number', '経過時間(分)');
@@ -56,9 +50,7 @@
         };
 
         var chart = new google.visualization.LineChart(document.getElementById('linechart_num'));
-        var chart2 = new google.visualization.LineChart(document.getElementById('linechart_num2'));
         chart.draw(data, options);
-        chart2.draw(data,options);
       }
       function drawChartForRatio() {
           var data = new google.visualization.DataTable();
@@ -134,9 +126,7 @@
       }
       function drawTimelinesForTestFirst(){
         var container = document.getElementById('timeline-testFirst');
-        var container2 = document.getElementById('timeline-testFirst2');
         var chart = new google.visualization.Timeline(container);
-        var chart2 = new google.visualization.Timeline(container2);
         var dataTable = new google.visualization.DataTable();
         dataTable.addColumn({ type: 'string', id: 'File' });
         dataTable.addColumn({ type: 'string', id: 'Action' });
@@ -187,7 +177,6 @@
             },
           };
         chart.draw(dataTable,options);
-        chart2.draw(dataTable,options);
       }
     </script>
     <style>
@@ -346,10 +335,11 @@
                 </div>
               </div>
               <div style="flex-direction: column">
-                <div id="linechart_num2"></div>
-                <div class="graph-title">
-                  図1b　時間経過に伴うテストケース数推移
-                </div>
+                <image
+                  src="##%%$$TESTNUMBESTPATH$$%%##"
+                  style="margin-top: 45px"
+                ></image>
+                <div class="graph-title">優秀な学習者のケース</div>
               </div>
             </div>
           </div>
@@ -384,11 +374,11 @@
                 </div>
               </div>
               <div style="flex-direction: column">
-                <div id="timeline-testFirst2"></div>
-                <div class="timeline-xLabel">経過時間(HH:mm)</div>
-                <div class="graph-title" style="margin-top: 10px">
-                  図2b　開発中のどの時間帯の作業がテストファーストを厳守できていたか
-                </div>
+                <image
+                  src="##%%$$TESTFIRSTBESTPATH$$%%##"
+                  style="margin-top: 10px"
+                ></image>
+                <div class="graph-title">優秀な学習者のケース</div>
               </div>
             </div>
           </div>
@@ -459,14 +449,25 @@
         </div>
         <div>
           <div class="box-content">
-            <div id="linechart_ratio"></div>
+            <div style="flex-direction: row; display: flex">
+              <div style="flex-direction: column">
+                <div id="linechart_ratio"></div>
+                <div class="graph-title">図3　テストケース全体の成功率推移</div>
+              </div>
+              <div style="flex-direction: column">
+                <image
+                  src="##%%$$PASSRATIOBESTPATH$$%%##"
+                  style="margin-top: 45px; margin-bottom: 5px"
+                ></image>
+                <div class="graph-title">優秀な学習者のケース</div>
+              </div>
+            </div>
           </div>
-          <div class="graph-title">図3　テストケース全体の成功率推移</div>
+          <p>
+            リグレッションテストの観点から、実装中の機能に関係しないテストが失敗している状態は良くありません。
+            テストを追加して成功させるというプロセスを繰り返して開発を進めるため、100%と90%前後を行き来していることが好ましいです。
+          </p>
         </div>
-        <p>
-          リグレッションテストの観点から、実装中の機能に関係しないテストが失敗している状態は良くありません。
-          テストを追加して成功させるというプロセスを繰り返して開発を進めるため、100%と90%前後を行き来していることが好ましいです。
-        </p>
       </div>
       <div class="box">
         <div class="rank">##%%$$TESTLIFETIMERANK$$%%##</div>

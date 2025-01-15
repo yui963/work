@@ -1,17 +1,13 @@
 import * as fs from "fs-extra";
 import { writeAvgPassRatioDifferent } from "./rankCalculator";
-interface JsonData {
-  sid: number;
-  num: number;
-  testNames: string[];
-}
 function savePassRatioPath(): void {
   const args = process.argv.slice(2);
   const studentNumber: number = Number(args[0]);
   const session: number = Number(args[1]);
   for (let sid = 1; sid <= session; sid++) {
+    const cv = sid < 10 ? "cv0" + sid.toString() : "cv" + sid.toString();
     const passRatioPath =
-      "./output/passRatio/" + studentNumber + "/cv0" + sid + "passRatio.txt";
+      "./output/passRatio/" + studentNumber + "/" + cv + "passRatio.txt";
     if (!fs.existsSync(passRatioPath)) {
       console.log(`not exist ${passRatioPath}`);
       continue;
@@ -37,7 +33,7 @@ function savePassRatioPath(): void {
     );
     writeAvgPassRatioDifferent(
       studentNumber.toString(),
-      "cv0" + sid.toString(),
+      cv,
       avgPassRatioDifferentNum
     );
   }
