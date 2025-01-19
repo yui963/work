@@ -386,7 +386,31 @@ async function convertGoogleTimeChartData(
       if (flag == "1" && isProductCode(event.filePath)) {
         if (event.eventName.toString() == "onDidChangeTextDocument") {
           flag = "2";
-          const targetLength = testInfoList.length;
+          // const targetLength = testInfoList.length;
+          //testInfoListがテスト実行時にしか更新されていないためwsから取得した情報と差がある
+          //testInfoByDateから取得したサイズを用いるようにする
+          if (!(jsonDate instanceof Date)) {
+            jsonDate = new Date(jsonDate);
+          }
+          while (new Date(event.datetime).getTime() > jsonDate.getTime()) {
+            const index = sessionData.findIndex(
+              (entry: { date: Date }) => entry.date == jsonDate
+            );
+
+            if (index != -1 && index + 1 <= sessionData.length) {
+              jsonDate = sessionData[index + 1].date;
+            } else {
+              console.log("json index error: ");
+              break;
+            }
+          }
+          const findItem = sessionData.find(
+            (item: TestInfoByDate) => item.date == jsonDate
+          );
+          if (!findItem) {
+            console.error(`No data found data ${jsonDate}`);
+          }
+          const targetLength = findItem?.testNames.length ?? 0;
           if (!(lastTestNum < targetLength)) {
             //テスト実行後、テストの内容編集
             if (isTestDo) {

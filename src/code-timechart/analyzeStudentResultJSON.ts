@@ -4,13 +4,11 @@ function main(): void {
   const jsonPath = "./output/studentResult.json";
   const studentResults = fs.readFileSync(jsonPath);
   const parse = JSON.parse(studentResults.toString());
-  console.log(parse);
   const sid: string = process.argv[2];
 
   const sessionResult: SessionResult = parse.find(
     (item: SessionResult) => item.sid == sid
   );
-  console.log(sessionResult.sessionResults);
   getBestRank(sessionResult.sessionResults);
   return;
 }

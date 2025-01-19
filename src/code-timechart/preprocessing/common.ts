@@ -1,13 +1,13 @@
-import * as fs from 'fs-extra';
-import * as path from 'path';
+import * as fs from "fs-extra";
+import * as path from "path";
 
 export async function isFileExists(filePath: string): Promise<boolean> {
-	try {
-		await fs.access(filePath);
-		return true;
-	} catch (error) {
-		return false;
-	}
+  try {
+    await fs.access(filePath);
+    return true;
+  } catch (error) {
+    return false;
+  }
 }
 
 /**
@@ -15,18 +15,20 @@ export async function isFileExists(filePath: string): Promise<boolean> {
  * @param {string} parentDirectory - 対象ディレクトリのパス。
  * @returns {string[]} - ディレクトリ名のリスト。
  */
-export async function getSubdirectories(parentDirectory: string): Promise<string[]> {
-	try {
-		const entries = await fs.readdir(parentDirectory, { withFileTypes: true });
-		const subdirectories = entries
-			.filter(entry => entry.isDirectory())
-			.filter(entry => !entry.name.startsWith('._'))
-			.map(entry => entry.name);
-		return subdirectories;
-	} catch (error: any) {
-		console.log(`Error: getSubdirectories(): ${error.message}`);
-		return [];
-	}
+export async function getSubdirectories(
+  parentDirectory: string
+): Promise<string[]> {
+  try {
+    const entries = await fs.readdir(parentDirectory, { withFileTypes: true });
+    const subdirectories = entries
+      .filter((entry) => entry.isDirectory())
+      .filter((entry) => !entry.name.startsWith("._"))
+      .map((entry) => entry.name);
+    return subdirectories;
+  } catch (error: any) {
+    console.log(`Error: getSubdirectories(): ${error.message}`);
+    return [];
+  }
 }
 
 /**
@@ -35,17 +37,17 @@ export async function getSubdirectories(parentDirectory: string): Promise<string
  * @returns {string[]} - ディレクトリ名のリスト。
  */
 export async function getSubFiles(parentDirectory: string): Promise<string[]> {
-	try {
-		const entries = await fs.readdir(parentDirectory, { withFileTypes: true });
-		const subdirectories = entries
-			.filter(entory => entory.isFile())
-			.filter(entry => !entry.name.startsWith('._'))
-			.map(entry => entry.name);
-		return subdirectories;
-	} catch (error: any) {
-		console.log(`Error: getSubFiles(): ${error.message}`);
-		return [];
-	}
+  try {
+    const entries = await fs.readdir(parentDirectory, { withFileTypes: true });
+    const subdirectories = entries
+      .filter((entory) => entory.isFile())
+      .filter((entry) => !entry.name.startsWith("._"))
+      .map((entry) => entry.name);
+    return subdirectories;
+  } catch (error: any) {
+    console.log(`Error: getSubFiles(): ${error.message}`);
+    return [];
+  }
 }
 
 /**
@@ -53,17 +55,19 @@ export async function getSubFiles(parentDirectory: string): Promise<string[]> {
  * @param {string} parentDirectory - 対象ディレクトリのパス。
  * @returns {string[]} - ディレクトリ名のリスト。
  */
-export async function getSubEntries(parentDirectory: string): Promise<string[]> {
-	try {
-		const entries = await fs.readdir(parentDirectory, { withFileTypes: true });
-		const subdirectories = entries
-			.filter(entry => !entry.name.startsWith('._'))
-			.map(entry => entry.name);
-		return subdirectories;
-	} catch (error: any) {
-		console.log(`Error: getSubEntries(): ${error.message}`);
-		return [];
-	}
+export async function getSubEntries(
+  parentDirectory: string
+): Promise<string[]> {
+  try {
+    const entries = await fs.readdir(parentDirectory, { withFileTypes: true });
+    const subdirectories = entries
+      .filter((entry) => !entry.name.startsWith("._"))
+      .map((entry) => entry.name);
+    return subdirectories;
+  } catch (error: any) {
+    console.log(`Error: getSubEntries(): ${error.message}`);
+    return [];
+  }
 }
 
 /**
@@ -71,16 +75,32 @@ export async function getSubEntries(parentDirectory: string): Promise<string[]> 
  * @param {string} parentDirectory - 対象ディレクトリのパス。
  * @returns {string[]} - ディレクトリ名のリスト。
  */
-export async function getSubZipFiles(parentDirectory: string): Promise<string[]> {
-	try {
-		const entries = (await fs.readdir(parentDirectory, { withFileTypes: true }));
-		const subdirectories = entries
-			.filter(entry => !entry.name.startsWith('._'))
-			.filter(entry => entry.name.endsWith('.zip'))
-			.map(entry => entry.name);
-		return subdirectories;
-	} catch (error: any) {
-		console.log(`Error: getSubZipFiles(): ${error.message}`);
-		return [];
-	}
+export async function getSubZipFiles(
+  parentDirectory: string
+): Promise<string[]> {
+  try {
+    const entries = await fs.readdir(parentDirectory, { withFileTypes: true });
+    const subdirectories = entries
+      .filter((entry) => !entry.name.startsWith("._"))
+      .filter((entry) => entry.name.endsWith(".zip"))
+      .map((entry) => entry.name);
+    return subdirectories;
+  } catch (error: any) {
+    console.log(`Error: getSubZipFiles(): ${error.message}`);
+    return [];
+  }
+}
+
+export async function getZipFiles(parentDirectory: string): Promise<string[]> {
+  try {
+    const entries = await fs.readdir(parentDirectory, { withFileTypes: true });
+    const zipFiles = entries
+      .filter((entry) => entry.isFile())
+      .filter((entry) => entry.name.endsWith(".zip"))
+      .map((entry) => entry.name.replace(/\.zip$/, ""));
+    return zipFiles;
+  } catch (error: any) {
+    console.log(`Error: getZipFiles(): ${error.message}`);
+    return [];
+  }
 }

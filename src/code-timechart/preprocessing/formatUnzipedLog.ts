@@ -10,11 +10,13 @@ import AdmZip from "adm-zip";
 import { join } from "path";
 
 import { KokokonoLabsLogFormatter } from "./constants";
-import { getSubZipFiles, getSubdirectories } from "./common";
+import { getSubZipFiles, getSubdirectories, getZipFiles } from "./common";
+import { fileURLToPath } from "url";
 
 // ストレージと対象学籍番号をリストしたテキストファイルを指定
 const DEST_STRAGE: string = "G:";
-const FOLDERS_NAME: string = KokokonoLabsLogFormatter.FOLDERS + "All" + ".txt";
+// const FOLDERS_NAME: string = KokokonoLabsLogFormatter.FOLDERS + "All" + ".txt";
+const FOLDERS_NAME: string = KokokonoLabsLogFormatter.FOLDERS + "RE" + ".txt";
 // 提出パス
 // const drivePath: string = join(KokokonoLabsLogFormatter.VOLUMES, STRAGE); // Mac
 const drivePath: string = join(DEST_STRAGE); // Win
@@ -237,7 +239,7 @@ async function formatOneProject(
 
   // ws-history から{timestamp}/に workspace/をコピー
   await fs.ensureDir(wsHistoryOutPath);
-  await getSubdirectories(wsHistoryInPath).then(async (miniCV: string[]) => {
+  await getZipFiles(wsHistoryInPath).then(async (miniCV: string[]) => {
     const condition = (item: string) => item !== `.DS_Store`;
     const filteredData = miniCV.filter(condition);
     await unzipFileOrCopyDirOnList(
