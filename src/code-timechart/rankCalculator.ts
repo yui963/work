@@ -1,5 +1,4 @@
 import * as fs from "fs-extra";
-import test from "node:test";
 export interface SessionResult {
   sid: string;
   sessionResults: StudentResult[];
