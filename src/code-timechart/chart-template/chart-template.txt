@@ -4,75 +4,33 @@
 -->
 <html>
   <head>
-    <script
-      type="text/javascript"
-      src="https://www.gstatic.com/charts/loader.js"
-    ></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
     <script type="text/javascript">
       google.charts.load("current", {packages:["timeline"]});
       google.charts.setOnLoadCallback(drawChart);
       function drawChart() {
+    
         var container = document.getElementById('graph');
         var chart = new google.visualization.Timeline(container);
         var dataTable = new google.visualization.DataTable();
         dataTable.addColumn({ type: 'string', id: 'File' });
         dataTable.addColumn({ type: 'string', id: 'Action' });
-        dataTable.addColumn({ type: 'string', id: 'style', role:'style' });
         dataTable.addColumn({ type: 'number', id: 'Start' });
         dataTable.addColumn({ type: 'number', id: 'End' });
-
-        var data = ##%%$$DATA$$%%##;
-        var durations = ##%%$$DURATION$$%%##;
-        var oneToZero = ##%%$$ONETOZERO$$%%##;
-        var twoToZero = ##%%$$TWOTOZERO$$%%##;
-        var label = ['#SUMMARY|TEST','#SUMMARY|MAIN','testFirstDuration'];
-        var filteredData = data.filter((row) => label.some((l) => row[0].indexOf(l) != -1))
-            .map((row) => {
-              let color;
-              const start = row[2];
-              const isWithinDuration = durations.some(([dStart, dEnd]) => {
-                return start >= dStart && start <= dEnd;
-              });
-              const isEndDuration = durations[durations.length-1][1] < start;
-              const isInOneToZero = oneToZero.some(([dStart, dEnd]) => {
-                return start >= dStart && start <= dEnd;
-              });
-              const isInTwoToZero = twoToZero.some(([dStart, dEnd]) => {
-                return start >= dStart && start <= dEnd;
-              });
-              if(isWithinDuration){
-                color = "#4169e1";
-              }else if(isInOneToZero){
-                color = "#ffa500";
-              }else if(isInTwoToZero){
-                color = "#ffc0cb";
-              }else if(isEndDuration){
-                color = "4169e1";
-              }else{
-                color = "#ff0000";
-              }
-              return [row[0], row[1], color ,row[2], row[3]];
-            });
-        filteredData.map((row)=>{console.log(row)});
         dataTable.addRows(
-          filteredData
+          ##%%$$DATA$$%%##
         );
-
+        
         const options = {
-          width: "auto",
-          height: 500,
-           hAxis: {
-            minValue: 0
-          },
           // timeline: { groupByRowLabel: false }
         };
-        chart.draw(dataTable);
+        chart.draw(dataTable, options);
       }
     </script>
-  </head>
+</head>
   <body>
     <h1>##%%$$HEADER$$%%##</h1>
-    <div id="graph" style="height: 1200px; overflow: auto"></div>
+    <div id="graph" style="height: 1200px;overflow:auto"></div>
   </body>
 </html>

@@ -691,8 +691,12 @@ export async function createGoogleTimeChart(
     );
     const chartData: String = result.convertResult;
     // const template = await fs.readFile(templatePath);
-    // let chartHTML = template.toString().replace(dataReplacePattern, chartData.toString());
-    // chartHTML = chartHTML.replace(heaerReplacePattern, header);
+    // let chartHTML = template
+    //   .toString()
+    //   .replace(dataReplacePattern, chartData.toString());
+    // chartHTML = chartHTML.replace(headerReplacePattern, header);
+    // fs.ensureFileSync(chartFilePath);
+    // fs.writeFile(chartFilePath, chartHTML);
     const testFirstDurationList: [number, number][] =
       result.testFirstDurationList;
     const oneToZeroDurationList: [number, number][] =
@@ -708,7 +712,7 @@ export async function createGoogleTimeChart(
       .replace(durationPattern, JSON.stringify(testFirstDurationList))
       .replace(oneToZeroPattern, JSON.stringify(oneToZeroDurationList))
       .replace(twoToZeroPattern, JSON.stringify(twoToZeroDurationList));
-    //コメントアウトした箇所と上記の処理を入れ替えれば、元プログラムのように各イベントの概要を出力する。
+    // コメントアウトした箇所と上記の処理を入れ替えれば、元プログラムのように各イベントの概要を出力する。
     fs.ensureFileSync(chartFilePath);
     fs.writeFile(graph_templatePath, chartHTML);
   } catch (error: any) {
