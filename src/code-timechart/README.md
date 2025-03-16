@@ -16,24 +16,53 @@ For a full description of the module, visit the
 These scripts are categorized the following four components.
 
 ### analyzeStateInfo.ts
+
 Analyzing the learners' states in their coding activities based on the collected data from kokokonolabs-logger vscode extensions.
+
 - Input: ./data/...
 - Configuratino: dataInfo.ts
 - Output: ./output/stateInfoList.json
 
 ### createGoogleTimeChart.ts
-Generate time chart graph by using Google Time-Line chart libraries. 
-- Input: ./output/stateInfoList.json
-- Output: ./output/chart/...
+
+Generate time chart graph by using Google Time-Line chart libraries.
+
+- Input:
+  ./output/stateInfoList.json
+  ./output/testInfoByDate/<student_number>testInfoByDate.json(New)
+- Output:
+  ./output/chart/...
+  ./output/passRatio/<student_number>/<session_id>passRatio.txt(New)
+  ./output/graph/...(New)
+  ./output/failedTestLifeTime/<student_number>/<session_id>failedTestLifeTime.txt(New)
+  ./output/failedTestLifeTime/<student_number>/<session_id>timeline.txt(New)
+  ./output/studentResult.json(New)
 
 ### calcIndicator.ts
+
 It generates HTML file with time-chart graph which shows learner's coding activities in each session.
+
 - Input: ./output/stateInfoList.json
 - Output: ./output/csv/AllIndicators.csv
 
 ### indicators.ipynb
+
 Is analyzes indicators of learners' coding activities.
+
 - Input: ./output/csv/AllIndicators.csv
+
+### searchTest.ts (New)
+
+Get the number of tests from the workspace.
+
+- Input:
+  G:unzips/<student_number>/<session_id>/~/ws-history/...
+  ./chart-template/graph-template.txt
+  ./miniCV00forStudent2024/src/test/java/lang/...
+
+- Output:
+  ./output/graph/...
+  ./output/testInfoByDate/<student_number>testInfoByDate.json
 
 ## Usage
 
@@ -57,6 +86,19 @@ The script create time chart graph HTML files based on analyzed data (./output/s
 It uses Google Time-Line chart libraries (https://developers.google.com/chart/interactive/docs/gallery/timeline).
 It saves create chart graph HTML files into ./output/chart directory.
 
+(New)
+The script generates time chart graph files based on analyzed data (./output/stateInfoList.json).
+It originally used Google Timeline Chart libraries (https://developers.google.com/chart/interactive/docs/gallery/timeline) to generate HTML files,
+but this functionality has been commented out.
+Instead, the script now outputs a .txt file formatted based on a predefined template for later conversion into an HTML chart (./output/graph/...).
+During the analysis of stateInfoList.json, when test events are loaded, the success or failure status of each test and the failure duration are updated in an array.
+At that point, the test success rate is recorded in:
+
+./output/passRatio/<student_number>/<session_id>passRatio.txt
+
+Furthermore, based on the order of the loaded events, different activity patterns are classified, and their respective time periods are written to a .txt file.
+//failedTestLifeTime と timeline と studentResult.json の話を加える
+
 ### calcIndicator.ts
 
 Besides indicators on analyzed data, you can execute "calcIndicator.ts" as follows.
@@ -68,6 +110,17 @@ It calculate some indicators from analyzed data. It saves these indicators into 
 
 To overview the indicators, you opens "indicators.ipynb" in Jupyter Notebook.
 It is a sample code for visualize the indicators from "./output/csv/AllIndicators.csv"
+
+### searchTest.ts (New)
+
+To analyze test files and extract information about test methods, execute the following command:
+
+> ts-node ./searchTest.ts <student_number> <session_id>
+
+This script searches for test method annotations (@Test) in Java test files within the workspace.
+It extracts the test method names along with their corresponding file names and timestamps, then stores this information in JSON format
+(.output/testInfoByDate).
+It saves create chart graph txt files into ./output/graph directory.
 
 ## Configuration
 
@@ -96,3 +149,4 @@ Leaners' coding activity data collected by kokokonolabs-logger vscode extension 
 ## Maintainers (optional)
 
 - Yasuhiro Noguchi (https://bitbucket.org/yasuhironoguchi/)
+- Yuito Yamamoto (https://bitbucket.org/yuito-yamamoto/)
