@@ -555,6 +555,46 @@ async function convertGoogleTimeChartData(
     twoToZeroDurationList,
   };
 }
+async function getSpecificChartData(
+  chartData: String
+): Promise<(string | number)[][]> {
+  const targetName = [
+    "#SUMMARY|TEST|READING",
+    "#SUMMARY|TEST|EDITTING",
+    "#SUMMARY|TEST|DO_TEST",
+    "#SUMMARY|MAIN|READING",
+    "#SUMMARY|MAIN|EDITTING",
+    // "テストファーストができている時間",
+  ];
+
+  const parseData: [string, string, number, number][] = JSON.parse(
+    chartData
+      .replace(/\n/g, "")
+      .replace(/\s+/g, " ")
+      .replace(/'/g, '"')
+      .toString()
+  );
+  const filteredData = parseData.filter((line) => targetName.includes(line[0]));
+  const result = filteredData.map((line) => {
+    //labelの書き換えをここで行う。
+    if (line[0] == targetName[0]) {
+      return ["TestCode | Reading", "", line[2], line[3]];
+    } else if (line[0] == targetName[1]) {
+      return ["TestCode | Editing", "", line[2], line[3]];
+    } else if (line[0] == targetName[2]) {
+      return ["TestCode | Do", "", line[2], line[3]];
+    } else if (line[0] == targetName[3]) {
+      return ["ProductCode | Reading", "", line[2], line[3]];
+    } else if (line[0] == targetName[4]) {
+      return ["ProductCode | Editing", "", line[2], line[3]];
+    } else if (line[0] == targetName[5]) {
+      return [line[0], "", line[2], line[3]];
+    } else {
+      throw new Error(`Invalid line[0] value: ${line[0]}`);
+    }
+  });
+  return result;
+}
 /**
  * convert GTimeChartDate[] to Code String as Data in JavaScript Code
  *
@@ -650,22 +690,15 @@ export async function createGoogleTimeChart(
       session
     );
     const chartData: String = result.convertResult;
+    // const template = await fs.readFile(templatePath);
+    // let chartHTML = template.toString().replace(dataReplacePattern, chartData.toString());
+    // chartHTML = chartHTML.replace(heaerReplacePattern, header);
     const testFirstDurationList: [number, number][] =
       result.testFirstDurationList;
     const oneToZeroDurationList: [number, number][] =
       result.oneToZeroDurationList;
     const twoToZeroDurationList: [number, number][] =
       result.twoToZeroDurationList;
-    // const template = await fs.readFile(templatePath);
-    // let chartHTML = template
-    //   .toString()
-    //   .replace(dataReplacePattern, chartData.toString())
-    //   .replace(headerReplacePattern, header)
-    //   .replace(durationPattern, JSON.stringify(testFirstDurationList))
-    //   .replace(oneToZeroPattern, JSON.stringify(oneToZeroDurationList))
-    //   .replace(twoToZeroPattern, JSON.stringify(twoToZeroDurationList));
-    // fs.ensureFileSync(chartFilePath);
-    // fs.writeFile(chartFilePath, chartHTML);
     const graph_templatePath = `./output/graph/${id}/graph_${id}_${session}.txt`;
     const template = await fs.readFile(graph_templatePath);
     const specificData = await getSpecificChartData(chartData);
@@ -675,49 +708,10 @@ export async function createGoogleTimeChart(
       .replace(durationPattern, JSON.stringify(testFirstDurationList))
       .replace(oneToZeroPattern, JSON.stringify(oneToZeroDurationList))
       .replace(twoToZeroPattern, JSON.stringify(twoToZeroDurationList));
+    //コメントアウトした箇所と上記の処理を入れ替えれば、元プログラムのように各イベントの概要を出力する。
     fs.ensureFileSync(chartFilePath);
     fs.writeFile(graph_templatePath, chartHTML);
   } catch (error: any) {
     console.error(`Error: createGoogleTimeChart(): ${error.message}`);
   }
-}
-async function getSpecificChartData(
-  chartData: String
-): Promise<(string | number)[][]> {
-  const targetName = [
-    "#SUMMARY|TEST|READING",
-    "#SUMMARY|TEST|EDITTING",
-    "#SUMMARY|TEST|DO_TEST",
-    "#SUMMARY|MAIN|READING",
-    "#SUMMARY|MAIN|EDITTING",
-    // "テストファーストができている時間",
-  ];
-
-  const parseData: [string, string, number, number][] = JSON.parse(
-    chartData
-      .replace(/\n/g, "")
-      .replace(/\s+/g, " ")
-      .replace(/'/g, '"')
-      .toString()
-  );
-  const filteredData = parseData.filter((line) => targetName.includes(line[0]));
-  const result = filteredData.map((line) => {
-    //labelの書き換えをここで行う。
-    if (line[0] == targetName[0]) {
-      return ["TestCode | Reading", "", line[2], line[3]];
-    } else if (line[0] == targetName[1]) {
-      return ["TestCode | Editing", "", line[2], line[3]];
-    } else if (line[0] == targetName[2]) {
-      return ["TestCode | Do", "", line[2], line[3]];
-    } else if (line[0] == targetName[3]) {
-      return ["ProductCode | Reading", "", line[2], line[3]];
-    } else if (line[0] == targetName[4]) {
-      return ["ProductCode | Editing", "", line[2], line[3]];
-    } else if (line[0] == targetName[5]) {
-      return [line[0], "", line[2], line[3]];
-    } else {
-      throw new Error(`Invalid line[0] value: ${line[0]}`);
-    }
-  });
-  return result;
 }
