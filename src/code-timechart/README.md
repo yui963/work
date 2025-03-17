@@ -64,6 +64,20 @@ Get the number of tests from the workspace.
   ./output/graph/...
   ./output/testInfoByDate/<student_number>testInfoByDate.json
 
+###savePassRatio.ts (New)
+
+- Input: ./output/passRatio/<student_number>/<session_id>passRatio.txt
+- Output: ./output/studentResult.json
+
+###editGraphHTML.ts (New)
+
+- Input:
+  ./output/graph/<student_number>/graph-<student_number>-<session_id>.txt
+  ./output/graph/passRatio/<student_number>/<session_id>passRatio.txt
+  ./output/failedTestLifeTime/<student_number>/<session_id>failedTestLifeTime.json
+  ./output/failedTestLifeTime/<student_number>/<session_id>timeline.txt
+- Output: ./output/graph/<student_number>/graph-<student_number>-<session_id>.html
+
 ## Usage
 
 ### analyzeStateInfo.ts
@@ -97,7 +111,7 @@ At that point, the test success rate is recorded in:
 ./output/passRatio/<student_number>/<session_id>passRatio.txt
 
 Furthermore, based on the order of the loaded events, different activity patterns are classified, and their respective time periods are written to a .txt file.
-//failedTestLifeTime と timeline と studentResult.json の話を加える
+It saves time data left as failure into ./output/failedTestLifeTime, and it saves data used to rank into ./output/studentResult.json.
 
 ### calcIndicator.ts
 
@@ -121,6 +135,19 @@ This script searches for test method annotations (@Test) in Java test files with
 It extracts the test method names along with their corresponding file names and timestamps, then stores this information in JSON format
 (.output/testInfoByDate).
 It saves create chart graph txt files into ./output/graph directory.
+
+###savePassRatio.ts (New)
+Read the test success rate (<session_id>passRatio.txt) over time of the exercise,
+find the difference from the ideal model, and save the average in studentResult.json.
+
+> ts-node ./savePassRatio.ts <student_number> <session_id>
+
+###editGraphHTML.ts (New)
+Overwrite the GoogleTimeChart in txt format with the test success rate over time for the exercise and its ideal model,
+the test abandonment time (name + max abandonment time, timeline data),
+and the ranking of each visualization item, and output as final html.
+
+> ts-node ./editGraphHTML <student_number> <session_id>
 
 ## Configuration
 
